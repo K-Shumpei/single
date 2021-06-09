@@ -911,3 +911,31 @@ function battle_poke_num(team){
         }
     }
 }
+
+// コマンドタイム
+function start_action_timer(){
+    action_timer = setInterval(function() {
+        let val = document.battle.A_move.value
+        let now = Number(document.getElementById("action_time").textContent)
+        document.getElementById("action_time").textContent = now - 1
+        if (now - 1 == 0){
+            stop_action_timer()
+            document.getElementById("action_time").textContent = 45
+            if (document.battle.A_move.value != ""){
+                socketio.emit("choose poke", val)
+            } else {
+                for (let i = 0; i < 4; i++){
+                    if (document.getElementById("A_radio_" + String(3 - i)).disabled){
+                        document.getElementById("A_radio_" + Number(3 - i)).checked = true
+                    }
+                }
+                socketio.emit("choose poke", val)
+            }
+
+        }
+    }, 1000)
+}
+
+function stop_action_timer(){
+    clearInterval(action_timer)
+}
