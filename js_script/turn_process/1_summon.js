@@ -312,9 +312,9 @@ function condition_ability_item_action(team, enemy){
             D_AV = Math.floor((new get(enemy).D_AV * 2) / (2 - new get(enemy).D_rank))
         }
         if (B_AV >= D_AV){
-            rank_change_not_status(team, "A", 1, 100, "ダウンロード")
-        } else {
             rank_change_not_status(team, "C", 1, 100, "ダウンロード")
+        } else {
+            rank_change_not_status(team, "A", 1, 100, "ダウンロード")
         }
     } else if (new get(team).ability == "デルタストリーム" && !new get(team).f_con.includes("らんきりゅう")){
         txt = team + "チームの　" + new get(team).name + "の　デルタストリーム！" + CR

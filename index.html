@@ -220,37 +220,37 @@
               document.write("<table align='center' height='100'>")
                   for (let i = 0; i < 6; i++){
                       document.write("<td><table border='1'>")
-                      document.write("<tr align='center'><td colspan='2'><span id='"+i+"_name'>ウインディ</span>")
-                      document.write("<span id='"+i+"_sex'> ♂ </span>")
+                      document.write("<tr align='center'><td colspan='2'><span id='"+i+"_name'></span>")
+                      document.write("<span id='"+i+"_sex'></span>")
                       document.write("Lv.<span id='"+i+"_level'>50</span></td></tr>")
-                      document.write("<tr align='center'><td colspan='2'><span id='"+i+"_type'>ほのお</span></td></tr>")
-                      document.write("<tr><td colspan='2'>性格：<span id='"+i+"_nature'>いじっぱり</span></td></tr>")
-                      document.write("<tr><td colspan='2'>特性：<span id='"+i+"_ability'>いかく</span></td></tr>")
-                      document.write("<tr><td colspan='2'>持ち物：<span id='"+i+"_item'>とつげきチョッキ</span></td></tr>")
-                      document.write("<tr align='center'><td colspan='2'>HP <span id='"+i+"_last_HP'>197</span>/<span id='"+i+"_full_HP'>197</span></td></tr>")
+                      document.write("<tr align='center'><td colspan='2'><span id='"+i+"_type'></span></td></tr>")
+                      document.write("<tr><td colspan='2'>性格：<span id='"+i+"_nature'></span></td></tr>")
+                      document.write("<tr><td colspan='2'>特性：<span id='"+i+"_ability'></span></td></tr>")
+                      document.write("<tr><td colspan='2'>持ち物：<span id='"+i+"_item'></span></td></tr>")
+                      document.write("<tr align='center'><td colspan='2'>HP <span id='"+i+"_last_HP'></span>/<span id='"+i+"_full_HP'></span></td></tr>")
                       document.write("<tr align='center'><td colspan='2'>")
                       for (const parameter of ["A_AV", "B_AV", "C_AV", "D_AV", "S_AV"]){
-                          document.write("<span id='"+i+"_"+parameter+"'>100</span>")
+                          document.write("<span id='"+i+"_"+parameter+"'></span>")
                           if (parameter != "S_AV"){
                               document.write("-")
                           }
                       }
                       document.write("</td></tr>")
                       for (let j = 0; j < 4; j++){
-                          document.write("<tr><td><span id='"+i+"_move_"+j+"'>ひのこ</span></td>")
-                          document.write("<td width='50' align='right'><span id='"+i+"_last_"+j+"'>40</span>/<span id='"+i+"_PP_"+j+"'>40</span></td></tr>")
+                          document.write("<tr><td><span id='"+i+"_move_"+j+"'></span></td>")
+                          document.write("<td width='50' align='right'><span id='"+i+"_last_"+j+"'></span>/<span id='"+i+"_PP_"+j+"'></span></td></tr>")
                       }
                       document.write("</td></tr>")
                       document.write("<tr align='center'><td colspan='2'>個：")
                       for (const parameter of ["H_IV", "A_IV", "B_IV", "C_IV", "D_IV", "S_IV"]){
-                          document.write("<span id='"+i+"_"+parameter+"'>31</span>")
+                          document.write("<span id='"+i+"_"+parameter+"'></span>")
                           if (parameter != "S_IV"){
                               document.write("-")
                           }
                       }
                       document.write("<br>努：")
                       for (const parameter of ["H_EV", "A_EV", "B_EV", "C_EV", "D_EV", "S_EV"]){
-                          document.write("<span id='"+i+"_"+parameter+"'>0</span>")
+                          document.write("<span id='"+i+"_"+parameter+"'></span>")
                           if (parameter != "S_EV"){
                               document.write("-")
                           }
