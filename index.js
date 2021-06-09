@@ -29,6 +29,7 @@ $(function () {
     socketio.on("find enemy", function() {
         document.getElementById("headline").textContent = "対戦相手を探しています"
         document.getElementById("register").style.display = "none"
+        document.getElementById("trainer_name").style.display = "none"
     })
 
     // 対戦相手が見つかり、選出するポケモンを選ぶ
@@ -36,6 +37,7 @@ $(function () {
         document.getElementById("headline").textContent = "選出するポケモンを選んでください"
         document.getElementById("register").style.display = "none"
         document.getElementById("select").style.display = "block"
+        document.getElementById("trainer_name").style.display = "none"
         // 名前の設定
         document.getElementById("myName").textContent = data["user" + me].name
         document.getElementById("yourName").textContent = data["user" + you].name

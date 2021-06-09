@@ -478,6 +478,16 @@ function set_pokemon(){
             }
         }
     }
+
+    let check = 0
+    for (let i = 0; i < 6; i++){
+        if (document.getElementById(i + "_name").textContent){
+            check += 1
+        }
+    }
+    if (check == 6){
+        document.getElementById("trainer_name").style.display = "block"
+    }
 }
 
 // 初めのポケモンを場に出す

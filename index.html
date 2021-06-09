@@ -32,10 +32,6 @@
     <h1 id="headline">チームを登録しよう</h1>
 
     <div id="register">
-    <form id="team_set" action="">
-        <input id="my_name" autocomplete="off" placeholder="トレーナーネームを入力"><button>対戦相手を探す</button>
-    </form>
-    <ul id="messages"></ul>
 
       <form name="poke_name" id="poke_name_id">
           なまえ：<input name="poke_name" type="text" list="poke_name" value="" size="30" autocomplete="off" onchange="set_ID(), AV_calc()">
@@ -267,6 +263,12 @@
 
     </div>
 
+    <div id="trainer_name">
+        <form id="team_set" action="">
+            <input id="my_name" autocomplete="off" placeholder="トレーナーネームを入力" maxlength="10"><button>対戦相手を探す</button>
+        </form>
+    </div>
+
     <div id="battle_table">
         <hr>
 
@@ -484,6 +486,7 @@
     </div>
 
     <script>
+        document.getElementById("trainer_name").style.display = "none"
         document.getElementById("select").style.display = "none"
         document.getElementById("B_team_0").style.display = "none"
         document.getElementById("B_team_1").style.display = "none"
