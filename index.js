@@ -142,6 +142,9 @@ $(function () {
 
     $("#battle_table").submit(function() {
         let val = document.battle.A_move.value
+        if (new get("A").p_con.includes("溜め技")){
+            val = 0
+        }
         if (new get("A").f_con.includes("選択中・・・")){
             socketio.emit("choose poke", val)
         } else {
@@ -171,8 +174,8 @@ $(function () {
         }
 
         // バトル実行
-        run_battle()
         button_validation()
+        run_battle()
 
         // 自分に選択中のメモがあれば決定ボタンを有効にし、洗濯中であることをサーバーに送信
         if (new get("A").f_con.includes("選択中・・・")){
@@ -197,8 +200,8 @@ $(function () {
         if (val > 3){
             document.getElementById("B_" + Number(val - 4) + "_button").checked = true
         }
-        choose_poke()
         button_validation()
+        choose_poke()
     })
 
     // 相手の接続が切れた時

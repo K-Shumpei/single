@@ -245,7 +245,7 @@ function struggle_check(order){
         choice.push(move_sign.length + poke_sign.length)
         if (move_sign.length == 0){
             struggle.replace(team, "0")
-        } else if (move_sign.length + poke_sign.length > 0 && document.getElementById("battle")[team + "_move"].value == ""){
+        } else if (move_sign.length + poke_sign.length > 0 && document.getElementById("battle")[team + "_move"].value == "" && !new get(team).p_con.includes("溜め技")){
             alert(team + "チームは　行動を選択してください")
             sign += 1
         }
