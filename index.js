@@ -68,6 +68,7 @@ $(function () {
     // 自分が先に選出した
     socketio.on("waiting me", function() {
         document.getElementById("myName").textContent += "(選出完了)"
+        document.getElementById("battle_start_button").disabled = true
     })
     // 相手が先に選出した
     socketio.on("waiting you", function() {
@@ -138,6 +139,7 @@ $(function () {
             }
         }
         battle_start()
+        start_action_timer()
     })
 
     $("#battle_table").submit(function() {
@@ -165,6 +167,16 @@ $(function () {
         document.getElementById("battle_button").disabled = true
     })
 
+    // 相手が先に選択し、自分の選択待ちの時
+    socketio.on("wait my action", function(val) {
+        // 相手の選んだボタンにチェックをつける
+        if (val > 3){
+            document.getElementById("B_" + Number(val - 4) + "_button").checked = true
+        } else {
+            document.getElementById("B_radio_" + val).checked = true
+        }
+    })
+
     socketio.on("action decide", function(val) {
         // 相手の選んだボタンにチェックをつける
         if (val > 3){
@@ -174,6 +186,7 @@ $(function () {
         }
 
         // バトル実行
+        stop_action_timer()
         button_validation()
         run_battle()
 
@@ -194,6 +207,7 @@ $(function () {
             }
             socketio.emit("thinking", "no")
         }
+        start_action_timer()
     })
 
     socketio.on("summon poke", function(val) {
@@ -202,6 +216,7 @@ $(function () {
         }
         button_validation()
         choose_poke()
+        start_action_timer()
     })
 
     // 相手の接続が切れた時
@@ -210,5 +225,6 @@ $(function () {
         document.battle_log.battle_log.value += "相手の接続が切れました。"
         document.battle.battle_button.disabled = true
         document.battle.battle_start_button.disabled = true
+        stop_action_timer()
     })
 })

@@ -152,6 +152,7 @@ io.on("connection", function(socket){
             if (data[room].user2.command == "yet"){
                 data[room].user1.command = val
                 io.to(socket.id).emit("wait your action", {})
+                io.to(data[room].user2.id).emit("wait my action", val)
             } else {
                 // 相手が選んでいる時
                 io.to(data[room].user1.id).emit("action decide", data[room].user2.command)
@@ -162,6 +163,7 @@ io.on("connection", function(socket){
             if (data[room].user1.command == "yet"){
                 data[room].user2.command = val
                 io.to(socket.id).emit("wait your action", {})
+                io.to(data[room].user1.id).emit("wait my action", val)
             } else {
                 io.to(data[room].user1.id).emit("action decide", val)
                 io.to(data[room].user2.id).emit("action decide", data[room].user1.command)
