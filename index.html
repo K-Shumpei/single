@@ -2,30 +2,14 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <script src="js_script/class.js"></script>
+    <script src="html_js/class.js"></script>
 
-    <script src="js_script/poke_data.js"></script>
-    <script src="js_script/poke_move.js"></script>
-    <script src="js_script/poke_move_base.js"></script>
-    <script src="js_script/poke_ability.js"></script>
-    <script src="js_script/poke_item.js"></script>
-    <script src="js_script/display.js"></script>
-    <script src="js_script/damage_calc.js"></script>
-    <script src="js_script/compatibility.js"></script>
-    <script src="js_script/move_effect.js"></script>
-    <script src="js_script/ability_effect.js"></script>
-    <script src="js_script/item_effect.js"></script>
+    <script src="html_js/poke_ability.js"></script>
+    <script src="html_js/poke_data.js"></script>
+    <script src="html_js/poke_item.js"></script>
+    <script src="html_js/poke_move_base.js"></script>
 
-    <script src="js_script/turn_process/1_summon.js"></script>
-    <script src="js_script/turn_process/2_decide_order.js"></script>
-    <script src="js_script/turn_process/3_move_success.js"></script>
-    <script src="js_script/turn_process/4_move_effect.js"></script>
-    <script src="js_script/turn_process/4-1_status_move.js"></script>
-    <script src="js_script/turn_process/5_end_process.js"></script>
-
-    <script src="js_script/change_func.js"></script>
-
-    <script src="js_script/turn_process/main_process.js"></script>
+    <script src="html_js/display.js"></script>
   </head>
   
   <body>
@@ -215,120 +199,71 @@
         </form>
     </div>
 
-    <div id="myTeam">
-          <script type="text/javascript">
-              document.write("<table align='center' height='100'>")
-                  for (let i = 0; i < 6; i++){
-                      document.write("<td><table border='1'>")
-                      document.write("<tr align='center'><td colspan='2'><span id='"+i+"_name'></span>")
-                      document.write("<span id='"+i+"_sex'></span>")
-                      document.write("Lv.<span id='"+i+"_level'>50</span></td></tr>")
-                      document.write("<tr align='center'><td colspan='2'><span id='"+i+"_type'></span></td></tr>")
-                      document.write("<tr><td colspan='2'>性格：<span id='"+i+"_nature'></span></td></tr>")
-                      document.write("<tr><td colspan='2'>特性：<span id='"+i+"_ability'></span></td></tr>")
-                      document.write("<tr><td colspan='2'>持ち物：<span id='"+i+"_item'></span></td></tr>")
-                      document.write("<tr align='center'><td colspan='2'>HP <span id='"+i+"_last_HP'></span>/<span id='"+i+"_full_HP'></span></td></tr>")
-                      document.write("<tr align='center'><td colspan='2'>")
-                      for (const parameter of ["A_AV", "B_AV", "C_AV", "D_AV", "S_AV"]){
-                          document.write("<span id='"+i+"_"+parameter+"'></span>")
-                          if (parameter != "S_AV"){
-                              document.write("-")
-                          }
-                      }
-                      document.write("</td></tr>")
-                      for (let j = 0; j < 4; j++){
-                          document.write("<tr><td><span id='"+i+"_move_"+j+"'></span></td>")
-                          document.write("<td width='50' align='right'><span id='"+i+"_last_"+j+"'></span>/<span id='"+i+"_PP_"+j+"'></span></td></tr>")
-                      }
-                      document.write("</td></tr>")
-                      document.write("<tr align='center'><td colspan='2'>個：")
-                      for (const parameter of ["H_IV", "A_IV", "B_IV", "C_IV", "D_IV", "S_IV"]){
-                          document.write("<span id='"+i+"_"+parameter+"'></span>")
-                          if (parameter != "S_IV"){
-                              document.write("-")
-                          }
-                      }
-                      document.write("<br>努：")
-                      for (const parameter of ["H_EV", "A_EV", "B_EV", "C_EV", "D_EV", "S_EV"]){
-                          document.write("<span id='"+i+"_"+parameter+"'></span>")
-                          if (parameter != "S_EV"){
-                              document.write("-")
-                          }
-                      }
-
-                    document.write("</table></td>")
-                }
-              document.write("</tr></table>")
-          </script>
-
-    </div>
-
     <div id="trainer_name">
         <form id="team_set" action="">
             <input id="my_name" autocomplete="off" placeholder="トレーナーネームを入力" maxlength="10"><button>対戦相手を探す</button>
         </form>
     </div>
 
-    <div id="battle_table">
+
+
         <hr>
 
         <form name="battle" id="battle" border="1">
             <table align="center">
                 <tr><td>
-            <script type="text/javascript">
-                document.write("<table align='center' height='100'><tr>")
-                    for (const team of ["A", "B"]){
-                        for (let i = 0; i < 3; i++){
-                            document.write("<td><div id='"+team+"_team_"+i+"'><table border='1'>")
-                            document.write("<tr align='center'><td colspan='2'><span id='"+team+"_"+i+"_name'>ウインディ</span>")
-                            document.write("<span id='"+team+"_"+i+"_sex'> ♂ </span>")
-                            document.write("Lv.<span id='"+team+"_"+i+"_level'>50</span></td></tr>")
-                            document.write("<tr align='center'><td colspan='2'><span id='"+team+"_"+i+"_type'>ほのお</span></td></tr>")
-                            document.write("<tr><td colspan='2'>性格：<span id='"+team+"_"+i+"_nature'>いじっぱり</span></td></tr>")
-                            document.write("<tr><td colspan='2'>特性：<span id='"+team+"_"+i+"_ability'>いかく</span></td></tr>")
-                            document.write("<tr><td colspan='2'>持ち物：<span id='"+team+"_"+i+"_item'>とつげきチョッキ</span></td></tr>")
-                            document.write("<tr><td colspan='2'>状態異常：<span id='"+team+"_"+i+"_abnormal'></span></td></tr>")
-                            document.write("<tr align='center'><td colspan='2'>HP <span id='"+team+"_"+i+"_last_HP'>197</span>/<span id='"+team+"_"+i+"_full_HP'>197</span></td></tr>")
-                            document.write("<tr align='center'><td colspan='2'>")
-                            for (const parameter of ["A_AV", "B_AV", "C_AV", "D_AV", "S_AV"]){
-                                document.write("<span id='"+team+"_"+i+"_"+parameter+"'>100</span>")
-                                if (parameter != "S_AV"){
-                                    document.write("-")
-                                }
+                    <script type="text/javascript">
+                        document.write("<table align='center' height='100'>")
+                            for (let i = 0; i < 6; i++){
+                                  document.write("<td><div id='"+i+"_team'><table border='1'>")
+                                  document.write("<tr align='center'><td colspan='2'><span id='"+i+"_name'></span>")
+                                  document.write("<span id='"+i+"_sex'></span>")
+                                  document.write("Lv.<span id='"+i+"_level'>50</span></td></tr>")
+                                  document.write("<tr align='center'><td colspan='2'><span id='"+i+"_type'></span></td></tr>")
+                                  document.write("<tr><td colspan='2'>性格：<span id='"+i+"_nature'></span></td></tr>")
+                                  document.write("<tr><td colspan='2'>特性：<span id='"+i+"_ability'></span></td></tr>")
+                                  document.write("<tr><td colspan='2'>持ち物：<span id='"+i+"_item'></span></td></tr>")
+                                  document.write("<tr><td colspan='2'>状態異常：<span id='"+i+"_abnormal'></span></td></tr>")
+                                  document.write("<tr align='center'><td colspan='2'>HP <span id='"+i+"_last_HP'></span>/<span id='"+i+"_full_HP'></span></td></tr>")
+                                  document.write("<tr align='center'><td colspan='2'>")
+                                  for (const parameter of ["A_AV", "B_AV", "C_AV", "D_AV", "S_AV"]){
+                                      document.write("<span id='"+i+"_"+parameter+"'></span>")
+                                      if (parameter != "S_AV"){
+                                          document.write("-")
+                                      }
+                                  }
+                                  document.write("</td></tr>")
+                                  for (let j = 0; j < 4; j++){
+                                      document.write("<tr><td><span id='"+i+"_move_"+j+"'></span></td>")
+                                      document.write("<td width='50' align='right'><span id='"+i+"_last_"+j+"'></span>/<span id='"+i+"_PP_"+j+"'></span></td></tr>")
+                                  }
+                                  document.write("</td></tr>")
+                                  document.write("<tr align='center'><td colspan='2'>個：")
+                                  for (const parameter of ["H_IV", "A_IV", "B_IV", "C_IV", "D_IV", "S_IV"]){
+                                      document.write("<span id='"+i+"_"+parameter+"'></span>")
+                                      if (parameter != "S_IV"){
+                                          document.write("-")
+                                      }
+                                  }
+                                  document.write("<br>努：")
+                                  for (const parameter of ["H_EV", "A_EV", "B_EV", "C_EV", "D_EV", "S_EV"]){
+                                      document.write("<span id='"+i+"_"+parameter+"'></span>")
+                                      if (parameter != "S_EV"){
+                                          document.write("-")
+                                      }
+                                  }
+                                  document.write("<br></span><span id='"+i+"_form'></span><span id='"+i+"_recycle'></span><span id='"+i+"_belch'></span>")
+                                    document.write("<br><span id='"+i+"_life'>控え</span></td></tr>")
+                                    if (i == 0){
+                                        document.write("<tr align='center'><td colspan='2'><input type='radio' name='radio' id='"+i+"_button' value='"+ (Number(i) + 4) +"' checked></td></tr>")
+                                    } else {
+                                        document.write("<tr align='center'><td colspan='2'><input type='radio' name='radio' id='"+i+"_button' value='"+ (Number(i) + 4) +"'></td></tr>")
+                                    }
+                                    document.write("</table></div></td>")
                             }
-                            document.write("</td></tr>")
-                            for (let j = 0; j < 4; j++){
-                                document.write("<tr><td><span id='"+team+"_"+i+"_move_"+j+"'>ひのこ</span></td>")
-                                document.write("<td width='50' align='right'><span id='"+team+"_"+i+"_last_"+j+"'>40</span>/<span id='"+team+"_"+i+"_PP_"+j+"'>40</span></td></tr>")
-                            }
-                            document.write("</td></tr>")
-                            document.write("<tr align='center'><td colspan='2'>個：")
-                            for (const parameter of ["H_IV", "A_IV", "B_IV", "C_IV", "D_IV", "S_IV"]){
-                                document.write("<span id='"+team+"_"+i+"_"+parameter+"'>31</span>")
-                                if (parameter != "S_IV"){
-                                    document.write("-")
-                                }
-                            }
-                            document.write("<br>努：")
-                            for (const parameter of ["H_EV", "A_EV", "B_EV", "C_EV", "D_EV", "S_EV"]){
-                                document.write("<span id='"+team+"_"+i+"_"+parameter+"'>0</span>")
-                                if (parameter != "S_EV"){
-                                    document.write("-")
-                                }
-                            }
-                            document.write("<br></span><span id='"+team+"_"+i+"_form'></span><span id='"+team+"_"+i+"_recycle'></span><span id='"+team+"_"+i+"_belch'></span>")
-                            document.write("<br><span id='"+team+"_"+i+"_existence'>控え</span></td></tr>")
-                            if (i == 0){
-                                document.write("<tr align='center'><td colspan='2'><input type='radio' name='"+team+"_move' id='"+team+"_"+i+"_button' value='"+ (Number(i) + 4) +"' checked></td></tr>")
-                            } else {
-                                document.write("<tr align='center'><td colspan='2'><input type='radio' name='"+team+"_move' id='"+team+"_"+i+"_button' value='"+ (Number(i) + 4) +"'></td></tr>")
-                            }
-                            document.write("</table></div></td>")
-                        }
-                    }
-                document.write("</tr></table>")
-            </script>
-            </td><td>
+                          document.write("</tr></table>")
+                      </script>
+            </td><td><div id="both_team">
                 <table align="center">
                     <tr><td colspan="2" align="center"><span id="MyName">サトシ</span></td><td></td><td colspan="2" align="center"><span id="YourName">シゲル</span></td></tr>
                     <tr>
@@ -349,11 +284,12 @@
                         <td></td>
                         <td><img src="" id="you_4"></td><td><img src="" id="you_5"></td>
                     </tr>
-                </table>
+                </table></div>
             </td></tr></table>
 
             <hr>
             
+            <div id="battle_table">
             <table  align="center">
                 <tr><td>
                     <table align="center">
@@ -377,15 +313,15 @@
                 </tr>
                 <tr>
                     <td colspan="2">性格：<span id="A_nature"></span></td>
-                    <td colspan="2"><div id="NATURE">性格：<div id="yourNature"><span id="B_nature"></span></div></td>
+                    <td colspan="2">性格：</td>
                 </tr>
                 <tr>
                     <td colspan="2">特性：<span id="A_ability"></span></td>
-                    <td colspan="2"><div id="ABILITY">特性：<span id="B_ability"></span></div></td>
+                    <td colspan="2">特性：</td>
                 </tr>
                 <tr>
                     <td colspan="2">持ち物：<span id="A_item"></span></td>
-                    <td colspan="2"><div id="ITEM">持ち物：<span id="B_item"></span></div></td>
+                    <td colspan="2">持ち物：</td>
                 </tr>
                 <tr>
                     <td colspan="2">状態異常：<span id="A_abnormal"></span></td>
@@ -394,7 +330,7 @@
                 <tr>
                     <td>A：<span id="A_A_AV"></span></td>
                     <td align="center"><span id="A_rank_A">0</span></td>
-                    <td>A：<div id="your_A"><span id="B_A_AV"></span></div></td>
+                    <td>A：</td>
                     <td align="center"><span id="B_rank_A">0</span></td>
                 </tr>
                 <tr>
@@ -403,54 +339,54 @@
                     <td colspan="2" align="center"><span>HPバーを作りたい</span></td>
                     <td rowspan="6" align="center"><span id="action_time">45</span><br><button type="submit" id="battle_button">決定</button></td>
                     <td colspan="2" align="center"><span>HPバーを作りたい</span></td>
-                    <td>B：<div id="your_B"><span id="B_B_AV"></span></div></td>
+                    <td>B：</td>
                     <td align="center"><span id="B_rank_B">0</span></td>
                 </tr>
                 <tr>
                     <td>C：<span id="A_C_AV"></span></td>
                     <td align="center"><span id="A_rank_C">0</span></td>
                     <td colspan="2" align="center">HP <span id="A_HP_last"></span>/<span id="A_HP"></span></td>
-                    <td colspan="2" align="center"><div id="HP">HP <span id="B_HP_last"></span>/<span id="B_HP"></span></div></td>
-                    <td>C：<div id="your_C"><span id="B_C_AV"></span></div></td>
+                    <td colspan="2" align="center"></td>
+                    <td>C：</td>
                     <td align="center"><span id="B_rank_C">0</span></td>
                 </tr>
                 <tr>
                     <td>D：<span id="A_D_AV"></span></td>
                     <td align="center"><span id="A_rank_D">0</span></td>
-                    <td width="160"><input type="radio" name="A_move" value="0" id="A_radio_0" disabled><span id="A_move_0"></span></td>
+                    <td width="160"><input type="radio" name="radio" value="0" id="A_radio_0" disabled><span id="A_move_0"></span></td>
                     <td width="50" align="right"><span id="A_move_0_last"></span>/<span id="A_move_0_PP"></span></td>
-                    <td width="160"><div id="move0"><input type="radio" name="B_move" value="0" id="B_radio_0" disabled><span id="B_move_0"></span></div></td>
-                    <td width="50" align="right"><div id="PP_0"><span id="B_move_0_last"></span>/<span id="B_move_0_PP"></span></div></td>
-                    <td>D：<div id="your_D"><span id="B_D_AV"></span></div></td>
+                    <td width="160"></td>
+                    <td width="50" align="right"></td>
+                    <td>D：</td>
                     <td align="center"><span id="B_rank_D">0</span></td>
                 </tr>
                 <tr>
                     <td>S：<span id="A_S_AV"></span></td>
                     <td align="center"><span id="A_rank_S">0</span></td>
-                    <td><input type="radio" name="A_move" value="1" id="A_radio_1" disabled><span id="A_move_1"></span></td>
+                    <td><input type="radio" name="radio" value="1" id="A_radio_1" disabled><span id="A_move_1"></span></td>
                     <td align="right"><span id="A_move_1_last"></span>/<span id="A_move_1_PP"></span></td>
-                    <td><div id="move1"><input type="radio" name="B_move" value="1" id="B_radio_1" disabled><span id="B_move_1"></span></div></td>
-                    <td align="right"><div id="PP_1"><span id="B_move_1_last"></span>/<span id="B_move_1_PP"></span></div></td>
-                    <td>S：<div id="your_S"><span id="B_S_AV"></span></div></td>
+                    <td></td>
+                    <td align="right"></td>
+                    <td>S：</td>
                     <td align="center"><span id="B_rank_S">0</span></td>
                 </tr>
                 <tr>
                     <td>命中ランク</td>
                     <td align="center"><span id="A_rank_accuracy">0</span></td>
-                    <td><input type="radio" name="A_move" value="2" id="A_radio_2" disabled><span id="A_move_2"></span></td>
+                    <td><input type="radio" name="radio" value="2" id="A_radio_2" disabled><span id="A_move_2"></span></td>
                     <td align="right"><span id="A_move_2_last"></span>/<span id="A_move_2_PP"></span></td>
-                    <td><div id="move2"><input type="radio" name="B_move" value="2" id="B_radio_2" disabled><span id="B_move_2"></span></div></td>
-                    <td align="right"><div id="PP_2"><span id="B_move_2_last"></span>/<span id="B_move_2_PP"></span></div></td>
+                    <td></td>
+                    <td align="right"></td>
                     <td>命中ランク</td>
                     <td align="center"><span id="B_rank_accuracy">0</span></td>
                 </tr>
                 <tr>
                     <td>回避ランク</td>
                     <td align="center"><span id="A_rank_evasiveness">0</span></td>
-                    <td><input type="radio" name="A_move" value="3" id="A_radio_3" disabled><span id="A_move_3"></span></td>
+                    <td><input type="radio" name="radio" value="3" id="A_radio_3" disabled><span id="A_move_3"></span></td>
                     <td align="right"><span id="A_move_3_last"></span>/<span id="A_move_3_PP"></span></td>
-                    <td><div id="move3"><input type="radio" name="B_move" value="3" id="B_radio_3" disabled><span id="B_move_3"></span></div></td>
-                    <td align="right"><div id="PP_3"><span id="B_move_3_last"></span>/<span id="B_move_3_PP"></span></div></td>
+                    <td></td>
+                    <td align="right"></td>
                     <td>回避ランク</td>
                     <td align="center"><span id="B_rank_evasiveness">0</span></td>
                 </tr>
@@ -458,9 +394,9 @@
             </table>
             </td>
             <td><table align="center">
-                <tr><td><div id="mega_button"><input type="checkbox" id="B_mega" disabled></div></td><td><span id="B_mega_text">メガ進化</span></td></tr>
-                <tr><td><div id="Z_button"><input type="checkbox" id="B_Z_move" disabled onchange="Z_move('B')"></div></td><td><span id="B_Z_text">Z技</span></td></tr>
-                <tr><td><div id="dynamax_button"><input type="checkbox" id="B_dynamax"></div></td><td>ダイマックス</td></tr>
+                <tr><td></td><td><span id="B_mega_text">メガ進化</span></td></tr>
+                <tr><td></td><td><span id="B_Z_text">Z技</span></td></tr>
+                <tr><td></td><td>ダイマックス</td></tr>
             </table></td>
             </tr>
             <tr>
@@ -488,29 +424,7 @@
     <script>
         document.getElementById("trainer_name").style.display = "none"
         document.getElementById("select").style.display = "none"
-        document.getElementById("B_team_0").style.display = "none"
-        document.getElementById("B_team_1").style.display = "none"
-        document.getElementById("B_team_2").style.display = "none"
-        document.getElementById("HP").style.display = "none"
-        document.getElementById("NATURE").style.display = "none"
-        document.getElementById("ABILITY").style.display = "none"
-        document.getElementById("ITEM").style.display = "none"
-        document.getElementById("move0").style.display = "none"
-        document.getElementById("move1").style.display = "none"
-        document.getElementById("move2").style.display = "none"
-        document.getElementById("move3").style.display = "none"
-        document.getElementById("PP_0").style.display = "none"
-        document.getElementById("PP_1").style.display = "none"
-        document.getElementById("PP_2").style.display = "none"
-        document.getElementById("PP_3").style.display = "none"
-        document.getElementById("your_A").style.display = "none"
-        document.getElementById("your_B").style.display = "none"
-        document.getElementById("your_C").style.display = "none"
-        document.getElementById("your_D").style.display = "none"
-        document.getElementById("your_S").style.display = "none"
-        document.getElementById("mega_button").style.display = "none"
-        document.getElementById("Z_button").style.display = "none"
-        document.getElementById("dynamax_button").style.display = "none"
+        document.getElementById("both_team").style.display = "none"
         document.getElementById("battle_table").style.display = "none"
     </script>
     <script src="/socket.io/socket.io.js"></script>

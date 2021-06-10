@@ -1,5 +1,39 @@
+// jsファイルの読み込み
+const summon = require("./1_summon")
+
+// 初めのポケモンを場に出す
+// 適当なポケモンであれば、メガ進化ボタンとZワザボタンを有効にする
+// 場に出た時の特性などの効果発動
+exports.battle_start = function(rec){
+    CR = String.fromCharCode(13)
+
+    rec.log = "---------- バトル開始 ----------" + CR
+
+    summon.pokeReplace(rec.user1, rec.log)
+    summon.pokeReplace(rec.user2, rec.log)
+
+    summon.activAbility(rec.user1, rec.user2, "both", rec.log)
+
+    return rec
+
+    // 特性による交換ボタンの無効化
+    for (const team of [["1", "2"], ["2", "1"]]){
+        if ((rec["user" + team[1]].con.ability == "ありじごく" && grounded_check(team[0])) 
+        || (rec["user" + team[1]].con.ability == "かげふみ" && rec["user" + team[0]].con.ability != "かげふみ") 
+        || (rec["user" + team[1]].con.ability == "じりょく" && rec["user" + team[0]].con.type.includes("はがね"))){
+            if (rec["user" + team[0]].con.item != "きれいなぬけがら" && !rec["user" + team[0]].con.type.includes("ゴースト")){
+                for (let i = 4; i < 7; i++){
+                    rec["user" + team[0]].data["radio_" + i] = true
+                }
+            }
+        }
+    }
+
+}
+
 // ターンの処理
-function run_battle(){
+exports.run_battle = function(){
+    return 0
     // 素早さ判定
     let order = speed_check()
 
@@ -208,13 +242,7 @@ function move_search(team){
     }
 }
 
-function move_search_by_name(name){
-    for (let i = 0; i < move_list.length; i++){
-        if (name == move_list[i][0]){
-            return move_list[i]
-        }
-    }
-}
+
 
 function process_at_failure(team){
     condition_remove(team, "poke", "アイスボール")
@@ -303,28 +331,9 @@ function button_validation(){
     }
 }
 
-function nature_check(nature){
-    const nature_list = [
-        ['てれや', 'さみしがり', 'いじっぱり', 'やんちゃ', 'ゆうかん'], 
-        ['ずぶとい', 'がんばりや', 'わんぱく', 'のうてんき', 'のんき'], 
-        ['ひかえめ', 'おっとり', 'すなお', 'うっかりや', 'れいせい'], 
-        ['おだやか', 'おとなしい', 'しんちょう', 'きまぐれ', 'なまいき'], 
-        ['おくびょう', 'せっかち', 'ようき', 'むじゃき', 'まじめ']
-    ]
-    for (let i = 0; i < 5; i++){
-        for (let j = 0; j < 5; j++){
-            if (nature == nature_list[i][j]){
-                if (i == j){
-                    return [1.0, 1.0, 1.0, 1.0, 1.0]
-                } else {
-                    let rate = [1.0, 1.0, 1.0, 1.0, 1.0]
-                    rate[i] = 1.1
-                    rate[j] = 0.9
-                    return rate
-                }
-            }
-        }
-    }
-}
+
+
+
+
 
 

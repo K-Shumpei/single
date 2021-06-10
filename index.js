@@ -7,16 +7,21 @@ $(function () {
         for (let i = 0; i < 6; i++){
             let each = {}
             for (const parameter of [
-                "name", "sex", "level", "type", "nature", "ability", "item", 
-                "last_HP", "full_HP", 
+                "name", "sex", "type", "nature", "ability", "item", "abnormal", 
+                "move_0", "move_1", "move_2", "move_3", 
+                "recycle", "belch", "form", "life"]){
+                each[parameter] = document.getElementById(i + "_" + parameter).textContent
+            }
+            for (const parameter of [
+                "level", "last_HP", "full_HP", 
                 "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
-                "move_0", "PP_0", "last_0", 
-                "move_1", "PP_1", "last_1", 
-                "move_2", "PP_2", "last_2", 
-                "move_3", "PP_3", "last_3", 
+                "PP_0", "last_0", 
+                "PP_1", "last_1", 
+                "PP_2", "last_2", 
+                "PP_3", "last_3", 
                 "H_IV", "A_IV", "B_IV", "C_IV", "D_IV", "S_IV", 
                 "H_EV", "A_EV", "B_EV", "C_EV", "D_EV", "S_EV"]){
-                each[parameter] = document.getElementById(i + "_" + parameter).textContent
+                each[parameter] = Number(document.getElementById(i + "_" + parameter).textContent)
             }
             team_data.push(each)
         }
@@ -46,6 +51,7 @@ $(function () {
             for (let j = 0; j < pokemon.length; j++){
                 if (data["team" + me][i].name == pokemon[j][1]){
                     document.getElementById("player_" + i).src = "poke_figure/" + pokemon[j][0] + ".gif"
+                    document.getElementById("me_" + i).src = "poke_figure/" + pokemon[j][0] + ".gif"
                 }
             }
         }
@@ -53,6 +59,7 @@ $(function () {
             for (let j = 0; j < pokemon.length; j++){
                 if (data["team" + you][i].name == pokemon[j][1]){
                     document.getElementById("enemy_" + i).src = "poke_figure/" + pokemon[j][0] + ".gif"
+                    document.getElementById("you_" + i).src = "poke_figure/" + pokemon[j][0] + ".gif"
                 }
             }
         }
@@ -76,34 +83,23 @@ $(function () {
     })
 
     // お互いの選出が完了した
-    socketio.on("battle start", function(data, me, you) {
+    socketio.on("battle start", function(rec, me, you) {
+        console.log(rec)
         document.getElementById("headline").textContent = "対戦が始まりました"
         document.getElementById("select").style.display = "none"
-        document.getElementById("myTeam").style.display = "none"
+        document.getElementById("both_team").style.display = "block"
         document.getElementById("battle_table").style.display = "block"
+        document.getElementById("3_team").style.display = "none"
+        document.getElementById("4_team").style.display = "none"
+        document.getElementById("5_team").style.display = "none"
         // 名前の設定
-        document.getElementById("MyName").textContent = data["user" + me].name
-        document.getElementById("My_Name").textContent = data["user" + me].name
-        document.getElementById("YourName").textContent = data["user" + you].name
-        document.getElementById("Your_Name").textContent = data["user" + you].name
-        // 画像の設定
-        for (let i = 0; i < 6; i++) {
-            for (let j = 0; j < pokemon.length; j++){
-                if (data["team" + me][i].name == pokemon[j][1]){
-                    document.getElementById("me_" + i).src = "poke_figure/" + pokemon[j][0] + ".gif"
-                }
-            }
-        }
-        for (let i = 0; i < 6; i++) {
-            for (let j = 0; j < pokemon.length; j++){
-                if (data["team" + you][i].name == pokemon[j][1]){
-                    document.getElementById("you_" + i).src = "poke_figure/" + pokemon[j][0] + ".gif"
-                }
-            }
-        }
+        document.getElementById("MyName").textContent = rec["user" + me].data.name
+        document.getElementById("My_Name").textContent = rec["user" + me].data.name
+        document.getElementById("YourName").textContent = rec["user" + you].data.name
+        document.getElementById("Your_Name").textContent = rec["user" + you].data.name
+
         // 選出したポケモンの情報を記入
         for (let i = 0; i < 3; i++){
-            let num = data["user" + me].select[i]
             for (const parameter of [
                 "name", "sex", "level", "type", "nature", "ability", "item", 
                 "last_HP", "full_HP", 
@@ -113,31 +109,14 @@ $(function () {
                 "move_2", "PP_2", "last_2", 
                 "move_3", "PP_3", "last_3", 
                 "H_IV", "A_IV", "B_IV", "C_IV", "D_IV", "S_IV", 
-                "H_EV", "A_EV", "B_EV", "C_EV", "D_EV", "S_EV"]){
-                document.getElementById("A_" + i + "_" + parameter).textContent = data["team" + me][num][parameter]
+                "H_EV", "A_EV", "B_EV", "C_EV", "D_EV", "S_EV", "life"]){
+                document.getElementById(i + "_" + parameter).textContent = rec["user" + me]["poke" + i][parameter]
             }
-            if (document.getElementById("A_" + i + "_name").textContent == "ミミッキュ"){
-                document.getElementById("A_" + i + "_form").textContent = "ばけたすがた"
-            }
-        }
-        for (let i = 0; i < 3; i++){
-            let num = data["user" + you].select[i]
-            for (const parameter of [
-                "name", "sex", "level", "type", "nature", "ability", "item", 
-                "last_HP", "full_HP", 
-                "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
-                "move_0", "PP_0", "last_0", 
-                "move_1", "PP_1", "last_1", 
-                "move_2", "PP_2", "last_2", 
-                "move_3", "PP_3", "last_3", 
-                "H_IV", "A_IV", "B_IV", "C_IV", "D_IV", "S_IV", 
-                "H_EV", "A_EV", "B_EV", "C_EV", "D_EV", "S_EV"]){
-                document.getElementById("B_" + i + "_" + parameter).textContent = data["team" + you][num][parameter]
-            }
-            if (document.getElementById("B_" + i + "_name").textContent == "ミミッキュ"){
-                document.getElementById("B_" + i + "_form").textContent = "ばけたすがた"
+            if (document.getElementById(i + "_name").textContent == "ミミッキュ"){
+                document.getElementById(i + "_form").textContent = "ばけたすがた"
             }
         }
+
         battle_start()
         start_action_timer()
     })

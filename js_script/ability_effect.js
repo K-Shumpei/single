@@ -188,6 +188,9 @@ var wandering_spirit_self_ability_list = [
 ]
 
 // かがくへんかガスにより発動しなくなる特性：これら以外
+exports.neutralizing = function(){
+    return neutralizing_gas_ability_list
+}
 var neutralizing_gas_ability_list = [
     'ARシステム', 
     'アイスフェイス', 
@@ -212,6 +215,9 @@ var neutralizing_gas_invalidation_ability_list = [
 ]
 
 // トレースが失敗する特性
+exports.trace = function(){
+    return trace_ability_list
+}
 var trace_ability_list = [
     'てんきや', 
     'トレース', 

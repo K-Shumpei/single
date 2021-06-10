@@ -796,6 +796,9 @@ var mental_move_list = [
 ]
 
 // 一撃必殺技
+exports.oneShot = function(){
+    return one_shot_deadly_move_list
+}
 var one_shot_deadly_move_list = [
     'ハサミギロチン', 
     'つのドリル', 
@@ -904,6 +907,12 @@ var mega_launcher_move_list = [
     'みずのはどう', 
     'りゅうのはどう'
 ]
+
+// 全体の場に影響を及ぼす技
+
+exports.allField = function(){
+    return all_field_status_move_list
+}
 
 var all_field_status_move_list = [
     ['あまごい', 'あめ', '雨が降り始めた', '天候'], 

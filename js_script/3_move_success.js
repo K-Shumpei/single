@@ -3226,46 +3226,6 @@ function grounded_check(team){
     }
 }
 
-function compatibility_check(atk, def, move){
-    let type = new get(def).type
-    let compatibility_rate = 1.0
-    if ((new get(atk).ability == "きもったま" || new get(def).p_con.includes("みやぶられている")) && type.includes("ゴースト") && (move[1] == "ノーマル" || move[0] == "かくとう")){
-        type = type.replace("ゴースト", "")
-    }
-    if (new get(def).p_con.includes("ミラクルアイ") && type.includes("あく") && move[1] == "エスパー"){
-        type = type.replace("あく", "")
-    }
-
-    for (let i = 0; i < 18; i++){
-        if (move[1] == compatibility[0][i]){
-            for (let j = 0; j < 18; j++){
-                if (type.includes(compatibility[0][j])){
-                    if (new get(def).item == "ねらいのまと" && compatibility[i+1][j] == 0){
-                        compatibility_rate *= 1
-                    } else {
-                        compatibility_rate *= compatibility[i+1][j]
-                    }
-                }
-            }
-        }
-    }
-
-    if (new get(def).p_con.includes("タールショット") && move[1] == "ほのお"){
-        compatibility_rate *= 2
-    }
-    if (move[0] == "フライングプレス"){
-        for (let j = 0; j < 18; j++){
-            if (type.includes(compatibility[0][j])){
-                compatibility_rate *= compatibility[10][j]
-            }
-        }
-    }
-    if (move[0] == "フリーズドライ" && type.includes("みず")){
-        compatibility_rate *= 4
-    }
-    return compatibility_rate
-}
-
 function turn_log(){
     const battle_log = document.battle_log.battle_log.value
     const log_list = battle_log.split("\n")
