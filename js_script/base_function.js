@@ -2,6 +2,7 @@
 const afn = require("./function")
 const cfn = require("./law_function")
 const moveEff = require("./move_effect")
+const summon = require("./1_summon")
 
 
 exports.berryPinch = function(team, enemy){
@@ -289,4 +290,36 @@ exports.priorityDegree = function(con, move){
     }
 
     return priority
+}
+
+// 体重
+exports.weight = function(con){
+    let weight = cfn.pokeSearch(con.name)[14]
+
+    for (let i = 0; i < con.p_con.split("\n").length; i++){
+        if (con.p_con.split("\n")[j].includes("ボディパージ")){
+            const num = Number(con.p_con.split("\n")[i].replace(/[^0-9]/g, ""))
+            weight -= num * 100
+        }
+    }
+
+    if (con.item == "かるいし" || con.ability == "ライトメタル"){
+        weight = Math.round(weight * 5) / 10
+    }
+    if (con.ability == "ヘヴィメタル"){
+        weight *= 2
+    }
+    return Math.max(weight, 0.1)
+}
+
+// ひんしの処理
+exports.fainted = function(user, enemy){
+    cfn.logWrite(user, enemy, user.con.TN + "　の　" + user.con.name + "　は　たおれた　!" + CR)
+    user.con.f_con += "ひんし" + CR
+
+    if (enemy.con.ability == "ソウルハート" && !enemy.con.f_con.includes("ひんし")){
+        afn.rankChange(enemy, user, "C", 1, 100, "ソウルハート")
+    }
+
+    summon.comeBack(user, enemy)
 }

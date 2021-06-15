@@ -96,7 +96,7 @@ exports.runBattle = function(rec){
             }
             cfn.logWrite(rec.user1, rec.user2, "(" + user.con.TN + "の行動)" + CR)
             cfn.logWrite(rec.user1, rec.user2, user.con.TN + "　は　" + user.con.name + "を　引っ込めた！" + CR)
-            comeBack(user, enemy)
+            summon.comeBack(user, enemy)
             summon.pokeReplace(user, enemy)
             summon.activAbility(user, enemy, 1)
         }
@@ -279,85 +279,6 @@ function buttonValidation(order){
 }
 
 
-// 戦闘中のポケモンを手持ちに戻す
-function comeBack(user, enemy){
-    if (user.con.name == "ヒヒダルマ(ダルマモード)"){
-        afn.formChenge(user, enemy, "ヒヒダルマ")
-    } else if (user.con.name == "ヒヒダルマ(ダルマモード(ガラルのすがた))"){
-        afn.formChenge(user, enemy, "ヒヒダルマ(ガラルのすがた)")
-    } else if (user.con.name == "ギルガルド(ブレードフォルム)"){
-        afn.formChenge(user, enemy, "ギルガルド(シールドフォルム)")
-    } else if (user.con.name == "メテノ(コア)"){
-        afn.formChenge(user, enemy, "メテノ(りゅうせいのすがた)")
-    }
-    // 名前・タイプ・特性・実数値・残りHP・残りPPは既に正しい表記になっている
-    // 持ち物、状態異常の移動
-    user["poke" + cfn.battleNum(user)].item = user.con.item
-    user["poke" + cfn.battleNum(user)].abnormal = user.con,abnormal
-    // 総HPの移動
-    user["poke" + cfn.battleNum(user)].full_HP = user.con.full_HP
-
-    // ポケモンの状態の削除
-    user.con.p_con= ""
-    // 相手のメロメロの解除
-    cfn.conditionRemove(enemy.con, "poke", "メロメロ")
-
-    // 特性が「さいせいりょく」の時
-    if (user.con.ability == "さいせいりょく"){
-        afn.HPchangeMagic(user, enemy, Math.floor(user.con.full_HP / 3), "+", "さいせいりょく")
-    }
-    // 特性が「しぜんかいふく」の時
-    if (user.con.ability == "しぜんかいふく"){
-        user["poke" + cfn.battleNum(user)].abnormal = ""
-    }
-
-    // 特性が「おわりのだいち」だった時、天候が元に戻る
-    if (user.con.ability == "おわりのだいち" && (enemy.con.ability != "おわりのだいち" || enemy.con.last_HP == 0)){
-        cfn.logWrite(user, enemy, "おおひでりが終わった" + CR)
-        cfn.conditionRemove(user.con, "field", "おおひでり")
-        cfn.conditionRemove(enemy.con, "field", "おおひでり")
-    }
-    // 特性が「はじまりのうみ」だった時、天候が元に戻る
-    if (user.con.ability == "はじまりのうみ" && (enemy.con.ability != "はじまりのうみ" || enemy.con.last_HP == 0)){
-        cfn.logWrite(user, enemy, "おおあめが終わった" + CR)
-        cfn.conditionRemove(user.con, "field", "おおあめ")
-        cfn.conditionRemove(enemy.con, "field", "おおあめ")
-    }
-    // 特性が「かがくへんかガス」の時
-    if (user.con.ability == "かがくへんかガス"){
-        cfn.logWrite(user, enemy, "かがくへんかガスの効果が切れた" + CR)
-        for (let i = 0; i < enemy.con.p_con.split("\n").length - 1; i++){
-            if (enemy.con.p_con.split("\n")[i].includes("かがくへんかガス")){
-                enemy.con.ability = enemy.con.p_con.split("\n")[i].slice(9)
-            }
-        }
-        cfn.conditionRemove(enemy.con, "poke", "かがくへんかガス")
-        summon.activAbility(user, enemy, 1)
-    }
-    // 特性が「きんちょうかん」の時
-    if (user.con.ability == "きんちょうかん"){
-        bfn.berryPinch(enemy, team)
-        bfn.berryAbnormal(enemy, user)
-    }
-
-    // 「戦闘中」を「控え」に変更
-    user.data["radio_" + Number(cfn.battleNum(user) + 4)] = false
-    user["poke" + cfn.battleNum(user)].life = "控え"
-
-    for (const parameter of [
-        "name", "sex", "level", "type", "nature", "ability", "item", "abnormal", 
-        "last_HP", "full_HP", 
-        "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
-        "move_0", "PP_0", "last_0", 
-        "move_1", "PP_1", "last_1", 
-        "move_2", "PP_2", "last_2", 
-        "move_3", "PP_3", "last_3", "p_con", "user"]){
-        user.con[parameter] = ""
-    }
-    for (const parameter of ["A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank"]){
-        user.con[parameter] = 0
-    }
-}
 
 
 

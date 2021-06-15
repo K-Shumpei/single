@@ -431,3 +431,5 @@ exports.formChenge = function(team, enemy, name){
     // 特性の発動
     summon.activAbility(team, enemy, 1)
 }
+
+

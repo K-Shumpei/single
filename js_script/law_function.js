@@ -180,3 +180,37 @@ exports.isWeather = function(con1, con2){
         return true
     }
 }
+
+exports.lastLog = function(con){
+    const list = con.log.split("\n")
+    const len = list.length
+    let index = []
+    for (let i = 0; i < len; i++){
+        if (list[len - 1 - i].includes("ターン目")){
+            index.push(len - 1 - i)
+            if (index.length == 2){
+                break
+            }
+        }
+    }
+
+    return list.slice(index[1], index[0])
+}
+
+function this_turn_log(){
+    const battle_log = document.battle_log.battle_log.value
+    const log_list = battle_log.split("\n")
+    const log_length = log_list.length
+    let index = []
+    for (let i = 0; i < log_length; i++){
+        if (log_list[log_length - 1 - i].includes("ターン目")){
+            index.push(log_length - 1 - i)
+            if (index.length == 2){
+                break
+            }
+        }
+    }
+
+    return log_list.slice(index[0])
+}
+

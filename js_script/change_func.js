@@ -120,31 +120,6 @@ function make_abnormal(def, abnormal){
 
 
 
-function fainted_process(team){
-    let enemy = "B"
-    if (team == "B"){
-        enemy = "A"
-    }
-
-    txt = team + "チームの　" + new get(team).name + "　は　たおれた　!" + CR
-    document.battle_log.battle_log.value += txt
-    document.battle[team + "_poke_condition"].value = ""
-    document.battle[team + "_field_condition"].value += "ひんし" + CR
-
-    
-    document.getElementById(team + "_" + battle_poke_num(team) + "_item").textContent = document.getElementById(team + "_item").textContent
-    document.getElementById(team + "_" + battle_poke_num(team) + "_abnormal").textContent = document.getElementById(team + "_abnormal").textContent
-    document.getElementById(team + "_" + battle_poke_num(team) + "_button").disabled = true
-    document.getElementById(team + "_" + battle_poke_num(team) + "_existence").textContent = "ひんし"
-
-    condition_remove(enemy, "poke", "メロメロ")
-
-    document.battle[team + "_used_move"].value = ""
-
-    if (new get(enemy).ability == "ソウルハート" && !new get(enemy).p_con.includes("ひんし")){
-        rank_change_not_status(enemy, "C", 1, 100, "ソウルハート")
-    }
-}
 
 
 

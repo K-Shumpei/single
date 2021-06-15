@@ -649,6 +649,9 @@ var gravity_move_list = [
 
 // ため技
 // still, hide
+exports.accumulate = function(){
+    return accumulation_move_list
+}
 var accumulation_move_list = [
     ['あなをほる', 'h', 'あなをほる'], 
     ['かまいたち', 's'], 
@@ -669,6 +672,9 @@ var accumulation_move_list = [
 ]
 
 // マジックコートで反射される技
+exports.magicCort = function(){
+    return magic_coat_move_list
+}
 var magic_coat_move_list = [
     'あくび', 
     'あくまのキッス', 
@@ -1055,6 +1061,9 @@ var recover_status_move_list = [
 ]
 
 // 守るで防げない技：全体の場、味方の場、相手の場、ふかしのこぶし、この表
+exports.cannotProtect = function(){
+    return protect_move_list
+}
 var protect_move_list = [
     'くろいまなざし', 
     'クモのす', 
@@ -1611,6 +1620,9 @@ var copy_cat_move_list = [
 ]
 
 // まもる系の技
+exports.protect = function(){
+    return protect_type_move_list
+}
 var protect_type_move_list = [
     'まもる', 
     'みきり', 
