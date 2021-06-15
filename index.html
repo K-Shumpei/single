@@ -255,9 +255,9 @@
                                   document.write("<br></span><span id='"+i+"_form'></span><span id='"+i+"_recycle'></span><span id='"+i+"_belch'></span>")
                                     document.write("<br><span id='"+i+"_life'>控え</span></td></tr>")
                                     if (i == 0){
-                                        document.write("<tr align='center'><td colspan='2'><input type='radio' name='radio' id='"+i+"_button' value='"+ (Number(i) + 4) +"' checked></td></tr>")
+                                        document.write("<tr align='center'><td colspan='2'><input type='radio' name='radio' id='radio_"+ (Number(i) + 4) +"' value='"+ (Number(i) + 4) +"' checked></td></tr>")
                                     } else {
-                                        document.write("<tr align='center'><td colspan='2'><input type='radio' name='radio' id='"+i+"_button' value='"+ (Number(i) + 4) +"'></td></tr>")
+                                        document.write("<tr align='center'><td colspan='2'><input type='radio' name='radio' id='radio_"+ (Number(i) + 4) +"' value='"+ (Number(i) + 4) +"'></td></tr>")
                                     }
                                     document.write("</table></div></td>")
                             }
@@ -301,11 +301,11 @@
                 <td rowspan="4"><table border="1">
                 <tr><th colspan="4"><span id="My_Name"></span></th><th></th><th colspan="4"><span id="Your_Name"></span></th></tr>
                 <tr>
-                    <td colspan="2" align="center"><span id="A_poke"></span><span id="A_sex"></span>Lv.<span id="A_level"></span></td>
+                    <td colspan="2" align="center"><span id="A_name"></span><span id="A_sex"></span>Lv.<span id="A_level"></span></td>
                     <td rowspan="7" colspan="2" align="center"><img src="" id="A_image" width="192" height="192" style="transform: scale(-1, 1);"></td>
                     <td rowspan="7" width="100" align="center">V.S.</td>
                     <td rowspan="7" colspan="2" align="center"><img src="" id="B_image" width="192" height="192"></td>
-                    <td colspan="2" align="center"><span id="B_poke"></span><span id="B_sex"></span>Lv.<span id="B_level"></span></td>
+                    <td colspan="2" align="center"><span id="B_name"></span><span id="B_sex"></span>Lv.<span id="B_level"></span></td>
                 </tr>
                 <tr>
                     <td colspan="2" align="center"><span id="A_type"></span></td>
@@ -345,7 +345,7 @@
                 <tr>
                     <td>C：<span id="A_C_AV"></span></td>
                     <td align="center"><span id="A_rank_C">0</span></td>
-                    <td colspan="2" align="center">HP <span id="A_HP_last"></span>/<span id="A_HP"></span></td>
+                    <td colspan="2" align="center">HP <span id="A_last_HP"></span>/<span id="A_full_HP"></span></td>
                     <td colspan="2" align="center"></td>
                     <td>C：</td>
                     <td align="center"><span id="B_rank_C">0</span></td>
@@ -353,8 +353,8 @@
                 <tr>
                     <td>D：<span id="A_D_AV"></span></td>
                     <td align="center"><span id="A_rank_D">0</span></td>
-                    <td width="160"><input type="radio" name="radio" value="0" id="A_radio_0" disabled><span id="A_move_0"></span></td>
-                    <td width="50" align="right"><span id="A_move_0_last"></span>/<span id="A_move_0_PP"></span></td>
+                    <td width="160"><input type="radio" name="radio" value="0" id="radio_0" disabled><span id="A_move_0"></span></td>
+                    <td width="50" align="right"><span id="A_last_0"></span>/<span id="A_PP_0"></span></td>
                     <td width="160"></td>
                     <td width="50" align="right"></td>
                     <td>D：</td>
@@ -363,8 +363,8 @@
                 <tr>
                     <td>S：<span id="A_S_AV"></span></td>
                     <td align="center"><span id="A_rank_S">0</span></td>
-                    <td><input type="radio" name="radio" value="1" id="A_radio_1" disabled><span id="A_move_1"></span></td>
-                    <td align="right"><span id="A_move_1_last"></span>/<span id="A_move_1_PP"></span></td>
+                    <td><input type="radio" name="radio" value="1" id="radio_1" disabled><span id="A_move_1"></span></td>
+                    <td align="right"><span id="A_last_1"></span>/<span id="A_PP_1"></span></td>
                     <td></td>
                     <td align="right"></td>
                     <td>S：</td>
@@ -373,8 +373,8 @@
                 <tr>
                     <td>命中ランク</td>
                     <td align="center"><span id="A_rank_accuracy">0</span></td>
-                    <td><input type="radio" name="radio" value="2" id="A_radio_2" disabled><span id="A_move_2"></span></td>
-                    <td align="right"><span id="A_move_2_last"></span>/<span id="A_move_2_PP"></span></td>
+                    <td><input type="radio" name="radio" value="2" id="radio_2" disabled><span id="A_move_2"></span></td>
+                    <td align="right"><span id="A_last_2"></span>/<span id="A_PP_2"></span></td>
                     <td></td>
                     <td align="right"></td>
                     <td>命中ランク</td>
@@ -383,8 +383,8 @@
                 <tr>
                     <td>回避ランク</td>
                     <td align="center"><span id="A_rank_evasiveness">0</span></td>
-                    <td><input type="radio" name="radio" value="3" id="A_radio_3" disabled><span id="A_move_3"></span></td>
-                    <td align="right"><span id="A_move_3_last"></span>/<span id="A_move_3_PP"></span></td>
+                    <td><input type="radio" name="radio" value="3" id="radio_3" disabled><span id="A_move_3"></span></td>
+                    <td align="right"><span id="A_last_3"></span>/<span id="A_PP_3"></span></td>
                     <td></td>
                     <td align="right"></td>
                     <td>回避ランク</td>
@@ -400,23 +400,21 @@
             </table></td>
             </tr>
             <tr>
-                <td>ポケモンの状態<br><textarea name="A_poke_condition" cols="30" rows="7" readonly></textarea></td>
-                <td>ポケモンの状態<br><textarea name="B_poke_condition" cols="30" rows="7" readonly></textarea></td></tr>
+                <td>ポケモンの状態<br><textarea name="A_p_con" cols="30" rows="7" readonly></textarea></td>
+                <td>ポケモンの状態<br><textarea name="B_p_con" cols="30" rows="7" readonly></textarea></td></tr>
             <tr>
-                <td>フィールドの状態<br><textarea name="A_field_condition" cols="30" rows="7" readonly></textarea></td>
-                <td>フィールドの状態<br><textarea name="B_field_condition" cols="30" rows="7" readonly></textarea></td>
+                <td>フィールドの状態<br><textarea name="A_f_con" cols="30" rows="7" readonly></textarea></td>
+                <td>フィールドの状態<br><textarea name="B_f_con" cols="30" rows="7" readonly></textarea></td>
             </tr>
             <tr>
-                <td>最後に宣言した技<br><textarea name="A_used_move" cols="30" rows="1" readonly></textarea></td>
-                <td>最後に宣言した技<br><textarea name="B_used_move" cols="30" rows="1" readonly></textarea></td>
+                <td>最後に宣言した技<br><textarea name="A_used" cols="30" rows="1" readonly></textarea></td>
+                <td>最後に宣言した技<br><textarea name="B_used" cols="30" rows="1" readonly></textarea></td>
             </tr>
             </table>
-        </form>
 
-    <form name="battle_log">
     <table align="center">
         <tr><td>対戦のログ：</td></tr>
-        <tr><td><textarea name="battle_log" cols="200" rows="10" readonly></textarea></td></tr>
+        <tr><td><textarea name="battle_log" id="A_log" cols="200" rows="10" readonly></textarea></td></tr>
     </table>
     </form>
     </div>

@@ -4,13 +4,13 @@ const cfn = require("./law_function")
 const moveEff = require("./move_effect")
 const summon = require("./1_summon")
 
-exports.HPchangeMagic = function(team, damage, pm, cause, log){
+exports.HPchangeMagic = function(team, enemy, damage, pm, cause){
     if (pm == "+" && !team.p_con.includes("かいふくふうじ")){
-        log += team.con.TN + "　の　" + team.con.name + "　は　" + cause + "で　" + damage + "　の　HP　を回復した" + CR
+        cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　は　" + cause + "で　" + damage + "　の　HP　を回復した" + CR)
         team.con.last_HP = Math.min(team.con.full_HP, team.con.last_HP + damage)
     } else if (pm == "-"){
         if (team.con.ability != "マジックガード"){
-            log += team.con.TN + "　の　" + team.con.name + "　に　" + cause + "で　" + damage + "　の　ダメージ" + CR
+            cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　に　" + cause + "で　" + damage + "　の　ダメージ" + CR)
             team.con.p_con += "ダメおし" + CR
             // 残りHPの表示
             team.con.last_HP = Math.max(0, team.con.last_HP - damage)
@@ -87,7 +87,7 @@ exports.speedCheck = function(one, two){
             correction = Math.round(correction * 1024 / 4096)
         }
 
-        S_AV = five_cut(S_AV * correction / 4096)
+        S_AV = cfn.fiveCut(S_AV * correction / 4096)
 
         // まひ補正
         if (team.abnormal == "まひ"){
@@ -115,7 +115,7 @@ exports.speedCheck = function(one, two){
 
 
 
-exports.makeAbnormal = function(team, enemy, text, probability, cause, log){
+exports.makeAbnormal = function(team, enemy, text, probability, cause){
     const random = Math.random() * 100
     const TN = team.con.TN
     let con = team.con
@@ -123,9 +123,9 @@ exports.makeAbnormal = function(team, enemy, text, probability, cause, log){
         if (text == "こんらん" && con.ability != "マイペース" && !con.p_con.includes("こんらん") && random < probability){
             con.p_con += "こんらん　1ターン目" + CR
             if (typeof cause == "string"){
-                log += TN + "　の　" + con.name + "　は　" + cause + "により　こんらんした！" + CR
+                cfn.logWrite(team, enemy, TN + "　の　" + con.name + "　は　" + cause + "により　こんらんした！" + CR)
             } else {
-                log += TN + "　の　" + con.name + "　は　こんらんした！" + CR
+                cfn.logWrite(team, enemy, TN + "　の　" + con.name + "　は　こんらんした！" + CR)
             }
         } else if (con.abnormal == "" && con.ability != "ぜったいねむり" 
         && !(con.f_con.includes("にほんばれ") && con.ability == "リーフガード" && !(con.ability == "エアロック" || con.ability == "ノーてんき" || enemy.con.ability == "エアロック" || enemy.con.ability == "ノーてんき")) 
@@ -133,50 +133,50 @@ exports.makeAbnormal = function(team, enemy, text, probability, cause, log){
             if (text == "まひ" && !con.type.includes("でんき") && con.ability != "じゅうなん"){
                 con.abnormal = "まひ"
                 if (typeof cause == "string"){
-                    log += TN + "　の　" + con.name + "　は　" + cause + "により　しびれて　技が出にくくなった！" + CR
+                    cfn.logWrite(team, enemy, TN + "　の　" + con.name + "　は　" + cause + "により　しびれて　技が出にくくなった！" + CR)
                 } else {
-                    log += TN + "　の　" + con.name + "　は　しびれて　技が出にくくなった！" + CR
+                    cfn.logWrite(team, enemy, TN + "　の　" + con.name + "　は　しびれて　技が出にくくなった！" + CR)
                 }
             } else if (text == "どく" && !con.type.includes("どく") && !con.type.includes("はがね") && con.ability != "めんえき" && con.ability != "パステルベール"){
                 con.abnormal = "どく"
                 if (typeof cause == "string"){
-                    log += TN + "　の　" + con.name + "　は　" + cause + "により　どくをあびた！" + CR
+                    cfn.logWrite(team, enemy, TN + "　の　" + con.name + "　は　" + cause + "により　どくをあびた！" + CR)
                 } else {
-                    log += TN + "　の　" + con.name + "　は　どくをあびた！" + CR
+                    cfn.logWrite(team, enemy, TN + "　の　" + con.name + "　は　どくをあびた！" + CR)
                 }
             } else if (text == "もうどく" && !con.type.includes("どく") && !con.type.includes("はがね") && con.ability != "めんえき" && con.ability != "パステルベール"){
                 con.abnormal = "もうどく"
                 con.p_con += "もうどく　1ターン目" + CR
                 if (typeof cause == "string"){
-                    log += TN + "　の　" + con.name + "　は　" + cause + "により　もうどくをあびた！" + CR
+                    cfn.logWrite(team, enemy, TN + "　の　" + con.name + "　は　" + cause + "により　もうどくをあびた！" + CR)
                 } else {
-                    log += TN + "　の　" + con.name + "　は　もうどくをあびた！" + CR
+                    cfn.logWrite(team, enemy, TN + "　の　" + con.name + "　は　もうどくをあびた！" + CR)
                 }
             } else if (text == "やけど" && !con.type.includes("ほのお") && con.ability != "みずのベール" && con.ability != "すいほう"){
                 con.abnormal = "やけど"
                 if (typeof cause == "string"){
-                    log += TN + "　の　" + con.name + "　は　" + cause + "により　やけどをおった！" + CR
+                    cfn.logWrite(team, enemy, TN + "　の　" + con.name + "　は　" + cause + "により　やけどをおった！" + CR)
                 } else {
-                    log += TN + "　の　" + con.name + "　は　やけどをおった！" + CR
+                    cfn.logWrite(team, enemy, TN + "　の　" + con.name + "　は　やけどをおった！" + CR)
                 }
             } else if (text == "こおり" && con.ability != "マグマのよろい" && !con.f_con.includes("にほんばれ") && !(con.ability == "エアロック" || con.ability == "ノーてんき" || enemy.con.ability == "エアロック" || enemy.con.ability == "ノーてんき")){
                 con.abnormal = "こおり"
                 if (typeof cause == "string"){
-                    log += TN + "　の　" + con.name + "　は　" + cause + "により　こおりづけになった！" + CR
+                    cfn.logWrite(team, enemy, TN + "　の　" + con.name + "　は　" + cause + "により　こおりづけになった！" + CR)
                 } else {
-                    log += TN + "　の　" + con.name + "　は　こおりづけになった！" + CR
+                    cfn.logWrite(team, enemy, TN + "　の　" + con.name + "　は　こおりづけになった！" + CR)
                 }
             } else if (text == "ねむり" && !con.f_con.includes("エレキフィールド") && con.ability != "スイートベール" && con.ability != "やるき" && con.ability != "ふみん"){
                 con.abnormal = "ねむり"
                 con.p_con += "ねむり　1ターン目" + CR
                 if (typeof cause == "string"){
-                    log += TN + "　の　" + con.name + "　は　" + cause + "により　ねむってしまった！" + CR
+                    cfn.logWrite(team, enemy, TN + "　の　" + con.name + "　は　" + cause + "により　ねむってしまった！" + CR)
                 } else {
-                    log += TN + "　の　" + con.name + "　は　ねむってしまった！" + CR
+                    cfn.logWrite(team, enemy, TN + "　の　" + con.name + "　は　ねむってしまった！" + CR)
                 }
             }
         }
-        bfn.berryAbnormal(team, enemy, log)
+        bfn.berryAbnormal(team, enemy)
     }
 }
 
@@ -185,7 +185,7 @@ exports.makeAbnormal = function(team, enemy, text, probability, cause, log){
 // 技の追加効果の時は、原因の宣言はいらない
 // それ以外は原因を宣言する
 // 無効判定も必要、向こうになった時はメッセージがでない
-exports.rankChange = function(team, parameter, change, probability, cause, log){
+exports.rankChange = function(team, enemy, parameter, change, probability, cause){
     let con = team.con
 
     if (con.ability == "あまのじゃく"){
@@ -203,7 +203,7 @@ exports.rankChange = function(team, parameter, change, probability, cause, log){
             || (parameter == "X" && !(con.ability == "するどいめ" && change < 0)) 
             || parameter == "C" || parameter == "D" || parameter == "S" || parameter == "Y"){
                 if (typeof cause == "string"){
-                    log += cause + "が　発動した！" + CR
+                    cfn.logWrite(team, enemy, cause + "が　発動した！" + CR)
                 }
 
                 const convert = [["A", "攻撃"], ["B", "防御"], ["C", "特攻"], ["D", "特防"], ["S", "素早さ"], ["X", "命中率"], ["Y", "回避率"]]
@@ -218,52 +218,52 @@ exports.rankChange = function(team, parameter, change, probability, cause, log){
                         const text = convert[i][1]
                         if (change > 0){
                             if (result - now == 0){
-                                log += con.TN + "　の　" + con.name + "　の　" + text + "　は　これ以上　上がらない" + CR
+                                cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　は　これ以上　上がらない" + CR)
                             } else if (result - now == 1){
-                                log += con.TN + "　の　" + con.name + "　の　" + text + "　が　上がった！" + CR
+                                cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　が　上がった！" + CR)
                                 con.p_con += "ランク上昇" + CR
                             } else if (result - now == 2){
-                                log += con.TN + "　の　" + con.name + "　の　" + text + "　が　ぐーんと上がった！" + CR
+                                cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　が　ぐーんと上がった！" + CR)
                                 con.p_con += "ランク上昇" + CR
                             } else if (result - now > 2){
-                                log += con.TN + "　の　" + con.name + "　の　" + text + "　が　ぐぐーんと上がった！" + CR
+                                cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　が　ぐぐーんと上がった！" + CR)
                                 con.p_con += "ランク上昇" + CR
                             }
                         } else if (change < 0){
                             if (result - now == 0){
-                                log += con.TN + "　の　" + con.name + "　の　" + text + "　は　これ以上　下がらない" + CR
+                                cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　は　これ以上　下がらない" + CR)
                             } else {
                                 if (result - now == -1){
-                                    log += con.TN + "　の　" + con.name + "　の　" + text + "　が　下がった！" + CR
+                                    cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　が　下がった！" + CR)
                                     con.p_con += "ランク下降" + CR
                                 } else if (result - now == -2){
-                                    log += con.TN + "　の　" + con.name + "　の　" + text + "　が　がくっと下がった！" + CR
+                                    cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　が　がくっと下がった！" + CR)
                                     con.p_con += "ランク下降" + CR
                                 } else if (result - now < -2){
-                                    log += con.TN + "　の　" + con.name + "　の　" + text + "　が　がくーんと下がった！" + CR
+                                    cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　が　がくーんと下がった！" + CR)
                                     con.p_con += "ランク下降" + CR
                                 }
                                 if (con.ability == "かちき"){
                                     result = Math.min(con.C_rank + 2, 6)
                                     if (result - con.C_rank == 1){
-                                        log += "かちきが　発動した" + CR
-                                        log += con.TN + "　の　" + con.name + "　の　" + text + "　が　上がった！" + CR
+                                        cfn.logWrite(team, enemy, "かちきが　発動した" + CR)
+                                        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　特攻　が　上がった！" + CR)
                                         con.p_con += "ランク上昇" + CR
                                     } else if (result - con.C_rank == 2){
-                                        log += "かちきが　発動した" + CR
-                                        log += con.TN + "　の　" + con.name + "　の　" + text + "　が　ぐーんと上がった！" + CR
+                                        cfn.logWrite(team, enemy, "かちきが　発動した" + CR)
+                                        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　特攻　が　ぐーんと上がった！" + CR)
                                         con.p_con += "ランク上昇" + CR
                                     }
                                     con.C_rank = result
                                 } else if (con.ability == "まけんき"){
                                     result = Math.min(con.A_rank + 2, 6)
                                     if (result - con.A_rank == 1){
-                                        log += "まけんきが　発動した" + CR
-                                        log += con.TN + "　の　" + con.name + "　の　" + text + "　が　上がった！" + CR
+                                        cfn.logWrite(team, enemy, "まけんきが　発動した" + CR)
+                                        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　攻撃　が　上がった！" + CR)
                                         con.p_con += "ランク上昇" + CR
                                     } else if (result - con.A_rank == 2){
-                                        log += "まけんきが　発動した" + CR
-                                        log += con.TN + "　の　" + con.name + "　の　" + text + "　が　ぐーんと上がった！" + CR
+                                        cfn.logWrite(team, enemy, "まけんきが　発動した" + CR)
+                                        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　攻撃　が　ぐーんと上がった！" + CR)
                                         con.p_con += "ランク上昇" + CR
                                     }
                                     con.A_rank = result
@@ -279,7 +279,7 @@ exports.rankChange = function(team, parameter, change, probability, cause, log){
 
 
 // 特性の入れ替え
-exports.changeAbility = function(copy, org, num, ability, log){
+exports.changeAbility = function(copy, org, num, ability){
     // copy：コピーされるチーム
     // org：コピーするチーム
     // num：対象のポケモンの数　1ならorgがcopyをコピーする　2なら両方を入れ替える 3ならcopyチームの特性をabilityにする
@@ -292,8 +292,8 @@ exports.changeAbility = function(copy, org, num, ability, log){
                 copy_ability = copy.con.p_con.split("\n")[i].slice(9)
             }
         }
-        log += org.con.TN + "　の　" + org.con.name + "　の　特性が　" + copy_ability + "に　なった"  + CR
-        cfn.conditionRemove(org.con.p_con, "スロースタート　")
+        cfn.logWrite(copy, org, org.con.TN + "　の　" + org.con.name + "　の　特性が　" + copy_ability + "に　なった"  + CR)
+        cfn.conditionRemove(org.con, "poke", "スロースタート　")
         org.con.ability = copy_ability
         const p_con = org.con.p_con
         org.con.p_con = ""
@@ -308,9 +308,9 @@ exports.changeAbility = function(copy, org, num, ability, log){
                 org.con.p_con = p_con.split("\n")[i] + CR
             }
         }
-        summon.activAbility(org, copy, 1, log)
+        summon.activAbility(org, copy, 1)
     } else if (num == 2){
-        log += "お互いの　特性を入れ替えた！" + CR
+        cfn.logWrite(copy, org, "お互いの　特性を入れ替えた！" + CR)
         let copy_ability = copy.con.ability
         for (let i = 0; i < copy.con.p_con.split("\n").length - 1; i++){
             if (copy.con.p_con.split("\n")[i].includes("特性なし")){
@@ -327,7 +327,7 @@ exports.changeAbility = function(copy, org, num, ability, log){
                 org_ability = org.con.p_con.split("\n")[i].slice(9)
             }
         }
-        cfn.conditionRemove(org.con.p_con, "スロースタート　")
+        cfn.conditionRemove(org.con, "poke", "スロースタート　")
         copy.con.ability = org_ability
         const copy_p_con = copy.con.p_con
         copy.con.p_con = ""
@@ -342,7 +342,7 @@ exports.changeAbility = function(copy, org, num, ability, log){
                 copy.con.p_con = copy_p_con.split("\n")[i] + CR
             }
         }
-        cfn.conditionRemove(copy.con.p_con, "スロースタート　")
+        cfn.conditionRemove(copy.con, "poke", "スロースタート　")
         org.con.ability = copy_ability
         const org_p_con = org.con.p_con
         org.con.p_con = ""
@@ -357,10 +357,10 @@ exports.changeAbility = function(copy, org, num, ability, log){
                 org.con.p_con= org_p_con.split("\n")[i] + CR
             }
         }
-        summon.activAbility(org, copy, "both", log)
+        summon.activAbility(org, copy, "both")
     } else if (num == 3){
-        log += copy.con.TN + "　の　" + copy.con.name + "の　特性が　" + ability + "に　なった！" + CR
-        cfn.conditionRemove(copy.con.p_con, "スロースタート　")
+        cfn.logWrite(copy, org, copy.con.TN + "　の　" + copy.con.name + "の　特性が　" + ability + "に　なった！" + CR)
+        cfn.conditionRemove(copy.con, "poke", "スロースタート　")
         copy.con.ability = ability
         const copy_p_con = copy.con.p_con
         copy.con.p_con = ""
@@ -375,16 +375,16 @@ exports.changeAbility = function(copy, org, num, ability, log){
                 copy.con.p_con = copy_p_con.split("\n")[i] + CR
             }
         }
-        summon.activAbility(org, copy, 2, log)
+        summon.activAbility(org, copy, 2)
     }
 }
 
 
 // フォルムチェンジ
-exports.formChenge = function(team, enemy, name, log){
+exports.formChenge = function(team, enemy, name){
     let con = team.con
     poke = cfn.pokeSearch(name)
-    log += con.TN + "　の　" + con.name + "　は　" + poke[1] + "　に　なった!" + CR
+    cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　は　" + poke[1] + "　に　なった!" + CR)
     const rate = cfn.natureCheck(con.nature)
     const num = cfn.battleNum(team)
 
@@ -429,5 +429,5 @@ exports.formChenge = function(team, enemy, name, log){
     }
 
     // 特性の発動
-    summon.activAbility(team, enemy, 1, log)
+    summon.activAbility(team, enemy, 1)
 }

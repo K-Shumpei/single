@@ -50,7 +50,6 @@ function set_ID(){
 }
 
 function set_random(){
-    alert("NN")
     let poke = ""
     let random = Math.random()
     for (let i = 0; i < pokemon.length; i++){
@@ -58,7 +57,6 @@ function set_random(){
             poke = pokemon[i]
         }
     }
-    alert("PP")
     // 性別の設定
     document.getElementById("male").disabled = false
     document.getElementById("female").disabled = false
@@ -273,15 +271,14 @@ function set_nature(){
 }
 
 function set_move(num){
-    const label = ["move", "type", "label", "power", "accuracy", "PP", "direct", "protect", "focus", "discription"]
     const name = document.four_moves["move" + String(num)].value
-    for (i = 0; i < move_list.length; i++){
-        if (name == move_list[i][0]){
-            document.getElementById("type" + String(num)).textContent = move_list[i][1]
-            document.getElementById("power" + String(num)).textContent = move_list[i][3]
-            document.getElementById("accuracy" + String(num)).textContent = move_list[i][4]
-            document.getElementById("PP" + String(num)).textContent = move_list[i][5]
-            document.getElementById("discription" + String(num)).textContent = move_list[i][9]
+    for (i = 0; i < base_move_list.length; i++){
+        if (name == base_move_list[i][0]){
+            document.getElementById("type" + String(num)).textContent = base_move_list[i][1]
+            document.getElementById("power" + String(num)).textContent = base_move_list[i][3]
+            document.getElementById("accuracy" + String(num)).textContent = base_move_list[i][4]
+            document.getElementById("PP" + String(num)).textContent = base_move_list[i][5]
+            document.getElementById("discription" + String(num)).textContent = base_move_list[i][9]
         }
     }
 }

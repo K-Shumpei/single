@@ -1,34 +1,42 @@
-function move_success_judge(atk, def, order){
+const afn = require("./function")
+const bfn = require("./base_function")
+const cfn = require("./law_function")
+const moveEff = require("./move_effect")
+const pokeData = require("./poke_data")
+const moveList = require("./poke_move")
+const itemEff = require("./item_effect")
+
+exports.moveSuccessJudge = function(atk, def, order){
     // 0.技の決定
-    let move = decide_move(atk)
+    let move = decideMove(atk, def)
 
     const atk_poke = document.getElementById(atk + "_poke").textContent
     const def_poke = document.getElementById(def + "_poke").textContent
 
     // 1.フリーフォールで行動順を飛ばされる
-    if (sky_drop_failure(atk, atk_poke)){return false}
+    if (skyDropFailure(atk, def)){return false}
     // 2.(自身のおんねん/いかり状態の解除)
-    gradge_rage(atk, def, move)
+    gradgeRage(atk, def, move)
     // 3.行動の失敗
-    if (action_failure(atk, def, atk_poke, move)){
-        condition_remove(atk, "poke", "溜め技")
-        condition_remove(atk, "poke", "姿を隠す")
+    if (actionFailure(atk, def, move)){
+        cfn.conditionRemove(atk.con, "poke", "溜め技")
+        cfn.conditionRemove(atk.con, "poke", "姿を隠す")
         return false
     }
     // 4.ねごと/いびき使用時「ぐうぐう 眠っている」メッセージ
     // 5.Zワザの場合はZパワーを送る。Z変化技の場合は付加効果
-    Z_power_activation(atk, move)
+    //Z_power_activation(atk, move)
     // 6.他の技が出る技により技を置き換え、(3-8~10)の行程を繰り返す
-    move_replace(atk, def, move, order)
+    moveReplace(atk, def, move, order)
     // 7.特性バトルスイッチによるフォルムチェンジ
-    battle_switch(atk, move)
+    battleSwitch(atk, def, move)
     // 8.「<ポケモン>の <技>!」のメッセージ。PPが減少することが確約される
-    attack_declaration(atk, def, atk_poke, move)
+    attackDeclaration(atk, def, move)
     // 9.わざのタイプが変わる。1→2→3の順にタイプが変わる
-    move_type_change(atk, move)
+    moveTypeChange(atk, def, move)
     // 10.技の対象が決まる。若い番号の対象が優先される
     // 11.PPが適切な量引かれる (プレッシャーの効果が考慮される)
-    if (PP_decrease(atk, def, move, order)){return false}
+    if (PPDecrease(atk, def, move, order)){return false}
     // 12.こだわり系アイテム/ごりむちゅうで技が固定される
     commitment_rock(atk, move)
     // 13.技の仕様による失敗
@@ -137,68 +145,66 @@ function move_success_judge(atk, def, order){
 
 
 // 0.技の決定　その他
-function decide_move(atk){
+function decideMove(atk, def){
 
     let move_org = "" // 技の元データを代入
 
-    if (new get(atk).p_con.includes("反動で動けない")){
-        for (let i = 0; i < new get(atk).p_len; i++){
-            if (new get(atk).p_list[i].includes("反動で動けない")){
-                move_org = move_search_by_name(new get(atk).p_list[i].slice(8))
+    if (atk.con.p_con.includes("反動で動けない")){
+        for (let i = 0; i < atk.con.p_con.split("\n").length - 1; i++){
+            if (atk.con.p_con.split("\n")[i].includes("反動で動けない")){
+                move_org = cfn.moveSearchByName(atk.con.p_con.split("\n")[i].slice(8))
             }
         }
-    } else if (new get(atk).p_con.includes("溜め技")){
-        for (let i = 0; i < new get(atk).p_len; i++){
-            if (new get(atk).p_list[i].includes("溜め技")){
-                move_org = move_search_by_name(new get(atk).p_list[i].slice(4))
+    } else if (atk.con.p_con.includes("溜め技")){
+        for (let i = 0; i < atk.con.p_con.split("\n").length - 1; i++){
+            if (atk.con.p_con.split("\n")[i].includes("溜め技")){
+                move_org = cfn.moveSearchByName(atk.con.p_con.split("\n")[i].slice(4))
             }
         }
-    } else if (new get(atk).p_con.includes("あばれる")){
-        for (let i = 0; i < new get(atk).p_len; i++){
-            if (new get(atk).p_list[i].includes("あばれる")){
-                move_org = move_search_by_name(new get(atk).p_list[i].slice(0, -7).slice(5))
+    } else if (atk.con.p_con.includes("あばれる")){
+        for (let i = 0; i < atk.con.p_con.split("\n").length - 1; i++){
+            if (atk.con.p_con.split("\n")[i].includes("あばれる")){
+                move_org = cfn.moveSearchByName(atk.con.p_con.split("\n")[i].slice(5, -7))
             }
         }
-    } else if (new get(atk).p_con.includes("アイスボール")){
-        move_org = move_search_by_name("アイスボール")
-    } else if (new get(atk).p_con.includes("ころがる")){
-        move_org = move_search_by_name("ころがる")
-    } else if (new get(atk).p_con.includes("がまん")){
-        move_org = move_search_by_name("がまん")
+    } else if (atk.con.p_con.includes("アイスボール")){
+        move = cfn.moveSearchByName("アイスボール")
+    } else if (atk.con.p_con.includes("ころがる")){
+        move = cfn.moveSearchByName("ころがる")
+    } else if (atk.con.p_con.includes("がまん")){
+        move = cfn.moveSearchByName("がまん")
     } else {
-        const num = String(document.getElementById("battle")[atk + "_move"].value)
-        const move_name = document.getElementById(atk + "_move_" + num).textContent
+        const move_name = atk.con["move_" + atk.data.command]
         if (move_name.includes("Z")){
-            move_org = move_search_by_name(move_name.replace("Z", "")).concat()
+            move_org = cfn.moveSearchByName(move_name.replace("Z", "")).concat()
             move_org[0] = move_name
         } else {
-            move_org = move_search(atk)
+            move_org = cfn.moveSearchByName(move_name)
         }
     }
 
     let move = move_org.concat() // 技データのコピー、こっちをいじる
 
-    if (new get(atk).ability == "えんかく"){
+    if (atk.con.ability == "えんかく"){
         move[6] = "間接"
     }
 
-    txt = "(" + atk + "行動)"
-    document.battle_log.battle_log.value += txt + CR
+    cfn.logWrite(atk, def, "(" + atk.con.TN + "の行動)")
 
     // かなしばりのターン消費
-    let atk_p_con = document.battle[atk + "_poke_condition"].value
-    document.battle[atk + "_poke_condition"].value = ""
+    let atk_p_con = atk.con.p_con
+    atk.con.p_con = ""
     for (let i = 0; i < atk_p_con.split("\n").length - 1; i++){
         if (atk_p_con.split("\n")[i].includes("かなしばり　4/4")){
-            document.battle[atk + "_poke_condition"].value += "かなしばり　3/4：" + atk_p_con.split("\n")[i].slice(10) + CR
+            atk.con.p_con += "かなしばり　3/4：" + atk_p_con.split("\n")[i].slice(10) + CR
         } else if (atk_p_con.split("\n")[i].includes("かなしばり　3/4")){
-            document.battle[atk + "_poke_condition"].value += "かなしばり　2/4：" + atk_p_con.split("\n")[i].slice(10) + CR
+            atk.con.p_con += "かなしばり　2/4：" + atk_p_con.split("\n")[i].slice(10) + CR
         } else if (atk_p_con.split("\n")[i].includes("かなしばり　2/4")){
-            document.battle[atk + "_poke_condition"].value += "かなしばり　1/4：" + atk_p_con.split("\n")[i].slice(10) + CR
+            atk.con.p_con += "かなしばり　1/4：" + atk_p_con.split("\n")[i].slice(10) + CR
         } else if (atk_p_con.split("\n")[i].includes("かなしばり　1/4")){
-            document.battle[atk + "_poke_condition"].value += "かなしばり　0/4：" + atk_p_con.split("\n")[i].slice(10) + CR
+            atk.con.p_con += "かなしばり　0/4：" + atk_p_con.split("\n")[i].slice(10) + CR
         } else {
-            document.battle[atk + "_poke_condition"].value += atk_p_con.split("\n")[i] + CR
+            atk.con.p_con += atk_p_con.split("\n")[i] + CR
         }
     }
 
@@ -207,329 +213,270 @@ function decide_move(atk){
 
 
 // 1.フリーフォールで行動順を飛ばされる
-function sky_drop_failure(atk, atk_poke){
-    const atk_p_con = document.battle[atk + "_poke_condition"].value
-    if (!atk_p_con.includes("反動で動けない")){ // フリーフォールで行動順を飛ばされたときも判定
-        if (atk_p_con.includes("フリーフォール（防御）")){
-            txt = atk + "チームの　" + atk_poke + "は　空中で身動きが取れない　!" + CR
-            document.battle_log.battle_log.value += txt
+function skyDropFailure(atk, def){
+    if (!atk.con.p_con.includes("反動で動けない")){ // フリーフォールで行動順を飛ばされたときも判定
+        if (atk.con.p_con.includes("フリーフォール（防御）")){
+            cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　空中で身動きが取れない　!" + CR)
             return true
         }
     }
 }
 
 // 2.(自身のおんねん/いかり状態の解除)
-function gradge_rage(atk, def, move){
-    const atk_poke = document.getElementById(atk + "_poke").textContent
-    const atk_p_con = document.battle[atk + "_poke_condition"].value
-    if (atk_p_con.includes("おんねん")){
-        document.battle[atk + "_poke_condition"].value = ""
-        for (let i = 0; i < atk_p_con.split("\n").length - 1; i++){
-            if (atk_p_con.split("\n")[i] != "おんねん"){
-                document.battle[atk + "_poke_condition"].value += atk_p_con.split("\n")[i] + CR
-            }
-        }
-    }
-    if (atk_p_con.includes("いかり") && move[0] != "いかり"){
-        txt = atk + "チームの　" + atk_poke + "は　怒りが静まった　!" + CR
-        document.battle_log.battle_log.value += txt
-        document.battle[atk + "_poke_condition"].value = ""
-        for (let i = 0; i < atk_p_con.split("\n").length - 1; i++){
-            if (atk_p_con.split("\n")[i] != "いかり"){
-                document.battle[atk + "_poke_condition"].value += atk_p_con.split("\n")[i] + CR
-            }
-        }
+function gradgeRage(atk, def, move){
+    cfn.conditionRemove(atk.con, "poke", "おんねん")
+    if (atk.con.p_con.includes("いかり") && move[0] != "いかり"){
+        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　怒りが静まった　!" + CR)
+        cfn.conditionRemove(atk.con, "poke", "いかり")
     }
 }
 
 // 3.行動の失敗
-function action_failure(atk, def, atk_poke, move){
+function actionFailure(atk, def, move){
+    let con = atk.con
     // みちづれ状態の解除
-    condition_remove(atk, "poke", "みちづれ")
-    
-    const atk_p_con = document.battle[atk + "_poke_condition"].value
-    const def_p_con = document.battle[def + "_poke_condition"].value
-    const atk_f_con = document.battle[atk + "_field_condition"].value
-    const atk_abnormal = document.getElementById(atk + "_abnormal").textContent
-    const atk_item = document.getElementById(atk + "_item").textContent
+    cfn.conditionRemove(con, "poke", "みちづれ")
 
     // 1.技の反動で動けない
         // フリーフォールで行動順を飛ばされたときも判定
-    if (new get(atk).p_con.includes("反動で動けない")){
-        txt = atk + "チームの　" + new get(atk).name + "は　反動で動けない　!" + CR
-        document.battle_log.battle_log.value += txt
-        condition_remove(atk, "poke", "反動で動けない")
+    if (con.p_con.includes("反動で動けない")){
+        cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　反動で動けない　!" + CR)
+        cfn.conditionRemove(con, "poke", "反動で動けない")
         // なまけ状態の時は、3-4のなまけ消費まで持っていく
-        if (!atk_p_con.includes("なまけ")){
+        if (!con.p_con.includes("なまけ")){
             return true
         }
     }
 
     // 2.ねむりのカウント消費/こおりの回復判定: 動けない場合メッセージ
         // これらでも使える技を使用した場合は動ける。このときもねむり/こおりの消費/回復判定はある
-    if (atk_abnormal == "ねむり"){
-        const atk_p_con = document.battle[atk + "_poke_condition"].value
-        document.battle[atk + "_poke_condition"].value = ""
+    if (con.abnormal == "ねむり"){
+        const atk_p_con = con.p_con
+        con.p_con = ""
         let check = 0
         if (atk_p_con.includes("ねむり")){
             const random = Math.random()
             for (let i = 0; i < atk_p_con.split("\n").length - 1; i++){
                 if (atk_p_con.split("\n")[i] == "ねむり　1ターン目"){
-                    if (new get(atk).ability == "はやおき"){
+                    if (con.ability == "はやおき"){
                         if (random < 1 / 3){
                             check -= 1
                         } else {
-                            document.battle[atk + "_poke_condition"].value += "ねむり　3ターン目" + CR
+                            con.p_con += "ねむり　3ターン目" + CR
                             check += 1
                         }
                     } else {
-                        document.battle[atk + "_poke_condition"].value += "ねむり　2ターン目" + CR
+                        con.p_con += "ねむり　2ターン目" + CR
                         check += 1
                     }
                 } else if (atk_p_con.split("\n")[i] == "ねむり　2ターン目"){
-                    if (new get(atk).ability == "はやおき"){
+                    if (con.ability == "はやおき"){
                         if (random < 5 / 6){
                             check -= 1
                         } else {
-                            document.battle[atk + "_poke_condition"].value += "ねむり　4ターン目" + CR
+                            con.p_con += "ねむり　4ターン目" + CR
                             check += 1
                         }
                     } else {
                         if (random < 1 / 3){
                             check -= 1
                         } else {
-                            document.battle[atk + "_poke_condition"].value += "ねむり　3ターン目" + CR
+                            con.p_con += "ねむり　3ターン目" + CR
                             check += 1
                         }
                     }
                 } else if (atk_p_con.split("\n")[i] == "ねむり　3ターン目"){
-                    if (new get(atk).ability == "はやおき"){
+                    if (con.ability == "はやおき"){
                         check -= 1
                     } else {
                         if (random < 1 / 2){
                             check -= 1
                         } else {
-                            document.battle[atk + "_poke_condition"].value += "ねむり　4ターン目" + CR
+                            con.p_con += "ねむり　4ターン目" + CR
                             check += 1
                         }
                     }
                 } else if (atk_p_con.split("\n")[i] == "ねむり　4ターン目"){
                     check -= 1
                 } else {
-                    document.battle[atk + "_poke_condition"].value += atk_p_con.split("\n")[i] + CR
+                    con.p_con += atk_p_con.split("\n")[i] + CR
                 }
             }
         } else if (atk_p_con.includes("ねむる")){
             for (let i = 0; i < atk_p_con.split("\n").length - 1; i++){
                 if (atk_p_con.split("\n")[i] == "ねむる　2/2"){
-                    if (new get(atk).ability == "はやおき"){
-                        document.battle[atk + "_poke_condition"].value += "ねむる　回復ターン" + CR
+                    if (con.ability == "はやおき"){
+                        con.p_con += "ねむる　回復ターン" + CR
                         check += 1
                     } else {
-                        document.battle[atk + "_poke_condition"].value += "ねむる　1/2" + CR
+                        con.p_con += "ねむる　1/2" + CR
                         check += 1
                     }
                 } else if (atk_p_con.split("\n")[i] == "ねむる　1/2"){
-                    if (new get(atk).ability == "はやおき"){
+                    if (con.ability == "はやおき"){
                         check -= 1
                     } else {
-                        document.battle[atk + "_poke_condition"].value += "ねむる　回復ターン" + CR
+                        con.p_con += "ねむる　回復ターン" + CR
                         check += 1
                     }
                 } else if (atk_p_con.split("\n")[i] == "ねむる　回復ターン"){
                     check -= 1
                 } else {
-                    document.battle[atk + "_poke_condition"].value += atk_p_con.split("\n")[i] + CR
+                    con.p_con += atk_p_con.split("\n")[i] + CR
                 }
             }
         }
         
 
         if (check > 0){
-            txt = atk + "チームの　" + atk_poke + "は　ぐうぐう眠っている　!" + CR
-            document.battle_log.battle_log.value += txt
+            cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　ぐうぐう眠っている　!" + CR)
             if (move[0] == "いびき" || move[0] == "ねごと"){
                 return false
             } else {
                 return true
             }
         } else if (check < 0){
-            txt = atk + "チームの　" + atk_poke + "は　目を覚ました　!" + CR
-            document.battle_log.battle_log.value += txt
-            document.getElementById(atk + "_abnormal").textContent = ""
-
-            const atk_p_con_now = document.battle[atk + "_poke_condition"].value
-            if (atk_p_con_now.includes("あくむ")){
-                document.battle[atk + "_poke_condition"].value = ""
-                for (let i = 0; i < atk_p_con_now.split("\n").length - 1; i++){
-                    if (atk_p_con_now.split("\n")[i] != "あくむ"){
-                        document.battle[atk + "_poke_condition"].value += atk_p_con_now.split("\n")[i]
-                    }
-                }
-                txt = atk + "チームの　" + atk_poke + "は　あくむから解放された　!" + CR
-                document.battle_log.battle_log.value += txt
+            cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　目を覚ました　!" + CR)
+            con.abnormal = ""
+            if (con.p_con.includes("あくむ")){
+                cfn.conditionRemove(con, "poke", "あくむ")
+                cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　あくむから解放された　!" + CR)
             }
         }
-    } else if (atk_abnormal == "こおり"){
+    } else if (con.abnormal == "こおり"){ ////////////////
         const random = Math.random()
         if(random < 0.8){
-            for (i = 0; i < self_melt_move_list.length; i++){
-                if (move[0] == self_melt_move_list[i]){
+            const list = moveEff.meltMove()
+            for (i = 0; i < list.length; i++){
+                if (move[0] == list[i]){
                     return false
                 }
             }
-            txt = atk + "チームの　" + atk_poke + "は　凍って動けない　!" + CR
-            document.battle_log.battle_log.value += txt
+            cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　凍って動けない　!" + CR)
             return true
         } else {
-            txt = atk + "チームの　" + atk_poke + "の　こおりが溶けた　!" + CR
-            document.battle_log.battle_log.value += txt
-            document.getElementById(atk + "_abnormal").textContent = ""
+            cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　の　こおりが溶けた　!" + CR)
+            con.abnormal = ""
             return false
         }
     }
 
     // 3.PPが残っていない
-    const move_num = document.getElementById("battle")[atk + "_move"].value
-    if (move_num != ""){
-        const PP = Number(document.getElementById(atk + "_move_" + move_num + "_last").textContent)
-        if (PP == 0 && !atk_p_con.includes("溜め技")){
-            txt = atk + "チームの　" + atk_poke + "　は　PPがなくて技が出せない!" + CR
-            document.battle_log.battle_log.value += txt
+    if (atk.data.command != ""){
+        if (con["PP_" + atk.data.command] == 0 && !con.p_con.includes("溜め技")){
+            cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　PPがなくて技が出せない　!" + CR)
             return true
         }
     }
 
     // 4.なまけのカウント消費: 動けない場合メッセージ
         // 反動で動けないときでも消費
-    if (new get(atk).p_con.includes("なまけ")){
-        condition_remove(atk, "poke", "なまけ")
-        txt = atk + "チームの　" + atk_poke + "　は　なまけている" + CR
-        document.battle_log.battle_log.value += txt
+    if (con.p_con.includes("なまけ")){
+        cfn.conditionRemove(con, "poke", "なまけ")
+        cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　なまけている" + CR)
         return true
-    } else if (new get(atk).ability == "なまけ" && !new get(atk).p_con.includes("なまけ")){
-        document.battle[atk + "_poke_condition"].value += "なまけ" + CR
+    } else if (con.ability == "なまけ" && !con.p_con.includes("なまけ")){
+        con.p_con += "なまけ" + CR
     }
     // 5.きあいパンチ使用時、そのターンにダメージを受けていて動けない (ダイマックスポケモンを除く)
-    if (atk_p_con.includes("きあいパンチ　失敗")){
-        txt = atk + "チームの　" + atk_poke + "は　集中が途切れて　技が出せなかった　!" + CR
-        document.battle_log.battle_log.value += txt
-        document.battle[atk + "_poke_condition"].value = ""
-        for (let i = 0; i < atk_p_con.split("\n").length - 1; i++){
-            if (atk_p_con.split("\n")[i] != "きあいパンチ　失敗"){
-                document.battle[atk + "_poke_condition"].value += atk_p_con.split("\n")[i] + CR
-            }
-        }
+    if (con.p_con.includes("きあいパンチ　失敗")){
+        cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　集中が途切れて　技が出せなかった　!" + CR)
+        cfn.conditionRemove(con, "poke", "きあいパンチ　失敗")
         return true
     }
     // 6.ひるみで動けない (ダイマックスポケモンを除く)
-    if (atk_p_con.includes("ひるみ")){
-        txt = atk + "チームの　" + atk_poke + "は　ひるんで　動けない　!" + CR
-        document.battle_log.battle_log.value += txt
-        if (new get(atk).ability == "ふくつのこころ"){
-            rank_change_not_status(atk, "S", 1, 100, "ふくつのこころ")
+    if (con.p_con.includes("ひるみ")){
+        cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　ひるんで　動けない　!" + CR)
+        if (con.ability == "ふくつのこころ"){
+            afn.rankChange(atk, def, "S", 1, 100, "ふくつのこころ")
         }
         return true
     }
     // 7.かなしばりで技が出せない (Zワザを除く)
-    if (atk_p_con.includes("かなしばり")){
-        for (let i = 0; i < atk_p_con.split("\n").length - 1; i++){
-            if (atk_p_con.split("\n")[i].includes("かなしばり") && (atk_p_con.split("\n")[i].slice(10) == move[0])){
-                txt = atk + "チームの　" + atk_poke + "は　かなしばりで　技が出せなかった　!" + CR
-                document.battle_log.battle_log.value += txt
-                return true
-            }
+    for (let i = 0; i < con.p_con.split("\n").length - 1; i++){
+        if (con.p_con.split("\n")[i].includes("かなしばり") && (con.p_con.split("\n")[i].slice(10) == move[0])){
+            cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　かなしばりで　技が出せなかった　!" + CR)
+            return true
         }
     }
     // 8.じゅうりょくで技が出せない
-    if (atk_f_con.includes("じゅうりょく") && gravity_move_list.includes(move[0])){
-        txt = atk + "チームの　" + atk_poke + "は　じゅうりょくで　技が出せなかった　!" + CR
-        document.battle_log.battle_log.value += txt
+    if (con.f_con.includes("じゅうりょく") && moveEff.gravity().includes(move[0])){
+        cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　じゅうりょくで　技が出せなかった　!" + CR)
         return true
     }
     // 9.かいふくふうじで技が出せない (Zワザを除く)
-    if (atk_p_con.includes("かいふくふうじ") && recover_move_list.includes(move[0])){
-        txt = atk + "チームの　" + atk_poke + "は　かいふくふうじで　技が出せなかった　!" + CR
-        document.battle_log.battle_log.value += txt
+    if (con.p_con.includes("かいふくふうじ") && moveEff.recover().includes(move[0])){
+        cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　かいふくふうじで　技が出せなかった　!" + CR)
         return true
     }
     // 10.じごくづきで音技が出せない (Zワザを除く)
-    if (atk_p_con.includes("じごくづき") && music_move_list.includes(move[0])){
-        txt = atk + "チームの　" + atk_poke + "は　じごくづきで　技が出せなかった　!" + CR
-        document.battle_log.battle_log.value += txt
+    if (con.p_con.includes("じごくづき") && moveEff.music().includes(move[0])){
+        cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　じごくづきで　技が出せなかった　!" + CR)
         return true
     }
     // 11.こだわっていない技が出せない (ダイマックスポケモンを除く)
-    for (let i = 0; i < new get(atk).p_len; i++){
-        if (new get(atk).p_list[i].includes("こだわりロック") && new get(atk).p_list[i].slice(8) != move[0]){
-            txt = atk + "チームの　" + new get(atk).name + "は　こだわっているせいで　技が出せなかった　!" + CR
-            document.battle_log.battle_log.value += txt
+    for (let i = 0; i < con.p_con.split("\n").length - 1; i++){
+        if (con.p_con.split("\n")[i].includes("こだわりロック") &&  con.p_con.split("\n")[i].slice(8) != move[0]){
+            cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　こだわっているせいで　技が出せなかった　!" + CR)
             return true
         }
     }
     // 12.ちょうはつで変化技が出せない (Zワザを除く)
-    if (atk_p_con.includes("ちょうはつ") && move[2] == "変化"){
-        txt = atk + "チームの　" + atk_poke + "は　挑発されて　技が出せなかった　!" + CR
-        document.battle_log.battle_log.value += txt
+    if (con.p_con.includes("ちょうはつ") && move[2] == "変化"){
+        cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　挑発されて　技が出せなかった　!" + CR)
         return true
     }
     // 13.ふういんで技が出せない (Zワザ/ダイマックスポケモンを除く)
-    if (def_p_con.includes("ふういん")){
+    if (con.p_con.includes("ふういん")){
         let def_move = []
         for (let i = 0; i < 4; i++){
-            def_move.push(document.getElementById(def + "_move_" + i).textContent)
+            def_move.push(def.con["move_" + i])
         }
         if (def_move.includes(move[0])){
-            txt = atk + "チームの　" + atk_poke + "は　封印されて　技が出せなかった　!" + CR
-            document.battle_log.battle_log.value += txt
+            cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　封印されて　技が出せなかった　!" + CR)
             return true
         }
     }
     // 14.こんらんの自傷の判定
-    if (atk_p_con.includes("こんらん")){
-        document.battle[atk + "_poke_condition"].value = ""
+    if (con.p_con.includes("こんらん")){
+        const atk_p_con = con.p_con
+        con.p_con = ""
         const random = Math.random()
         let check = 0
         for (let i = 0; i < atk_p_con.split("\n").length - 1; i++){
             if (atk_p_con.split("\n")[i] == "こんらん　1ターン目"){
-                txt = atk + "チームの　" + atk_poke + "は　こんらんしている　!" + CR
-                document.battle_log.battle_log.value += txt
-                document.battle[atk + "_poke_condition"].value += "こんらん　2ターン目" + CR
+                cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　こんらんしている　!" + CR)
+                con.p_con += "こんらん　2ターン目" + CR
                 check += 1
             } else if (atk_p_con.split("\n")[i] == "こんらん　2ターン目"){
                 if (random < 1 / 3){
-                    txt = atk + "チームの　" + atk_poke + "の　こんらん　がとけた　!" + CR
-                    document.battle_log.battle_log.value += txt
+                    cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　の　こんらん　がとけた　!" + CR)
                     check -= 1
                 } else {
-                    txt = atk + "チームの　" + atk_poke + "は　こんらんしている　!" + CR
-                    document.battle_log.battle_log.value += txt
-                    document.battle[atk + "_poke_condition"].value += "こんらん　3ターン目" + CR
+                    cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　こんらんしている　!" + CR)
+                    con.p_con += "こんらん　3ターン目" + CR
                     check += 1
                 }
             } else if (atk_p_con.split("\n")[i] == "こんらん　3ターン目"){
                 if (random < 1 / 2){
-                    txt = atk + "チームの　" + atk_poke + "の　こんらん　がとけた　!" + CR
-                    document.battle_log.battle_log.value += txt
+                    cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　の　こんらん　がとけた　!" + CR)
                     check -= 1
                 } else {
-                    txt = atk + "チームの　" + atk_poke + "は　こんらんしている　!" + CR
-                    document.battle_log.battle_log.value += txt
-                    document.battle[atk + "_poke_condition"].value += "こんらん　4ターン目" + CR
+                    cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　こんらんしている　!" + CR)
+                    con.p_con += "こんらん　4ターン目" + CR
                     check += 1
                 }
             } else if (atk_p_con.split("\n")[i] == "こんらん　4ターン目"){
-                txt = atk + "チームの　" + atk_poke + "の　こんらん　がとけた　!" + CR
-                document.battle_log.battle_log.value += txt
+                cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　の　こんらん　がとけた　!" + CR)
                 check -= 1
             } else {
-                document.battle[atk + "_poke_condition"].value += atk_p_con.split("\n")[i] + CR
+                con.p_con += atk_p_con.split("\n")[i] + CR
             }
         }
         if (check > 0){
             const random = Math.random()
             if (random < 1 / 3){ // 確率でこんらん自傷
-                confuse_self_injured(atk, atk_poke)
+                confuseSelfInjured(atk, def)
                 return true
             }
         } else {
@@ -537,25 +484,18 @@ function action_failure(atk, def, atk_poke, move){
         }
     }
     // 15.まひして技が出せない
-    if (atk_abnormal == "まひ"){
-        const random = Math.random()
-        if (random < 0.25){
-            txt = atk + "チームの　" + atk_poke + "は　体がしびれて　動けない　!" + CR
-            document.battle_log.battle_log.value += txt
+    if (con.abnormal == "まひ"){
+        if (Math.random() < 0.25){
+            cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　体がしびれて　動けない　!" + CR)
             return true
         }
     }
     // 16.メロメロの判定
-    if (atk_p_con.includes("メロメロ")){
-        const random = Math.random()
-        if (random < 0.5){
-            txt = atk + "チームの　" + atk_poke + "は　メロメロで　技が出せなかった　!" + CR
-            document.battle_log.battle_log.value += txt
+    if (con.p_con.includes("メロメロ")){
+        cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　メロメロだ　!" + CR)
+        if (Math.random() < 0.5){
+            cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　メロメロで　技が出せなかった　!" + CR)
             return true
-        } else {
-            txt = atk + "チームの　" + atk_poke + "は　メロメロだ　!" + CR
-            document.battle_log.battle_log.value += txt
-            return false
         }
     }
 }
@@ -564,8 +504,8 @@ function action_failure(atk, def, atk_poke, move){
 function Z_power_activation(atk, move){
     let check = 0
     // 普通のZクリスタル（攻撃技）の場合
-    for (let i = 0; i < Z_crystal_list.length; i++){
-        if (move[0] == Z_crystal_list[i][1]){
+    for (let i = 0; i < itemEff.Zcrystal().length; i++){
+        if (move[0] == itemEff.Zcrystal()[i][1]){
             check += 1
             txt = atk + "チームの　" + new get(atk).name + "　は　Zパワーを身に纏った！" + CR
             document.battle_log.battle_log.value += txt
@@ -659,27 +599,23 @@ function Z_power_activation(atk, move){
 
 // 6.他の技が出る技により技を置き換え、(3-8~10)の行程を繰り返す
 // オウムがえし、さきどり、しぜんのちから、ねごと、ねこのて、まねっこ、ゆびをふる
-function move_replace(atk, def, move, order){
-    const atk_poke = document.getElementById(atk + "_poke").textContent
-    const atk_f_con = document.battle[atk + "_field_condition"].value
-    const atk_p_con = document.battle[atk + "_poke_condition"].value
-    const def_used_move = document.battle[def + "_used_move"].value
+function moveReplace(atk, def, move, order){
     // オウムがえし
     if (move[0].includes("オウムがえし")){
         move[9] = move[0]
         let check = 0
-        if (!mirror_move_list.includes(def_used_move)){
-            if (def_used_move == "あばれる" || def_used_move == "げきりん" || def_used_move == "はなびらのまい" || def_used_move == "さわぐ" || def_used_move == "メタルバースト" 
-            || def_used_move == "トリックルーム" || def_used_move == "ワンダールーム" || def_used_move == "マジックルーム" || def_used_move == "フェアリーロック"){
+        if (!moveEff.mirror().includes(def.con.used)){
+            if (def.con.used == "あばれる" || def.con.used == "げきりん" || def.con.used == "はなびらのまい" || def.con.used == "さわぐ" || def.con.used == "メタルバースト" 
+            || def.con.used == "トリックルーム" || def.con.used == "ワンダールーム" || def.con.used == "マジックルーム" || def.con.used == "フェアリーロック"){
                 check += 1
             } else {
-                if (!(move_search_by_name(def_used_move)[8] == "自分" || move_search_by_name(def_used_move)[8].includes("場"))){
+                if (!(cfn.moveSearchByName(def.con.used)[8] == "自分" || cfn.moveSearchByName(def.con.used)[8].includes("場"))){
                     check += 1
                 }
             }
         }
         for (let i = 0; i < 9; i++){
-            move[i] = move_search_by_name(def_used_move)[i]
+            move[i] = cfn.moveSearchByName(def.con.used)[i]
         }
         if (check == 0){
             move.push("失敗")
@@ -689,13 +625,11 @@ function move_replace(atk, def, move, order){
     if (move[0].includes("さきどり")){
         move[9] = move[0]
         if (atk = order[0]){
-            const num = String(document.getElementById("battle")[def + "_move"].value)
-            const def_move = document.getElementById(def + "_move_" + num).textContent
-            const def_move_list = move_search_by_name(def_move)
+            const defMove = def.con["move_" + def.data.command]
             for (let i = 0; i < 9; i++){
-                move[i] = move_search_by_name(def_move)[i]
+                move[i] = cfn.moveSearchByName(defMove)[i]
             }
-            if (me_first_move_list.includes(def_move) || def_move_list[2] == "変化"){
+            if (moveEff.meFirst().includes(defMove) || cfn.moveSearchByName(defMove)[2] == "変化"){
                 move.push("失敗")
             }
         }
@@ -703,25 +637,25 @@ function move_replace(atk, def, move, order){
     // しぜんのちから
     if (move[0].includes("しぜんのちから")){
         move[9] = move[0]
-        if (atk_f_con.includes("グラスフィールド")){
+        if (con.f_con.includes("グラスフィールド")){
             for (let i = 0; i < 9; i++){
-                move[i] = move_search_by_name("エナジーボール")[i]
+                move[i] = cfn.moveSearchByName("エナジーボール")[i]
             }
-        } else if (atk_f_con.includes("エレキフィールド")){
+        } else if (con.f_con.includes("エレキフィールド")){
             for (let i = 0; i < 9; i++){
-                move[i] = move_search_by_name("10まんボルト")[i]
+                move[i] = cfn.moveSearchByName("10まんボルト")[i]
             }
-        } else if (atk_f_con.includes("ミストフィールド")){
+        } else if (con.f_con.includes("ミストフィールド")){
             for (let i = 0; i < 9; i++){
-                move[i] = move_search_by_name("ムーンフォース")[i]
+                move[i] = cfn.moveSearchByName("ムーンフォース")[i]
             }
-        } else if (atk_f_con.includes("サイコフィールド")){
+        } else if (con.f_con.includes("サイコフィールド")){
             for (let i = 0; i < 9; i++){
-                move[i] = move_search_by_name("サイコキネシス")[i]
+                move[i] = cfn.moveSearchByName("サイコキネシス")[i]
             }
         } else {
             for (let i = 0; i < 9; i++){
-                move[i] = move_search_by_name("トライアタック")[i]
+                move[i] = cfn.moveSearchByName("トライアタック")[i]
             }
         }
     }
@@ -729,9 +663,8 @@ function move_replace(atk, def, move, order){
     if (move[0].includes("ねごと")){
         let check = []
         for (let i = 0; i < 4; i++){
-            let move_name = document.getElementById(atk + "_move_" + i).textContent
-            if (!sleep_talk_move_list.includes(move_name)){
-                check.push(move_name)
+            if (!moveEff.sleepTalk().includes(con["move_" + i])){
+                check.push(con["move_" + i])
             }
         }
         check = check.slice(0, -1)
@@ -750,10 +683,10 @@ function move_replace(atk, def, move, order){
                 num = 2
             }
         }
-        if (new get(atk).abnormal == "ねむり"){
+        if (con.abnormal == "ねむり"){
             move[9] = move[0]
             for (let i = 0; i < 9; i++){
-                move[i] = move_search_by_name(check[num])[i]
+                move[i] = cfn.moveSearchByName(check[num])[i]
             }
         }
     }
@@ -761,11 +694,11 @@ function move_replace(atk, def, move, order){
     if (move[0].includes("ねこのて")){
         let cat_hand = []
         for (let i = 0; i < 3; i++){
-            if (document.getElementById(atk + "_" + i + "_existence").textContent == "控え"){
+            if (atk["poke" + i].life == "控え"){
                 for (let j = 0; j < 4; j++){
-                    let sample = document.getElementById(atk + "_" + i + "_" + j + "_move").textContent
-                    if (!assist_move_list.includes(sample) && sample != ""){
-                        cat_hand.push(document.getElementById(atk + "_" + i + "_" + j + "_move").textContent)
+                    let sample = atk["poke" + i]["move_" + j]
+                    if (!moveEff.assist().includes(sample) && sample != ""){
+                        cat_hand.push(sample)
                     }
                 }
             }
@@ -780,7 +713,7 @@ function move_replace(atk, def, move, order){
             }
             move[9] = move[0]
             for (let i = 0; i < 9; i++){
-                move[i] = move_search_by_name(cat_hand[Number(dicide)])[i]
+                move[i] = cfn.moveSearchByName(cat_hand[Number(dicide)])[i]
             }
         } else {
             move.push("失敗")
@@ -788,32 +721,32 @@ function move_replace(atk, def, move, order){
     }
     // まねっこ
     if (move[0].includes("まねっこ")){
-        const log_list = document.battle_log.battle_log.value.split("\n")
+        const log_list = con.log.split("\n")
         for (let i = 0; i < log_list.length - 1; i++){
-            if (log_list[log_list.length - 1 - i].split("　").length == 5){
-                let each = log_list[log_list.length - 1 - i].split("　")[0]
-                let poke_name = log_list[log_list.length - 1 - i].split("　")[1]
-                let no = log_list[log_list.length - 1 - i].split("　")[2]
-                let move_name = log_list[log_list.length - 1 - i].split("　")[3]
-                let mark = log_list[log_list.length - 1 - i].split("　")[4]
+            if (log_list[log_list.length - 1 - i].split("　").length == 6){
+                let each = log_list[log_list.length - 1 - i].split("　")[1]
+                let poke_name = log_list[log_list.length - 1 - i].split("　")[2]
+                let no = log_list[log_list.length - 1 - i].split("　")[3]
+                let move_name = log_list[log_list.length - 1 - i].split("　")[4]
+                let mark = log_list[log_list.length - 1 - i].split("　")[5]
                 if (move_name == "ゆびをふる" || move_name == "オウムがえし" || move_name == "さきどり" || move_name == "まねっこ" || move_name == "ねこのて" || move_name == "ねごと" || move_name == "しぜんのちから"){
-                    move_name = log_list[log_list.length - i].split("　")[3]
+                    move_name = log_list[log_list.length - i].split("　")[2]
                 }
                 let check = 0
-                for (let j = 0; j < pokemon.length; j++){
-                    if (poke_name == pokemon[j][1]){
+                for (let j = 0; j < pokeData.poke().length; j++){
+                    if (poke_name == pokeData.poke()[j][1]){
                         check += 1
                     }
                 }
-                for (let j = 0; j < move_list.length; j++){
-                    if (move_name == move_list[j][0]){
+                for (let j = 0; j < moveList.move().length; j++){
+                    if (move_name == moveList.move()[j][0]){
                         check += 1
                     }
                 }
-                if (check == 2 && each.includes("チームの") && no == "の" && mark == "！" && !copy_cat_move_list.includes(move_name)){
+                if (check == 2 && each == "の" && no == "の" && mark == "！" && !moveEff.copyCat().includes(move_name)){
                     move[9] = move[0]
                     for (let j = 0; j < 9; j++){
-                        move[j] = move_search_by_name(move_name)[j]
+                        move[j] = cfn.moveSearchByName(move_name)[j]
                     }
                 }
             }
@@ -825,78 +758,74 @@ function move_replace(atk, def, move, order){
     // ゆびをふる
     if (move[0].includes("ゆびをふる")){
         const random = Math.random()
-        const num = metronome_move_list.length
+        const num = moveEff.metronome().length
         let metro_move = ""
-        for (let i = 0; i < num; i++){
-            if (random >= i / num){
-                metro_move = metronome_move_list[i]
+        for (let i = 0; i < moveEff.metronome().length; i++){
+            if (random >= i / moveEff.metronome().length){
+                metro_move = moveEff.metronome()[i]
             }
         }
         move[9] = move[0]
         for (let i = 0; i < 9; i++){
-            move[i] = move_search_by_name(metro_move)[i]
+            move[i] = cfn.moveSearchByName(metro_move)[i]
         }
     }
 
     // 8.じゅうりょくで技が出せない
-    if (atk_f_con.includes("じゅうりょく") && gravity_move_list.includes(move[0])){
-        txt = atk + "チームの　" + atk_poke + "は　じゅうりょくで　技が出せなかった　!" + CR
-        document.battle_log.battle_log.value += txt
+    if (con.f_con.includes("じゅうりょく") && moveEff.gravity().includes(move[0])){
+        cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　じゅうりょくで　技が出せなかった　!" + CR)
         return true
     }
     // 9.かいふくふうじで技が出せない (Zワザを除く)
-    if (atk_p_con.includes("かいふくふうじ") && recover_move_list.includes(move[0])){
-        txt = atk + "チームの　" + atk_poke + "は　かいふくふうじで　技が出せなかった　!" + CR
-        document.battle_log.battle_log.value += txt
+    if (con.p_con.includes("かいふくふうじ") && moveEff.recover().includes(move[0])){
+        cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　かいふくふうじで　技が出せなかった　!" + CR)
         return true
     }
     // 10.じごくづきで音技が出せない (Zワザを除く)
-    if (atk_p_con.includes("じごくづき") && music_move_list.includes(move[0])){
-        txt = atk + "チームの　" + atk_poke + "は　じごくづきで　技が出せなかった　!" + CR
-        document.battle_log.battle_log.value += txt
+    if (con.p_con.includes("じごくづき") && moveEff.music().includes(move[0])){
+        cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　じごくづきで　技が出せなかった　!" + CR)
         return true
     }
 }
 
 // 7.特性バトルスイッチによるフォルムチェンジ
-function battle_switch(atk, move){
-    if (new get(atk).ability == "バトルスイッチ"){
-        if (new get(atk).name.includes("シールド") && move[2] != "変化"){
-            txt = atk + "チームの　" + new get(atk).name + "の　バトルスイッチ!" + CR
-            document.battle_log.battle_log.value += txt
-            form_chenge(atk, "ギルガルド(ブレードフォルム)")
-        } else if (new get(atk).name.includes("ブレード") && move[0] == "キングシールド"){
-            txt = atk + "チームの　" + new get(atk).name + "の　バトルスイッチ!" + CR
-            document.battle_log.battle_log.value += txt
-            form_chenge(atk, "ギルガルド(シールドフォルム)")
-        }
+function battleSwitch(atk, def, move){
+    if (atk.con.ability != "バトルスイッチ"){
+        return
+    }
+    if (atk.con.name.includes("シールド") && move[2] != "変化"){
+        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　の　バトルスイッチ!" + CR)
+        afn.formChenge(atk, def, "ギルガルド(ブレードフォルム)")
+        return
+    }
+    if (atk.con.name.includes("ブレード") && move[0] == "キングシールド"){
+        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　の　バトルスイッチ!" + CR)
+        afn.formChenge(atk, def, "ギルガルド(シールドフォルム)")
+        return
     }
 }
 
 // 8.「<ポケモン>の <技>!」のメッセージ。PPが減少することが確約される
-function attack_declaration(atk, def, atk_poke, move){
+function attackDeclaration(atk, def, move){
+    let con = atk.con
     if (move[9] == "オウムがえし" || move[9] == "さきどり" || move[9] == "しぜんのちから" || move[9] == "ねごと" || move[9] == "ねこのて" || move[9] == "まねっこ" || move[9] == "ゆびをふる"){
-        txt = atk + "チームの　" + atk_poke + "　の　" + move[9] + "　！" + CR
-        document.battle_log.battle_log.value += txt
-        txt = move[9] + "で　" + move[0] + "が　でた！" + CR
-        document.battle_log.battle_log.value += txt
-        document.battle[atk + "_used_move"].value = move[0]
+        cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　の　" + move[9] + "　！" + CR)
+        cfn.logWrite(atk, def, move[9] + "　で　" + move[0] + "　がでた！" + CR)
+        con.used = move[0]
     } else if (move[9] == "Zオウムがえし" || move[9] == "Zさきどり" || move[9] == "Zしぜんのちから" || move[9] == "Zねごと" || move[9] == "Zねこのて" || move[9] == "Zまねっこ" || move[9] == "Zゆびをふる"){
-        txt = atk + "チームの　" + atk_poke + "　の　" + move[9] + "　！" + CR
-        document.battle_log.battle_log.value += txt
+        cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　の　" + move[9] + "　！" + CR)
         if (move[2] == "変化"){
-            txt = move[9] + "で　" + move[0] + "が　でた！" + CR
-            document.battle_log.battle_log.value += txt
-            document.battle[atk + "_used_move"].value = move[0]
+            cfn.logWrite(atk, def, move[9] + "　で　" + move[0] + "　がでた！" + CR)
+            con.used = move[0]
         } else {
-            for (let i = 0; i < Z_crystal_list.length; i++){
-                if (move[1] == Z_crystal_list[i][0]){
+            const list = itemEff.Zcrystal()
+            for (let i = 0; i < list.length; i++){
+                if (move[1] == list[i][0]){
                     for (let j = 0; j < 9; j++){
-                        move[j] = move_search_by_name(Z_crystal_list[i][1])[j]
+                        move[j] = cfn.moveSearchByName(list[i][1])[j]
                     }
-                    txt = move[9] + "で　" + move[0] + "が　でた！" + CR
-                    document.battle_log.battle_log.value += txt
-                    document.battle[atk + "_used_move"].value = move[0]
+                    cfn.logWrite(atk, def, move[9] + "　で　" + move[0] + "　がでた！" + CR)
+                    con.used = move[0]
                 }
             }
             if (move[3] < 60){
@@ -922,9 +851,8 @@ function attack_declaration(atk, def, atk_poke, move){
             }
         }
     } else {
-        txt = atk + "チームの　" + atk_poke + "　の　" + move[0] + "　！" + CR
-        document.battle_log.battle_log.value += txt
-        document.battle[atk + "_used_move"].value = move[0]
+        cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　の　" + move[9] + "　！" + CR)
+        con.used = move[0]
         if (move[0] == "プレゼント"){
             const random = Math.random() * 100
             if (random < 10){
@@ -935,174 +863,168 @@ function attack_declaration(atk, def, atk_poke, move){
                 move[3] = 40
             }
         } else if (move[0] == "ふくろだたき"){
-            move[3] = Math.floor(new get(atk).A_AV / 10 + 5)
+            move[3] = Math.floor(con.A_AV / 10 + 5)
         }
     }
 
     // アンコールターンの消費
-    let atk_p_con = document.battle[atk + "_poke_condition"].value
-    document.battle[atk + "_poke_condition"].value = ""
-    for (let i = 0; i < atk_p_con.split("\n").length - 1; i++){
-        if (atk_p_con.split("\n")[i].includes("アンコール　3/3")){
-            document.battle[atk + "_poke_condition"].value += "アンコール　2/3：" + atk_p_con.split("\n")[i].slice(10) + CR
-        } else if (atk_p_con.split("\n")[i].includes("アンコール　2/3")){
-            document.battle[atk + "_poke_condition"].value += "アンコール　1/3：" + atk_p_con.split("\n")[i].slice(10) + CR
-        } else if (atk_p_con.split("\n")[i].includes("アンコール　1/3")){
-            document.battle[atk + "_poke_condition"].value += "アンコール　0/3：" + atk_p_con.split("\n")[i].slice(10) + CR
+    let p_list = con.p_con.split("\n")
+    for (let i = 0; i < p_list.length; i++){
+        if (p_list[i].includes("アンコール")){
+            const turn = Number(p_list[i].slice(6, 7)) - 1
+            p_list[i] = "アンコール　" + turn + "/3：" + p_list[i].slice(10) + CR
+        }
+    }
+    con.p_con = p_list.join("")
+
+    // アイスボール、ころがるのターン開始
+    if (move[0] == "アイスボール" || move[0] == "ころがる"){
+        if (!con.p_con.includes(move[0])){
+            con.p_con += move[0] + "　+1" + CR
         } else {
-            document.battle[atk + "_poke_condition"].value += atk_p_con.split("\n")[i] + CR
+            let p_list = con.p_con.split("\n")
+            for (let i = 0; i < p_list.length; i++){
+                if (p_list[i].includes(move[0])){
+                    const turn = Number(p_list[i].replace(/[^0-9]/g, "")) + 1
+                    p_list[i] = move[0] + "　+" + turn + CR
+                }
+            }
+            con.p_con = p_list.join("")
         }
     }
 
-    // アイスボール、ころがるのターン開始
-    atk_p_con = document.battle[atk + "_poke_condition"].value
-    if (move[0] == "アイスボール" || move[0] == "ころがる"){
-        if (atk_p_con.includes(move[0])){
-            document.battle[atk + "_poke_condition"].value = ""
-            for (let i = 0; i < atk_p_con.split("\n").length - 1; i++){
-                if (atk_p_con.split("\n")[i].includes(move[0])){
-                    const turn = Number(atk_p_con.split("\n")[i].replace(/[^0-9]/g, "")) + 1
-                    document.battle[atk + "_poke_condition"].value += move[0] + "　+" + turn + CR
-                } else {
-                    document.battle[atk + "_poke_condition"].value += atk_p_con.split("\n")[i] + CR
-                }
-            }
-        } else {
-            document.battle[atk + "_poke_condition"].value += move[0] + "　+1" + CR
-        }
-    }
     // れんぞくぎりの記録
-    atk_p_con = document.battle[atk + "_poke_condition"].value
     if (move[0] == "れんぞくぎり"){
-        if (atk_p_con.includes("れんぞくぎり")){
-            document.battle[atk + "_poke_condition"].value = ""
-            for (let i = 0; i < atk_p_con.split("\n").length - 1; i++){
-                if (atk_p_con.split("\n")[i].includes("れんぞくぎり")){
-                    const turn = Number(atk_p_con.split("\n")[i].replace(/[^0-9]/g, "")) + 1
-                    document.battle[atk + "_poke_condition"].value += "れんぞくぎり　+" + turn + CR
-                } else {
-                    document.battle[atk + "_poke_condition"].value += atk_p_con.split("\n")[i] + CR
+        if (!con.p_con.includes("れんぞくぎり")){
+            con.p_con += "れんぞくぎり　+1" + CR
+        } else {
+            let p_list = con.p_con
+            for (let i = 0; i < p_list.length; i++){
+                if (p_list[i].includes("れんぞくぎり")){
+                    const turn = Number(p_list[i].replace(/[^0-9]/g, "")) + 1
+                    p_list[i] = "れんぞくぎり　+" + turn + CR
                 }
             }
-        } else {
-            document.battle[atk + "_poke_condition"].value += "れんぞくぎり　+1" + CR
+            con.p_con = p_list.join("")
         }
     }
+
     // がまんの記録
     atk_p_con = document.battle[atk + "_poke_condition"].value
     if (move[0] == "がまん"){
-        if (atk_p_con.includes("がまん")){
-            document.battle[atk + "_poke_condition"].value = ""
-            for (let i = 0; i < atk_p_con.split("\n").length - 1; i++){
-                if (atk_p_con.split("\n")[i].includes("がまん　2/2：")){
-                    const damage = atk_p_con.split("\n")[i].slice(8)
-                    document.battle[atk + "_poke_condition"].value += "がまん　1/2：" + damage + CR
-                    txt = atk + "チームの　" + new get(atk).name + "　は　がまんを続けている！" + CR
-                    document.battle_log.battle_log.value += txt
+        if (con.p_con.includes("がまん　2/2：")){
+            let p_list = con.p_con.split("\n")
+            for (let i = 0; i < p_list.length - 1; i++){
+                if (p_list[i].includes("がまん　2/2：")){
+                    p_list[i] = "がまん　1/2：" + p_list[i].slice(8)
+                    cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　がまんを続けている！" + CR)
                     move[2] = "変化"
-                } else if (atk_p_con.split("\n")[i].includes("がまん　1/2：")){
-                    txt = atk + "チームの　" + new get(atk).name + "　の　がまんが解かれた！" + CR
-                    document.battle_log.battle_log.value += txt
-                    move[3] = Number(atk_p_con.split("\n")[i].slice(8))
-                } else {
-                    document.battle[atk + "_poke_condition"].value += atk_p_con.split("\n")[i] + CR
                 }
             }
+            con.p_con = p_list.join("")
+        } else if (con.p_con.includes("がまん　1/2：")){
+            cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　の　がまんが解かれた！" + CR)
+            move[3] = Number(p_list[i].slice(8))
+            cfn.conditionRemove(con, "poke", "がまん　1/2：")
         } else {
-            document.battle[atk + "_poke_condition"].value += "がまん　2/2：0" + CR
-            txt = atk + "チームの　" + new get(atk).name + "　は　がまんを始めた！" + CR
-            document.battle_log.battle_log.value += txt
+            con.p_con += "がまん　2/2：0" + CR
+            cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　がまんを始めた！" + CR)
             move[2] = "変化"
         }
     }
+
     // シャドーレイ、フォトンゲイザー: 対象の特性を攻撃処理の終わりまで無くす
-    if (ability_invalidation_move_list.includes(move[0]) && mold_breaker_ability_list.includes(new get(def).ability)){
-        document.battle[def + "_poke_condition"].value += "特性無視：" + new get(def).ability + CR
-        document.getElementById(def + "_ability").textContent = ""
+    if (moveEff.abiInvalid().includes(move[0]) && moveEff.moldBreak().includes(def.con.ability)){
+        def.con.p_con += "特性無視：" + def.con.ability + CR
+        def.con.ability = ""
     }
 }
 
 // 9.わざのタイプが変わる。1→2→3の順にタイプが変わる
-function move_type_change(atk, move){
+function moveTypeChange(atk, def, move){
+    let con = atk.con
     // 1.技のタイプを変える特性の効果
-    if (new get(atk).ability == "うるおいボイス" && music_move_list.includes(move[0])){
+    if (con.ability == "うるおいボイス" && moveEff.music().includes(move[0])){
         move[1] = "みず"
-    } else if (new get(atk).ability == "エレキスキン" && move[1] == "ノーマル"){
+    } else if (con.ability == "エレキスキン" && move[1] == "ノーマル"){
         move[1] = "でんき"
-        document.battle[atk + "_poke_condition"].value += "スキン" + CR
-    } else if (new get(atk).ability == "スカイスキン" && move[1] == "ノーマル"){
+        con.p_con += "スキン" + CR
+    } else if (con.ability == "スカイスキン" && move[1] == "ノーマル"){
         move[1] = "ひこう"
-        document.battle[atk + "_poke_condition"].value += "スキン" + CR
-    } else if (new get(atk).ability == "ノーマルスキン" && move[1] != "ノーマル"){
+        con.p_con += "スキン" + CR
+    } else if (con.ability == "ノーマルスキン" && move[1] != "ノーマル"){
         move[1] = "ノーマル"
-        document.battle[atk + "_poke_condition"].value += "スキン" + CR
-    } else if (new get(atk).ability == "フェアリースキン" && move[1] == "ノーマル"){
+        con.p_con += "スキン" + CR
+    } else if (con.ability == "フェアリースキン" && move[1] == "ノーマル"){
         move[1] = "フェアリー"
-        document.battle[atk + "_poke_condition"].value += "スキン" + CR
-    } else if (new get(atk).ability == "フリーズスキン" && move[1] == "ノーマル"){
+        con.p_con += "スキン" + CR
+    } else if (con.ability == "フリーズスキン" && move[1] == "ノーマル"){
         move[1] = "こおり"
-        document.battle[atk + "_poke_condition"].value += "スキン" + CR
+        con.p_con += "スキン" + CR
     }
     // 2.タイプが変わるわざの効果
-    if (move[0] == "ウェザーボール" && !(new get("A").ability == "エアロック" || new get("A").ability == "ノーてんき" || new get("B").ability == "エアロック" || new get("B").ability == "ノーてんき")){
-        if (new get(atk).f_con.includes("にほんばれ") && new get(atk).item != "ばんのうがさ"){
+    if (move[0] == "ウェザーボール" && cfn.isWeather(atk.con, def.con)){
+        if (con.f_con.includes("にほんばれ") && con.item != "ばんのうがさ"){
             move[1] = "ほのお"
-        } else if (new get(atk).f_con.includes("あめ") && new get(atk).item != "ばんのうがさ"){
+        } else if (con.f_con.includes("あめ") && con.item != "ばんのうがさ"){
             move[1] = "みず"
-        } else if (new get(atk).f_con.includes("あられ")){
+        } else if (con.f_con.includes("あられ")){
             move[1] = "こおり"
-        } else if (new get(atk).f_con.includes("すなあらし")){
+        } else if (con.f_con.includes("すなあらし")){
             move[1] = "いわ"
         }
-    } else if (move[0] == "オーラぐるま" && new get(atk).p_con.includes("はらぺこもよう")){
+    } else if (move[0] == "オーラぐるま" && con.p_con.includes("はらぺこもよう")){
         move[1] = "あく"
-    } else if (move[0] == "さばきのつぶて" && new get(atk).item.includes("プレート")){
-        for (let i = 0; i < judgement_plate.length; i++){
-            if (new get(atk).item == judgement_plate[i][0]){
-                move[1] = judgement_plate[i][1]
+    } else if (move[0] == "さばきのつぶて" && con.item.includes("プレート")){
+        const list = itemEff.judgement()
+        for (let i = 0; i < list.length; i++){
+            if (con.item == list[i][0]){
+                move[1] = list[i][1]
             }
         }
-    } else if (move[0] == "しぜんのめぐみ" && berry_item_list.includes(new get(atk).item)){
-        for (let i = 0; i < natural_gift_item_list.length; i++){
-            if (new get(atk).item == natural_gift_item_list[i][0]){
-                move[1] = natural_gift_item_list[i][1]
+    } else if (move[0] == "しぜんのめぐみ" && itemEff.berryList().includes(con.item)){
+        const list = itemEff.naturalGift()
+        for (let i = 0; i < list.length; i++){
+            if (con.item == list[i][0]){
+                move[1] = list[i][1]
             }
         }
-    } else if (move[0] == "だいちのはどう" && new get(atk).f_con.includes("フィールド") && grounded_check(atk)){
-        if (new get(atk).f_con.includes("エレキフィールド")){
+    } else if (move[0] == "だいちのはどう" && con.f_con.includes("フィールド") && cfn.groundedCheck(con)){
+        if (con.f_con.includes("エレキフィールド")){
             move[1] = "でんき"
-        } else if (new get(atk).f_con.includes("グラスフィールド")){
+        } else if (con.f_con.includes("グラスフィールド")){
             move[1] = "くさ"
-        } else if (new get(atk).f_con.includes("ミストフィールド")){
+        } else if (con.f_con.includes("ミストフィールド")){
             move[1] = "フェアリー"
-        } else if (new get(atk).f_con.includes("サイコフィールド")){
+        } else if (con.f_con.includes("サイコフィールド")){
             move[1] = "エスパー"
         }
-    } else if (move[0] == "テクノバスター" && new get(atk).item.includes("カセット")){
-        if (new get(atk).item == "アクアカセット"){
+    } else if (move[0] == "テクノバスター"){
+        if (con.item == "アクアカセット"){
             move[1] = "みず"
-        } else if (new get(atk).item == "イナズマカセット"){
+        } else if (con.item == "イナズマカセット"){
             move[1] = "でんき"
-        } else if (new get(atk).item == "ブレイズカセット"){
+        } else if (con.item == "ブレイズカセット"){
             move[1] = "ほのお"
-        } else if (new get(atk).item == "フリーズカセット"){
+        } else if (con.item == "フリーズカセット"){
             move[1] = "こおり"
         }
-    } else if (move[0] == "マルチアタック" && new get(atk).item.includes("メモリ") && !new get(atk).p_con.includes("さしおさえ") && !new get(atk).f_con.includes("マジックルーム")){
-        for (let i = 0; i < multi_attack_memory.length; i++){
-            if (new get(atk).item == multi_attack_memory[i][0]){
-                move[1] = multi_attack_memory[i][1]
+    } else if (move[0] == "マルチアタック" && !con.p_con.includes("さしおさえ") && !con.f_con.includes("マジックルーム")){
+        const list = itemEff.multiAtk()
+        for (let i = 0; i < list.length; i++){
+            if (con.item == list[i][0]){
+                move[1] = list[i][1]
             }
         }
     } else if (move[0] == "めざめるダンス"){
-        move[1] = new get(atk).type.split("、")[0]
+        move[1] = con.type.split("、")[0]
     } else if (move[0] == "めざめるパワー"){
 
     }
     // 3.そうでん/プラズマシャワー状態
-    if (new get(atk).p_con.includes("そうでん")){
+    if (con.p_con.includes("そうでん")){
         move[1] = "でんき"
-    } else if (new get(atk).f_con.includes("プラズマシャワー") && move[1] == "ノーマル"){
+    } else if (con.f_con.includes("プラズマシャワー") && move[1] == "ノーマル"){
         move[1] = "でんき"
     }
 }
@@ -1441,27 +1363,24 @@ function move_specifications_failure(atk, def, move, order){
 }
 
 // こんらん自傷の攻撃宣言
-function confuse_self_injured(atk, atk_poke){
-    let A_AV = document.getElementById(atk + "_A_AV").textContent
-    let B_AV = document.getElementById(atk + "_B_AV").textContent
-    const A_rank = Number(document.getElementById(atk + "_rank_A").textContent)
-    const B_rank = Number(document.getElementById(atk + "_rank_B").textContent)
-    if (A_rank > 0){
-        A_AV = (A_AV * (2 + A_rank)) / 2
+function confuseSelfInjured(atk, def){
+    let con = atk.con
+    let A_val = 0
+    let B_val = 0
+    if (con.A_rank > 0){
+        A_val = (con.A_AV * (2 + con.A_rank)) / 2
     } else {
-        A_AV = (A_AV * 2) / (2 - A_rank)
+        A_val = (con.A_AV * 2) / (2 - con.A_rank)
     }
-    if (B_rank > 0){
-        B_AV = (B_AV * (2 + B_rank)) / 2
+    if (con.B_rank > 0){
+        B_val = (con.B_AV * (2 + con.B_rank)) / 2
     } else {
-        B_AV = (B_AV * 2) / (2 - B_rank)
+        B_val = (con.B_AV * 2) / (2 - con.B_rank)
     }
     // こんらんの自傷ダメージは威力40の物理攻撃
-    const lv = document.getElementById(atk + "_level").textContent
-    const damage = parseInt(parseInt(parseInt((lv * 2) / 5 + 2) * 40 * A_AV / B_AV) / 50 + 2)
-    txt = atk + "チームの　" + atk_poke + "　は　訳もわからず　自分を攻撃した" + CR
-    document.battle_log.battle_log.value += txt
-    HP_change(atk, damage, "-")
+    const damage = parseInt(parseInt(parseInt((con.level * 2) / 5 + 2) * 40 * A_val / B_val) / 50 + 2)
+    cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　訳もわからず　自分を攻撃した" + CR)
+    afn.HPchangeMagic(atk, def, damage, "-", "こんらん")
 } 
 
 // 14.自分のこおりを回復するわざにより自身のこおり状態が治る
@@ -3260,21 +3179,3 @@ function this_turn_log(){
     return log_list.slice(index[0])
 }
 
-function priority_degree(team, move){
-    let priority = 0
-    for (let i = 0; i < priority_list.length; i++){
-        if (move[0] == priority_list[i][0]){
-            priority += priority_list[i][1]
-        }
-    }
-    if ((new get(team).ability == "いたずらごころ" && move[2] == "変化") 
-    || (move[0] == "グラススライダー" && new get(team).f_con.includes("グラスフィールド") && grounded_check(team))
-    || (new get(team).ability == "はやてのつばさ" && move[1] == "ひこう" && new get(team).last_HP == new get(team).full_HP)){
-        priority += 1
-    }
-    if (new get(team).ability == "ヒーリングシフト" && recoil_move_list.includes(move[0])){
-        priority += 3
-    }
-
-    return priority
-}

@@ -1,35 +1,47 @@
 const moveList = require("./poke_move")
 const pokeList = require("./poke_data")
 const comTable = require("./compatibility")
+const moveEff = require("./move_effect")
 
-exports.setBelch = function(team){
+exports.setBelch = function(user){
     for (let i = 0; i < 3; i++){
-        if (team["poke" + i].life == "戦闘中"){
-            team["poke" + i].belch = "ゲップ"
+        if (user["poke" + i].life == "戦闘中"){
+            user["poke" + i].belch = "ゲップ"
         }
     }
 }
 
-exports.setRecycle = function(team){
+exports.setRecycle = function(user){
     for (let i = 0; i < 3; i++){
-        if (team["poke" + i].life == "戦闘中"){
-            team["poke" + i].recycle = team.con.item
+        if (user["poke" + i].life == "戦闘中"){
+            user["poke" + i].recycle = team.con.item
             break
         }
     }
-    team.con.item = ""
-    if (team.con.ability == "かるわざ"){
-        team.con.p_con += "かるわざ" + CR
+    user.con.item = ""
+    if (user.con.ability == "かるわざ"){
+        user.con.p_con += "かるわざ" + CR
     }
 }
 
-exports.conditionRemove = function(con, text){
-    const list = con.split("\n")
-    const len = list.length - 1
-    con = ""
-    for (let i = 0; i < len; i++){
-        if (!list[i].includes(text)){
-            con += list[i] + CR
+exports.conditionRemove = function(con, place, text){
+    if (place == "poke"){
+        const list = con.p_con.split("\n")
+        const len = list.length - 1
+        con.p_con = ""
+        for (let i = 0; i < len; i++){
+            if (!list[i].includes(text)){
+                con.p_con += list[i] + CR
+            }
+        }
+    } else if (place == "field"){
+        const list = con.f_con.split("\n")
+        const len = list.length - 1
+        con.f_con = ""
+        for (let i = 0; i < len; i++){
+            if (!list[i].includes(text)){
+                con.f_con += list[i] + CR
+            }
         }
     }
 }
@@ -48,6 +60,15 @@ exports.moveSearchByName = function(name){
     const list = moveList.move()
     for (let i = 0; i < list.length; i++){
         if (name == list[i][0]){
+            return list[i]
+        }
+    }
+}
+
+exports.moveSearch = function(user){
+    const list = moveList.move()
+    for (let i = 0; i < list.length; i++){
+        if (user.con["move_" + user.data.command] == list[i][0]){
             return list[i]
         }
     }
@@ -98,9 +119,9 @@ exports.compatibilityCheck = function(atk, def, move){
 
 
 // 戦闘中のポケモンの番号の取得
-exports.battleNum = function(team){
+exports.battleNum = function(user){
     for (let i = 0; i < 3; i++){
-        if (team["poke" + i].life == "戦闘中"){
+        if (user["poke" + i].life == "戦闘中"){
             return i
         }
     }
@@ -136,5 +157,26 @@ exports.natureCheck = function(nature){
                 }
             }
         }
+    }
+}
+
+exports.fiveCut = function(number){
+    if ((number % 1) > 0.5){
+        return Math.floor(number) + 1
+    } else {
+        return Math.floor(number)
+    }
+}
+
+exports.logWrite = function(user1, user2, txt){
+    user1.con.log += txt
+    user2.con.log += txt
+}
+
+exports.isWeather = function(con1, con2){
+    if (con1.ability == "ノーてんき" || con1.ability == "エアロック" || con2.ability == "ノーてんき" || con2.ability == "エアロック"){
+        return false
+    } else {
+        return true
     }
 }

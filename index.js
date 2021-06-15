@@ -84,7 +84,6 @@ $(function () {
 
     // お互いの選出が完了した
     socketio.on("battle start", function(rec, me, you) {
-        console.log(rec)
         document.getElementById("headline").textContent = "対戦が始まりました"
         document.getElementById("select").style.display = "none"
         document.getElementById("both_team").style.display = "block"
@@ -98,7 +97,7 @@ $(function () {
         document.getElementById("YourName").textContent = rec["user" + you].data.name
         document.getElementById("Your_Name").textContent = rec["user" + you].data.name
 
-        // 選出したポケモンの情報を記入
+        // 選出した3匹のポケモンの情報を記入
         for (let i = 0; i < 3; i++){
             for (const parameter of [
                 "name", "sex", "level", "type", "nature", "ability", "item", 
@@ -117,11 +116,47 @@ $(function () {
             }
         }
 
-        battle_start()
-        start_action_timer()
+        // 戦闘に出したポケモンの情報を記入
+        for (const parameter of [
+            "name", "sex", "level", "type", "nature", "ability", "item", "abnormal", 
+            "last_HP", "full_HP", 
+            "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
+            "move_0", "PP_0", "last_0", 
+            "move_1", "PP_1", "last_1", 
+            "move_2", "PP_2", "last_2", 
+            "move_3", "PP_3", "last_3"]){
+            document.getElementById("A_" + parameter).textContent = rec["user" + me].con[parameter]
+        }
+        for (const parameter of ["p_con", "f_con", "used", "log"]){
+            document.battle["A_" + parameter].value = rec["user" + me].con[parameter]
+        }
+        for (let i = 0; i < pokemon.length; i++){
+            if (rec["user" + me].con.name == pokemon[i][1]){
+                document.getElementById("A_image").src = "poke_figure/" + pokemon[i][0] + ".gif"
+            }
+        }
+        // 相手のポケモンの情報を記入
+        for (const parameter of ["name", "sex", "level", "type", "abnormal"]){
+            document.getElementById("B_" + parameter).textContent = rec["user" + you].con[parameter]
+        }
+        for (const parameter of ["p_con", "f_con", "used"]){
+            document.battle["B_" + parameter].value = rec["user" + you].con[parameter]
+        }
+        for (let i = 0; i < pokemon.length; i++){
+            if (rec["user" + you].con.name == pokemon[i][1]){
+                document.getElementById("B_image").src = "poke_figure/" + pokemon[i][0] + ".gif"
+            }
+        }
+        // ボタンの無効化
+        for (let i = 0; i < 7; i++){
+            document.getElementById("radio_" + i).disabled = rec["user" + me].data["radio_" + i]
+            document.getElementById("radio_" + i).checked = false
+        }
+        
+        //start_action_timer()
     })
 
-    $("#battle_table").submit(function() {
+    $("#battle").submit(function() {
         let val = document.battle.A_move.value
         if (new get("A").p_con.includes("溜め技")){
             val = 0
@@ -130,12 +165,6 @@ $(function () {
             socketio.emit("choose poke", val)
         } else {
             socketio.emit("action decide", val)
-        }
-        for (let i = 0; i < 4; i++){
-            document.getElementById("A_radio_" + i).disabled = true
-        }
-        for (let i = 0; i < 3; i++){
-            document.getElementById("A_" + i + "_button").disabled = true
         }
 
         return false

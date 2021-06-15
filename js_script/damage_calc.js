@@ -186,13 +186,7 @@ function get_critical(atk, def, move){
     return false
 }
 
-function five_cut(number){
-    if ((number % 1) > 0.5){
-        return Math.floor(number) + 1
-    } else {
-        return Math.floor(number)
-    }
-}
+
 
 function power_calculation(atk, def, move, order){
     // 基礎威力の変化

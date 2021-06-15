@@ -40,7 +40,6 @@ const main = require("./js_script/main_process")
 // 接続時の処理
 io.on("connection", function(socket){
     console.log("connection")
-    console.log(main.run_battle())
 
     // コネションが確率されたら実行
     socket.emit("connected", {})
@@ -110,28 +109,30 @@ io.on("connection", function(socket){
             room.user1 = {name: name, id: socket.id, command: "yet"}
             room.team1 = team_data
             data.push(room)
-            let type = {user1: "", user2: "", log: ""}
+            let type = {user1: "", user2: ""}
             type.user1 = {poke0: "", poke1: "", poke2: "", data: "", con: ""}
             type.user2 = {poke0: "", poke1: "", poke2: "", data: "", con: ""}
             type.user1.con = {
-                TN: name, name: "", sex: "", level: "", type: "", nature: "", ability: "", item: "", abnormal: "", last_HP: "", full_HP: "", 
+                TN: "", name: "", sex: "", level: "", type: "", nature: "", ability: "", item: "", abnormal: "", last_HP: "", full_HP: "", 
                 move_0: "", PP_0: "", last_0: "", move_1: "", PP_1: "", last_1: "", move_2: "", PP_2: "", last_2: "", move_3: "", PP_3: "", last_3: "", 
                 A_AV: "", B_AV: "", C_AV: "", D_AV: "", S_AV: "", A_rank: "", B_rank: "", C_rank: "", D_rank: "", S_rank: "", X_rank: "", Y_rank: "", 
-                p_con: "", f_con: "", used: ""
+                p_con: "", f_con: "", used: "", log: ""
             }
             type.user2.con = {
-                TN: name, name: "", sex: "", level: "", type: "", nature: "", ability: "", item: "", abnormal: "", last_HP: "", full_HP: "", 
+                TN: "", name: "", sex: "", level: "", type: "", nature: "", ability: "", item: "", abnormal: "", last_HP: "", full_HP: "", 
                 move_0: "", PP_0: "", last_0: "", move_1: "", PP_1: "", last_1: "", move_2: "", PP_2: "", last_2: "", move_3: "", PP_3: "", last_3: "", 
                 A_AV: "", B_AV: "", C_AV: "", D_AV: "", S_AV: "", A_rank: "", B_rank: "", C_rank: "", D_rank: "", S_rank: "", X_rank: "", Y_rank: "", 
-                p_con: "", f_con: "", used: ""
+                p_con: "", f_con: "", used: "", log: ""
             }
-            type.user1.data = {name: name, command: "", radio_0: "", radio_1: "", radio_2: "", radio_3: "", radio_4: "", radio_5: "", radio_6: "", mega: "", Z: "", dina: ""}
+            type.user1.data = {name: name, command: "", radio_0: false, radio_1: false, radio_2: false, radio_3: false, radio_4: false, radio_5: false, radio_6: false, mega: "", Z: "", dina: ""}
+            type.user1.con.TN = name
             rec.push(type)
             io.to(socket.id).emit("find enemy", {})
         } else {
             data[room_search(socket.id)].user2 = {name: name, id: socket.id, command: "yet"}
             data[room_search(socket.id)].team2 = team_data
-            rec[room_search(socket.id)].user2.data = {name: name, command: "", radio_0: "", radio_1: "", radio_2: "", radio_3: "", radio_4: "", radio_5: "", radio_6: "", mega: "", Z: "", dina: ""}
+            rec[room_search(socket.id)].user2.con.TN = name
+            rec[room_search(socket.id)].user2.data = {name: name, command: "", radio_0: false, radio_1: false, radio_2: false, radio_3: false, radio_4: false, radio_5: false, radio_6: false, mega: "", Z: "", dina: ""}
             // ポケモンの選出
             io.to(data[room_search(socket.id)].user1.id).emit("select pokemon", data[room_search(socket.id)], 1, 2)
             io.to(data[room_search(socket.id)].user2.id).emit("select pokemon", data[room_search(socket.id)], 2, 1)
@@ -157,11 +158,13 @@ io.on("connection", function(socket){
                 } else {
                     // 相手が選んでいる時
                     ret = main.battle_start(rec[room])
-                    console.log(ret)
-    
-                    io.to(data[room]["user" + i].id).emit("battle start", sup, 1, 2)
-                    io.to(data[room]["user" + (i % 2 + 1)].id).emit("battle start", sup, 2, 1)
+                    io.to(data[room]["user" + i].id).emit("battle start", ret, i, (i % 2 + 1))
+                    io.to(data[room]["user" + (i % 2 + 1)].id).emit("battle start", ret, (i % 2 + 1), i)
                     data[room]["user" + (i % 2 + 1)].command = "yet"
+
+                    //action_timer = setInterval(function() {
+                      //  console.log("passed 1 second")
+                    //}, 1000)
                 }
             }
         }
@@ -170,27 +173,21 @@ io.on("connection", function(socket){
     // 各ターンの行動
     socket.on("action decide", function(val) {
         const room = room_search(socket.id)
-        if (data[room].user1.id == socket.id){
-            // 相手がまだの時
-            if (data[room].user2.command == "yet"){
-                data[room].user1.command = val
-                io.to(socket.id).emit("wait your action", {})
-                io.to(data[room].user2.id).emit("wait my action", val)
-            } else {
-                // 相手が選んでいる時
-                io.to(data[room].user1.id).emit("action decide", data[room].user2.command)
-                io.to(data[room].user2.id).emit("action decide", val)
-                data[room].user2.command = "yet"
-            }
-        } else {
-            if (data[room].user1.command == "yet"){
-                data[room].user2.command = val
-                io.to(socket.id).emit("wait your action", {})
-                io.to(data[room].user1.id).emit("wait my action", val)
-            } else {
-                io.to(data[room].user1.id).emit("action decide", val)
-                io.to(data[room].user2.id).emit("action decide", data[room].user1.command)
-                data[room].user1.command = "yet"
+        for (const i of [1, 2]){
+            if (data[room]["user" + i].id == socket.id){
+                if (data[room]["user" + (i % 2 + 1)].command == "yet"){
+                    // 相手がまだ選択していない時
+                    rec[room]["user" + i].data.command = val
+                    io.to(socket.id).emit("wait your action", {})
+                    io.to(data[room]["user" + (i % 2 + 1)].id).emit("wait my action", {})
+                } else {
+                    // 相手が選択している時
+                    ret = main.run_battle(rec[room])
+                    io.to(data[room]["user" + i].id).emit("action order", ret, i, (i % 2 + 1))
+                    io.to(data[room]["user" + (i % 2 + 1)]).emit("action order", ret, (i % 2 + 1), i)
+                    data[room]["user" + (i % 2 + 1)].command = "yet"
+                }
+                
             }
         }
     })

@@ -1,5 +1,11 @@
 // jsファイルの読み込み
 const summon = require("./1_summon")
+const actOrder = require("./2_decide_order")
+const success = require("./3_move_success")
+const afn = require("./function")
+const bfn = require("./base_function")
+const cfn = require("./law_function")
+const item = require("./item_effect")
 
 // 初めのポケモンを場に出す
 // 適当なポケモンであれば、メガ進化ボタンとZワザボタンを有効にする
@@ -7,12 +13,14 @@ const summon = require("./1_summon")
 exports.battle_start = function(rec){
     CR = String.fromCharCode(13)
 
-    rec.log = "---------- バトル開始 ----------" + CR
+    cfn.logWrite(rec.user1, rec.user2,  "---------- バトル開始 ----------" + CR)
 
-    summon.pokeReplace(rec.user1, rec.log)
-    summon.pokeReplace(rec.user2, rec.log)
+    summon.pokeReplace(rec.user1, rec.user2)
+    summon.pokeReplace(rec.user2, rec.user1)
 
-    summon.activAbility(rec.user1, rec.user2, "both", rec.log)
+    summon.activAbility(rec.user1, rec.user2, "both")
+
+    console.log(rec)
 
     return rec
 
@@ -32,72 +40,65 @@ exports.battle_start = function(rec){
 }
 
 // ターンの処理
-exports.run_battle = function(){
-    return 0
-    // 素早さ判定
-    let order = speed_check()
+exports.runBattle = function(rec){
 
-    // わるあがきをするかどうか
-    let st_judge = struggle_check(order)
-    if (st_judge == true){
-        return
+    // 素早さ判定
+    let order = afn.speedCheck(rec.user1.con, rec.user2.con)
+    if (order = [1, 2]){
+        order = [rec.user1, rec.user2]
+    } else if (order = [2, 1]){
+        order = [rec.user2, rec.user1]
     }
 
-    for (const team of order){
-        if (Number(document.getElementById("battle")[team + "_move"].value) > 3){
-            document.getElementById(team + "_mega").checked = false
-            document.getElementById(team + "_mega").disabled = true
-        }
+    // わるあがきをするかどうか
+    if (user1.data.radio_0 && user1.data.radio_1 && user1.data.radio_2 && user1.data.radio_3 && !user1.con.f_con.includes("溜め技") && user1.data.command == ""){
+        user1.con.command = "struggle"
+    }
+    if (user2.data.radio_0 && user2.data.radio_1 && user2.data.radio_2 && user2.data.radio_3 && !user2.con.f_con.includes("溜め技") && user2.data.command == ""){
+        user2.con.command = "struggle"
     }
 
     // 選択ボタンの有効化
-    button_validation()
-    
-
-    // 決定ボタンの無効化
-    document.battle.battle_button.disabled = true
+    buttonValidation(order)
 
     // 改行のコード
     CR = String.fromCharCode(13)
 
     // ターン開始宣言
-    turn_start()
+    const num = (rec.user1.con.log.match( /ターン目/g ) || []).length + 1
+    cfn.logWrite(rec.user1, rec.user2, "---------- " + num + "ターン目 ----------" + CR)
 
     // トレーナーの行動、ポケモンの行動順に関する行動
     // 1.クイックドロウ/せんせいのツメ/イバンのみの発動
-    for (let i = 0; i < 2; i++){
-        if (Number(document.getElementById("battle")[order[i] + "_move"].value) < 4 && st_judge[1][i] > 0){
-            if (new get(order[i]).ability == "クイックドロウ" && Math.random() < 0.3 && move_search(order[i])[2] != "変化"){
-                txt = order[i] + "チームの　" + new get(order[i]).name + "は　クイックドロウで　行動が　早くなった！" + CR
-                document.battle_log.battle_log.value += txt
-                document.battle[order[i] + "_poke_condition"].value += "優先" + CR
-            } else if (new get(order[i]).item == "せんせいのツメ" && Math.random() < 0.2){
-                txt = order[i] + "チームの　" + new get(order[i]).name + "は　せんせいのツメで　行動が　早くなった！" + CR
-                document.battle_log.battle_log.value += txt
-                document.battle[order[i]+ "_poke_condition"].value += "優先" + CR
-            } else if (new get(order[i]).item == "イバンのみ" && (new get(order[i]).last_HP <= new get(order[i]).full_HP / 4 || (new get(order[i]).last_HP <= new get(order[i]).full_HP / 2 && new get(order[i]).ability == "くいしんぼう"))){
-                set_recycle_item(order[i])
-                set_belch(order[i])
-                txt = order[i] + "チームの　" + new get(order[i]).name + "は　イバンのみで　行動が　早くなった！" + CR
-                document.battle_log.battle_log.value += txt
-                document.battle[order[i] + "_poke_condition"].value += "優先" + CR
+    for (const team of order){
+        if (team.data.command < 4){
+            if (team.con.ability == "クイックドロウ" && Math.random() < 0.3 && cfn.moveSearch(team)[2] != "変化"){
+                cfn.logWrite(rec.user1, rec.user2, team.con.TN + "　の　" + team.con.name + "は　クイックドロウで　行動が　早くなった！" + CR)
+                team.con.p_con += "優先" + CR
+            } else if (team.con.item == "せんせいのツメ" && Math.random() < 0.2){
+                cfn.logWrite(rec.user1, rec.user2, team.con.TN + "　の　" + team.con.name + "は　せんせいのツメで　行動が　早くなった！" + CR)
+                team.con.p_con += "優先" + CR
+            } else if (team.con.item == "イバンのみ" && (team.con.last_HP <= team.confull_HP / 4 || (team.con.last_HP <= team.con.full_HP / 2 && team.con.ability == "くいしんぼう"))){
+                cfn.setRecycle(team)
+                cfn.setBelch(team)
+                cfn.logWrite(rec.user1, rec.user2, team.con.TN + "　の　" + team.con.name + "は　イバンのみで　行動が　早くなった！" + CR)
+                team.con.p_con += "優先" + CR
             }
         }
     }
     
     // 2.交換・よびかける
-    for (let i = 0; i < 2; i++){
-        if (st_judge[1][i] > 0){
-            let num = Number(document.getElementById("battle")[order[i] + "_move"].value)
-            if (num >= 4){
-                txt = "(" + order[i] + "行動)" + CR
-                document.battle_log.battle_log.value += txt
-                txt = order[i]+ "チームは　" + new get(order[i]).name + "を　引っ込めた！" + CR
-                document.battle_log.battle_log.value += txt
-                come_back_pokemon(order[i])
-                pokemon_replace(order[i])
-                summon_pokemon(1, order[i])
+    for (const user of order){
+        if (user.data.command >= 4){
+            let enemy = rec.user1
+            if (user == rec.user1){
+                enemy = rec.user2
             }
+            cfn.logWrite(rec.user1, rec.user2, "(" + user.con.TN + "の行動)" + CR)
+            cfn.logWrite(rec.user1, rec.user2, user.con.TN + "　は　" + user.con.name + "を　引っ込めた！" + CR)
+            comeBack(user, enemy)
+            summon.pokeReplace(user, enemy)
+            summon.activAbility(user, enemy, 1)
         }
     }
         // 交換順は、交代前のポケモンのすばやさ順。出てきたポケモンが(1)における行動を全て終えてから次のポケモンが交換される。
@@ -107,44 +108,27 @@ exports.run_battle = function(){
     // 3.ローテーションバトルにおけるローテーションする。
         // きんちょうかんのみローテションした際に表示される。
     // 4.メガシンカ/ウルトラバースト
-    for (const team of order){
-        if (document.getElementById(team + "_mega").checked){
-            txt = team + "チームの　" + new get(team).name + "　は　メガ進化した！" + CR
-            document.battle_log.battle_log.value += txt
-            for (let i = 0; i < mega_stone_item_list.length; i++){
-                if (new get(team).item == mega_stone_item_list[i][0]){
-                    form_chenge(team, mega_stone_item_list[i][2])
-                }
-            }
-            // メガ進化ボタンの無効化
-            document.getElementById(team + "_mega").checked = false
-            document.getElementById(team + "_mega").disabled = true
-            document.getElementById(team + "_mega_text").textContent = "メガ進化：済"
-        }
-    }
+
         // 複数のポケモンが同時にメガシンカ/ウルトラバーストする場合、発動前のすばやさ順に発動される。
     // 5.ダイマックス
         // 複数のポケモンが同時にダイマックスする場合、すばやさ順に発動する。
     // 6.きあいパンチ/トラップシェル/くちばしキャノンの準備行動
-    for (let i = 0; i < 2; i++){
-        let num = Number(document.getElementById("battle")[order[i] + "_move"].value)
-        if (num == ""){
-            num = 4
+    for (const user of order){
+        let enemy = rec.user1
+        if (user == rec.user1){
+            enemy = rec.user2
         }
-        if (st_judge[1][i] > 0 && num < 4){
-            let move = move_search(order[i])
+        if (user.data.command < 4){
+            let move = cfn.moveSearch(user)
             if (move[0] == "きあいパンチ"){
-                document.battle[order[i] + "_poke_condition"].value += "きあいパンチ" + CR
-                txt = order[i] + "チームの　" + new get(order[i]).name + "は　集中している" + CR
-                document.battle_log.battle_log.value += txt
+                user.con.p_con += "きあいパンチ" + CR
+                cfn.logWrite(user, enemy, user.con.TN + "　の　" + user.con.name + "は　集中している" + CR)
             } else if (move[0] == "トラップシェル"){
-                txt = order[i]+ "チームの　" + new get(order[i]).name + "は　トラップシェルを仕掛けた！" + CR
-                document.battle_log.battle_log.value += txt
-                document.battle[order[i] + "_poke_condition"].value += "トラップシェル：不発" + CR
+                cfn.logWrite(user, enemy, user.con.TN + "　の　" + user.con.name + "は トラップシェルを仕掛けた！" + CR)
+                user.con.p_con += "トラップシェル：不発" + CR
             } else if (move[0] == "くちばしキャノン"){
-                document.battle[order[i] + "_poke_condition"].value += "くちばしキャノン" + CR
-                txt = order[i] + "チームの　" + new get(order[i]).name + "は　くちばしを加熱し始めた！" + CR
-                document.battle_log.battle_log.value += txt
+                user.con.p_con += "くちばしキャノン" + CR
+                cfn.logWrite(user, enemy, user.con.TN + "　の　" + user.con.name + "は くちばしを加熱し始めた！" + CR)
             }
         }
     }
@@ -153,16 +137,15 @@ exports.run_battle = function(){
     // すばやさ順に行われる処理はトリックルームの影響を受ける。
 
     // ポケモンの技
-    const current = document.battle_log.battle_log.value
-    const turn_number = (current.match( /ターン目/g ) || []).length
+    const turn_number = (rec.user1.con.log.match( /ターン目/g ) || []).length
     const turn = "---------- " + turn_number + "ターン目 ----------"
-    const log_list = document.battle_log.battle_log.value.split("\n")
+    const log_list = rec.user1.con.log.split("\n")
     let A_check = "未行動"
     let B_check = "未行動"
-    if (log_list.slice(log_list.lastIndexOf(turn)).includes("(A行動)")){
+    if (log_list.slice(log_list.lastIndexOf(turn)).includes("(" + rec.user1.con.TN + "の行動)")){
         A_check = "行動済"
     }
-    if (log_list.slice(log_list.lastIndexOf(turn)).includes("(B行動)")){
+    if (log_list.slice(log_list.lastIndexOf(turn)).includes("(" + rec.user2.con.TN + "の行動)")){
         B_check = "行動済"
     }
 
@@ -174,14 +157,11 @@ exports.run_battle = function(){
     
     // 片方が交代、片方が攻撃する時
     if ((A_check == "行動済" && B_check == "未行動") || (A_check == "未行動" && B_check == "行動済")){
-        let atk = ""
-        let def = ""
+        let atk = rec.user1
+        let def = rec.user2
         if (A_check == "行動済" && B_check == "未行動"){
-            atk = "B"
-            def = "A"
-        } else if (A_check == "未行動" && B_check == "行動済"){
-            atk = "A"
-            def = "B"
+            atk = rec.user2
+            def = rec.user1
         }
         let move = move_success_judge(atk, def, order)
         if (move == false){
@@ -203,14 +183,20 @@ exports.run_battle = function(){
 
     // 両方が攻撃する時
     if (A_check == "未行動" && B_check == "未行動"){
-        order = action_order()
-        const reverse = [order[1], order[0]]
+        order = actOrder.actionOrder(rec.user1, rec.user2)
+        let reverse = [rec.user2, rec.user1]
+        if (order[0] == 1){
+            order = [rec.user1, rec.user2]
+        } else if (order[0] == 1){
+            order = [rec.user2, rec.user1]
+            reverse = [rec.user1, rec.user2]
+        }
         for (const team of [order, reverse]){
             let atk = team[0]
             let def = team[1]
             // 行動するポケモンのHPが残っている時に行動する
-            if (new get(atk).last_HP > 0){
-                let move = move_success_judge(atk, def, order)
+            if (!atk.con.f_con.includes("ひんし")){
+                let move = success.moveSuccessJudge(atk, def, order)
                 if (move == false){
                     process_at_failure(atk)
                 } else {
@@ -252,85 +238,126 @@ function process_at_failure(team){
     condition_remove(team, "poke", "がまん")
 }
 
-// わるあがきをするかどうか
-function struggle_check(order){
-    let sign = 0
-    let struggle = "A-B" // わるあがきをするチーム
-    let choice = []
-    for (const team of order){
-        let move_sign = []
-        let poke_sign = []
-        for (let i = 0; i < 4; i++){
-            if (document.getElementById(team + "_radio_" + i).disabled == false){
-                move_sign.push(i)
-            }
-        }
-        for (let i = 0; i < 3; i++){
-            if (document.getElementById(team + "_" + i + "_button").disabled == false){
-                poke_sign.push(i)
-            }
-        }
-        choice.push(move_sign.length + poke_sign.length)
-        if (move_sign.length == 0){
-            struggle.replace(team, "0")
-        } else if (move_sign.length + poke_sign.length > 0 && document.getElementById("battle")[team + "_move"].value == "" && !new get(team).p_con.includes("溜め技")){
-            alert(team + "チームは　行動を選択してください")
-            sign += 1
-        }
-    }
-    if (sign > 0){
-        return true
-    } else {
-        return [struggle, choice]
-    }
-}
-
 
 // 選択ボタンの有効化
-function button_validation(){
-    for (const team of ["A", "B"]){
+function buttonValidation(order){
+    for (const team of order){
         // 技選択を全て有効化
         for (let i = 0; i < 4; i++){
-            if (document.getElementById(team + "_move_" + i).textContent != ""){
-                document.getElementById(team + "_radio_" + i).disabled = false
+            if (team.con["move_" + i] != ""){
+                team.data["radio_" + i] = false
             }
         }
         // 交換ボタンの有効化
         for (let i = 0; i < 3; i++){
-            if (document.getElementById(team + "_" + i + "_existence").textContent == "控え"){
-                document.getElementById(team + "_" + i + "_button").disabled = false
+            if (team["poke" + i].life == "控え"){
+                team.data["radio_" + Number(i + 4)] = false
             }
         }
 
         // ゲップ：備考欄に「ゲップ」の文字がなければ使用不能に
         for (let i = 0; i < 4; i++){
-            if (document.getElementById(team + "_move_" + i).textContent == "ゲップ"){
-                for (let j = 0; j < 3; j++){
-                    if (document.getElementById(team + "_" + j + "_existence").textContent == "戦闘中" && !document.getElementById(team + "_" + j + "_belch").textContent == "ゲップ"){
-                        document.getElementById(team + "_radio_" + i).disabled = true
-                    }
-                }
+            if (team.con["move_" + i] == "ゲップ" && team["poke" + cfn.battleNum(team)].belch != "ゲップ"){
+                team.data["radio_" + i] = true
             }
         }
         // ほおばる：きのみを持っていない場合、使用不能に
         for (let i = 0; i < 4; i++){
-            if (document.getElementById(team + "_move_" + i).textContent == "ほおばる"){
-                if (!berry_item_list.includes(new get(team).item)){
-                    document.getElementById(team + "_radio_" + i).disabled = true
-                }
+            if (team.con["move_" + i] == "ほおばる" && !item.berryList.includes(team.con.item)){
+                team.data["radio_" + i] = true
             }
         }
         // いちゃもん：いちゃもんで使用不能だった技を使用可能に
-        if (new get(team).p_con.includes("いちゃもん")){
+        if (team.con.p_con.includes("いちゃもん")){
             for (let i = 0; i < 4; i++){
-                if (document.getElementById(team + "_move_" + i).textContent == document.battle[team + "_used_move"].value){
-                    document.getElementById(team + "_radio_" + i).disabled = false
+                if (team.con["move_" + i] == team.con.used){
+                    team.data["radio_" + i] = true
                 }
             }
         }
     }
 }
 
+
+// 戦闘中のポケモンを手持ちに戻す
+function comeBack(user, enemy){
+    if (user.con.name == "ヒヒダルマ(ダルマモード)"){
+        afn.formChenge(user, enemy, "ヒヒダルマ")
+    } else if (user.con.name == "ヒヒダルマ(ダルマモード(ガラルのすがた))"){
+        afn.formChenge(user, enemy, "ヒヒダルマ(ガラルのすがた)")
+    } else if (user.con.name == "ギルガルド(ブレードフォルム)"){
+        afn.formChenge(user, enemy, "ギルガルド(シールドフォルム)")
+    } else if (user.con.name == "メテノ(コア)"){
+        afn.formChenge(user, enemy, "メテノ(りゅうせいのすがた)")
+    }
+    // 名前・タイプ・特性・実数値・残りHP・残りPPは既に正しい表記になっている
+    // 持ち物、状態異常の移動
+    user["poke" + cfn.battleNum(user)].item = user.con.item
+    user["poke" + cfn.battleNum(user)].abnormal = user.con,abnormal
+    // 総HPの移動
+    user["poke" + cfn.battleNum(user)].full_HP = user.con.full_HP
+
+    // ポケモンの状態の削除
+    user.con.p_con= ""
+    // 相手のメロメロの解除
+    cfn.conditionRemove(enemy.con, "poke", "メロメロ")
+
+    // 特性が「さいせいりょく」の時
+    if (user.con.ability == "さいせいりょく"){
+        afn.HPchangeMagic(user, enemy, Math.floor(user.con.full_HP / 3), "+", "さいせいりょく")
+    }
+    // 特性が「しぜんかいふく」の時
+    if (user.con.ability == "しぜんかいふく"){
+        user["poke" + cfn.battleNum(user)].abnormal = ""
+    }
+
+    // 特性が「おわりのだいち」だった時、天候が元に戻る
+    if (user.con.ability == "おわりのだいち" && (enemy.con.ability != "おわりのだいち" || enemy.con.last_HP == 0)){
+        cfn.logWrite(user, enemy, "おおひでりが終わった" + CR)
+        cfn.conditionRemove(user.con, "field", "おおひでり")
+        cfn.conditionRemove(enemy.con, "field", "おおひでり")
+    }
+    // 特性が「はじまりのうみ」だった時、天候が元に戻る
+    if (user.con.ability == "はじまりのうみ" && (enemy.con.ability != "はじまりのうみ" || enemy.con.last_HP == 0)){
+        cfn.logWrite(user, enemy, "おおあめが終わった" + CR)
+        cfn.conditionRemove(user.con, "field", "おおあめ")
+        cfn.conditionRemove(enemy.con, "field", "おおあめ")
+    }
+    // 特性が「かがくへんかガス」の時
+    if (user.con.ability == "かがくへんかガス"){
+        cfn.logWrite(user, enemy, "かがくへんかガスの効果が切れた" + CR)
+        for (let i = 0; i < enemy.con.p_con.split("\n").length - 1; i++){
+            if (enemy.con.p_con.split("\n")[i].includes("かがくへんかガス")){
+                enemy.con.ability = enemy.con.p_con.split("\n")[i].slice(9)
+            }
+        }
+        cfn.conditionRemove(enemy.con, "poke", "かがくへんかガス")
+        summon.activAbility(user, enemy, 1)
+    }
+    // 特性が「きんちょうかん」の時
+    if (user.con.ability == "きんちょうかん"){
+        bfn.berryPinch(enemy, team)
+        bfn.berryAbnormal(enemy, user)
+    }
+
+    // 「戦闘中」を「控え」に変更
+    user.data["radio_" + Number(cfn.battleNum(user) + 4)] = false
+    user["poke" + cfn.battleNum(user)].life = "控え"
+
+    for (const parameter of [
+        "name", "sex", "level", "type", "nature", "ability", "item", "abnormal", 
+        "last_HP", "full_HP", 
+        "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
+        "move_0", "PP_0", "last_0", 
+        "move_1", "PP_1", "last_1", 
+        "move_2", "PP_2", "last_2", 
+        "move_3", "PP_3", "last_3", "p_con", "user"]){
+        user.con[parameter] = ""
+    }
+    for (const parameter of ["A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank"]){
+        user.con[parameter] = 0
+    }
+}
 
 
 

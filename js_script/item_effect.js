@@ -1,3 +1,7 @@
+exports.berryList = function(){
+    return berry_item_list
+}
+
 var berry_item_list = [
     'チイラのみ', 
     'リュガのみ', 
@@ -71,6 +75,9 @@ var half_damage_berry_list = [
 ]
 
 // しぜんのめぐみ：対応するタイプと威力
+exports.naturalGift = function(){
+    return natural_gift_item_list
+}
 var natural_gift_item_list = [
     ['クラボのみ', 'ほのお', 80], 
     ['カゴのみ', 'みず', 80], 
@@ -248,6 +255,9 @@ var eat_berry_effect = [
 ]
 
 // シルヴァディに持たせるとタイプが変わる
+exports.multiAtk = function(){
+    return multi_attack_memory
+}
 var multi_attack_memory = [
     ['アイスメモリ', 'こおり'], 
     ['エレクトロメモリ', 'でんき'], 
@@ -268,6 +278,9 @@ var multi_attack_memory = [
 ]
 
 // アルセウスに持たせるとタイプが変わる
+exports.judgement = function(){
+    return judgement_plate
+}
 var judgement_plate = [
     ['あおぞらプレート', 'ひこう'], 
     ['いかずちプレート', 'でんき'], 
@@ -289,6 +302,9 @@ var judgement_plate = [
 ]
 
 // Zクリスタル
+exports.Zcrystal = function(){
+    return Z_crystal_list
+}
 var Z_crystal_list = [
     ['ノーマル', 'ウルトラダッシュアタック', 'ノーマルZ'], 
     ['くさ', 'ブルームシャインエクストラ', 'クサZ'], 

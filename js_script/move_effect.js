@@ -1,4 +1,7 @@
 // 優先度が設定されている技
+exports.prioDeg = function(){
+    return priority_list
+}
 var priority_list = [
     ['アクアジェット', 1], 
     ['アクセルロック', 1], 
@@ -54,6 +57,9 @@ var priority_list = [
 ]
 
 // 使用すると自分のこおり状態が解ける技
+exports.meltMove = function(){
+    return self_melt_move_list
+}
 var self_melt_move_list = [
     'かえんぐるま', 
     'かえんボール', 
@@ -425,6 +431,9 @@ var dinamax_move_list = [
 ]
 
 // 音技
+exports.music = function(){
+    return music_move_list
+}
 var music_move_list = [
     'いにしえのうた', 
     'いびき', 
@@ -585,6 +594,9 @@ var abnormal_status_move_list = [
 
 
 // かいふくふうじで禁止されるわざ
+exports.recover = function(){
+    return recover_move_list
+}
 var recover_move_list = [
     'あさのひざし', 
     'いのちのしずく', 
@@ -620,6 +632,9 @@ var recover_move_list = [
 ]
 
 // じゅうりょく状態で禁止される技
+exports.gravity = function(){
+    return gravity_move_list
+}
 var gravity_move_list = [
     'はねる', 
     'とびげり', 
@@ -1206,6 +1221,9 @@ var substitute_through_status_move_list = [
 ]
 
 // さきどりできない技　以下の技、変化技、Z技
+exports.meFirst = function (){
+    return me_first_move_list
+}
 var me_first_move_list = [
     'おしゃべり', 
     'ほしがる', 
@@ -1233,6 +1251,9 @@ var minimize_move_list = [
 ]
 
 // ねごとで選ばれない技　以下の技、溜め技
+exports.sleepTalk = function(){
+    return sleep_talk_move_list
+}
 var sleep_talk_move_list = [
     'ねごと', 
     'オウムがえし', 
@@ -1253,6 +1274,9 @@ var sleep_talk_move_list = [
 ]
 
 // かたやぶりなどで無視される特性
+exports.moldBreak = function(){
+    return mold_breaker_ability_list
+}
 var mold_breaker_ability_list = [
     'アイスフェイス', 
     'あついしぼう', 
@@ -1326,6 +1350,9 @@ var mold_breaker_ability_list = [
 ]
 
 // 相手の特性を無視して攻撃する技
+exports.abiInvalid = function(){
+    return ability_invalidation_move_list
+}
 var ability_invalidation_move_list = [
     'キョダイカキュウ', 
     'キョダイコランダ', 
@@ -1420,6 +1447,9 @@ var snatch_move_list = [
 
 // オウムがえしでコピーできない技
 // 以下の技と、Z技と、対象が自分、何らかの場
+exports.mirror = function(){
+    return mirror_move_list
+}
 var mirror_move_list = [
     'カウンター', 
     'ミラーコート', 
@@ -1471,6 +1501,9 @@ var mirror_move_list = [
 ]
 
 // ねこのてで出ない技
+exports.assist = function(){
+    return assist_move_list
+}
 var assist_move_list = [
     'あなをほる', 
     'オウムがえし', 
@@ -1525,6 +1558,9 @@ var assist_move_list = [
 
 // まねっこでコピーできない技 あとZ技
 // 最後に使われた技がこれらだと失敗する
+exports.copyCat = function(){
+    return copy_cat_move_list
+}
 var copy_cat_move_list = [
     'まもる', 
     'みきり', 
@@ -1599,6 +1635,9 @@ var mimic_move_list = [
 ]
 
 // ゆびをふるで出る技　wikiに書いてある出ない技と「Z技」「ダイマックス技」と含む技を削除した
+exports.metronome = function(){
+    return metronome_move_list
+}
 var metronome_move_list = [
     '1000まんボルト', 
     'アームハンマー', 
