@@ -22,7 +22,13 @@ exports.actionOrder = function(user1, user2){
                 return trickRoom(late_item, user1.con.f_con)
             } else {
                 // 5.すばやさ
-                return afn.speedCheck(user1.con, user2.con)
+                order = afn.speedCheck(user1.con, user2.con)
+                if (order[0] > order[1] || (order[0] == order[1] && Math.random() < 0.5)){
+                    order = [1, 2]
+                } else if (order[0] < order[1]){
+                    order = [2, 1]
+                }
+                return trickRoom(order, user1.con.f_con)
             }
         }
     }
@@ -59,10 +65,9 @@ function priorityCheck(user1, user2){
         } else if (team.con.p_con.includes("がまん")){
             move = cfn.moveSearchByName("がまん")
         } else {
-            const num = String(document.getElementById("battle")[team + "_move"].value)
-            let move_name = team.con["move_" + user1.data.command]
+            let move_name = team.con["move_" + team.data.command]
             if (move_name.includes("Z")){
-                move = move_search_by_name(move_name.replace("Z", ""))
+                move = cfn.moveSearchByName(move_name.replace("Z", ""))
             } else {
                 move = cfn.moveSearchByName(move_name)
             }
@@ -118,10 +123,6 @@ function lateItemCheck(user1, user2){
         return [0, 0]
     }
 }
-
-
-
-
 
 function trickRoom(order, f_con){
     if (f_con.includes("トリックルーム")){

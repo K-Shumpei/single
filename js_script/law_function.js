@@ -14,13 +14,13 @@ exports.setBelch = function(user){
 exports.setRecycle = function(user){
     for (let i = 0; i < 3; i++){
         if (user["poke" + i].life == "戦闘中"){
-            user["poke" + i].recycle = team.con.item
+            user["poke" + i].recycle = user.con.item
             break
         }
     }
     user.con.item = ""
     if (user.con.ability == "かるわざ"){
-        user.con.p_con += "かるわざ" + CR
+        user.con.p_con += "かるわざ" + "\n"
     }
 }
 
@@ -31,7 +31,7 @@ exports.conditionRemove = function(con, place, text){
         con.p_con = ""
         for (let i = 0; i < len; i++){
             if (!list[i].includes(text)){
-                con.p_con += list[i] + CR
+                con.p_con += list[i] + "\n"
             }
         }
     } else if (place == "field"){
@@ -40,7 +40,7 @@ exports.conditionRemove = function(con, place, text){
         con.f_con = ""
         for (let i = 0; i < len; i++){
             if (!list[i].includes(text)){
-                con.f_con += list[i] + CR
+                con.f_con += list[i] + "\n"
             }
         }
     }
@@ -197,20 +197,19 @@ exports.lastLog = function(con){
     return list.slice(index[1], index[0])
 }
 
-function this_turn_log(){
-    const battle_log = document.battle_log.battle_log.value
-    const log_list = battle_log.split("\n")
-    const log_length = log_list.length
+exports.thisLog = function(con){
+    const list = con.log.split("\n")
+    const len = list.length
     let index = []
-    for (let i = 0; i < log_length; i++){
-        if (log_list[log_length - 1 - i].includes("ターン目")){
-            index.push(log_length - 1 - i)
+    for (let i = 0; i < len; i++){
+        if (list[len - 1 - i].includes("ターン目")){
+            index.push(len - 1 - i)
             if (index.length == 2){
                 break
             }
         }
     }
 
-    return log_list.slice(index[0])
+    return list.slice(index[0])
 }
 

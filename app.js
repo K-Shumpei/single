@@ -157,10 +157,12 @@ io.on("connection", function(socket){
                     io.to(data[room]["user" + (i % 2 + 1)].id).emit("waiting you", {})
                 } else {
                     // 相手が選んでいる時
-                    ret = main.battle_start(rec[room])
+                    ret = main.battleStart(rec[room])
                     io.to(data[room]["user" + i].id).emit("battle start", ret, i, (i % 2 + 1))
                     io.to(data[room]["user" + (i % 2 + 1)].id).emit("battle start", ret, (i % 2 + 1), i)
                     data[room]["user" + (i % 2 + 1)].command = "yet"
+                    rec[room].user1.data.command = ""
+                    rec[room].user2.data.command = ""
 
                     //action_timer = setInterval(function() {
                       //  console.log("passed 1 second")
@@ -171,23 +173,21 @@ io.on("connection", function(socket){
     })
 
     // 各ターンの行動
-    socket.on("action decide", function(val) {
+    socket.on("action decide", function(signal) {
+        console.log(signal)
         const room = room_search(socket.id)
         for (const i of [1, 2]){
+            // コマンドを記録
             if (data[room]["user" + i].id == socket.id){
-                if (data[room]["user" + (i % 2 + 1)].command == "yet"){
-                    // 相手がまだ選択していない時
-                    rec[room]["user" + i].data.command = val
-                    io.to(socket.id).emit("wait your action", {})
-                    io.to(data[room]["user" + (i % 2 + 1)].id).emit("wait my action", {})
-                } else {
-                    // 相手が選択している時
-                    ret = main.run_battle(rec[room])
-                    io.to(data[room]["user" + i].id).emit("action order", ret, i, (i % 2 + 1))
-                    io.to(data[room]["user" + (i % 2 + 1)]).emit("action order", ret, (i % 2 + 1), i)
-                    data[room]["user" + (i % 2 + 1)].command = "yet"
+                rec[room]["user" + i] = signal
+                // 相手が選択している時
+                if (rec[room]["user" + (i % 2 + 1)].data.command != ""){
+                    ret = main.runBattle(rec[room])
+                    io.to(data[room]["user" + i].id).emit("run battle", ret, i, (i % 2 + 1))
+                    io.to(data[room]["user" + (i % 2 + 1)].id).emit("run battle", ret, (i % 2 + 1), i)
+                    rec[room]["user" + i].data.command = ""
+                    rec[room]["user" + (i % 2 + 1)].data.command = ""
                 }
-                
             }
         }
     })

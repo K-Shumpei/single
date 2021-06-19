@@ -121,6 +121,7 @@ $(function () {
             "name", "sex", "level", "type", "nature", "ability", "item", "abnormal", 
             "last_HP", "full_HP", 
             "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
+            "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank", 
             "move_0", "PP_0", "last_0", 
             "move_1", "PP_1", "last_1", 
             "move_2", "PP_2", "last_2", 
@@ -136,7 +137,7 @@ $(function () {
             }
         }
         // 相手のポケモンの情報を記入
-        for (const parameter of ["name", "sex", "level", "type", "abnormal"]){
+        for (const parameter of ["name", "sex", "level", "type", "abnormal", "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank"]){
             document.getElementById("B_" + parameter).textContent = rec["user" + you].con[parameter]
         }
         for (const parameter of ["p_con", "f_con", "used"]){
@@ -156,75 +157,101 @@ $(function () {
         //start_action_timer()
     })
 
+    // コマンドの送信
     $("#battle").submit(function() {
-        let val = document.battle.A_move.value
-        if (new get("A").p_con.includes("溜め技")){
-            val = 0
+        let ret = {poke0: {}, poke1: {}, poke2: {}, data: "", con: {}}
+        ret.con.TN = document.getElementById("MyName").textContent
+        // 選出した3匹のポケモンの情報を記入
+        for (let i = 0; i < 3; i++){
+            for (const parameter of [
+                "name", "sex", "type", "nature", "ability", "item", 
+                "move_0", "move_1", "move_2", "move_3", 
+                "life", "recycle", "belch", "form"]){
+                ret["poke" + i][parameter] = document.getElementById(i + "_" + parameter).textContent
+            }
         }
-        if (new get("A").f_con.includes("選択中・・・")){
-            socketio.emit("choose poke", val)
-        } else {
-            socketio.emit("action decide", val)
+        for (let i = 0; i < 3; i++){
+            for (const parameter of [
+                "level", "last_HP", "full_HP", 
+                "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
+                "PP_0", "last_0", "PP_1", "last_1", "PP_2", "last_2", "PP_3", "last_3", 
+                "H_IV", "A_IV", "B_IV", "C_IV", "D_IV", "S_IV", 
+                "H_EV", "A_EV", "B_EV", "C_EV", "D_EV", "S_EV"]){
+                ret["poke" + i][parameter] = Number(document.getElementById(i + "_" + parameter).textContent)
+            }
         }
-
+        // 戦闘に出したポケモンの情報を記入
+        for (const parameter of [
+            "name", "sex", "type", "nature", "ability", "item", "abnormal", 
+            "move_0", "move_1", "move_2", "move_3"]){
+            ret.con[parameter] = document.getElementById("A_" + parameter).textContent
+        }
+        for (const parameter of [
+            "level", "last_HP", "full_HP", 
+            "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
+            "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank", 
+            "PP_0", "last_0", "PP_1", "last_1", "PP_2", "last_2", "PP_3", "last_3"]){
+            ret.con[parameter] = Number(document.getElementById("A_" + parameter).textContent)
+        }
+        for (const parameter of ["p_con", "f_con", "used", "log"]){
+            ret.con[parameter] = document.battle["A_" + parameter].value
+        }
+        // ボタンの情報などを記入
+        ret.data = {command: document.battle.radio.value, mega: "", Z: "", dina: ""}
+        for (let i = 0; i < 7; i ++){
+            ret.data["radio_" + i] = document.getElementById("radio_" + i).disabled
+        }
+        socketio.emit("action decide", ret)
+        document.getElementById("battle_button").disabled = true
         return false
     })
 
-    // 相手の選択を待っている時
-    socketio.on("wait your action", function() {
-        document.getElementById("battle_button").disabled = true
-    })
-
-    // 相手が先に選択し、自分の選択待ちの時
-    socketio.on("wait my action", function(val) {
-        // 相手の選んだボタンにチェックをつける
-        if (val > 3){
-            document.getElementById("B_" + Number(val - 4) + "_button").checked = true
-        } else {
-            document.getElementById("B_radio_" + val).checked = true
+    // 対戦の記録を受信
+    socketio.on("run battle", function(rec, me, you) {
+        // 戦闘に出したポケモンの情報を記入
+        for (const parameter of [
+            "name", "sex", "level", "type", "nature", "ability", "item", "abnormal", 
+            "last_HP", "full_HP", 
+            "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
+            "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank", 
+            "move_0", "PP_0", "last_0", 
+            "move_1", "PP_1", "last_1", 
+            "move_2", "PP_2", "last_2", 
+            "move_3", "PP_3", "last_3"]){
+            document.getElementById("A_" + parameter).textContent = rec["user" + me].con[parameter]
         }
-    })
-
-    socketio.on("action decide", function(val) {
-        // 相手の選んだボタンにチェックをつける
-        if (val > 3){
-            document.getElementById("B_" + Number(val - 4) + "_button").checked = true
-        } else {
-            document.getElementById("B_radio_" + val).checked = true
+        for (const parameter of ["p_con", "f_con", "used", "log"]){
+            document.battle["A_" + parameter].value = rec["user" + me].con[parameter]
         }
-
-        // バトル実行
-        stop_action_timer()
-        button_validation()
-        run_battle()
-
-        // 自分に選択中のメモがあれば決定ボタンを有効にし、洗濯中であることをサーバーに送信
-        if (new get("A").f_con.includes("選択中・・・")){
-            document.battle.battle_button.disabled = false
-            for (let i = 0; i < 4; i++){
-                document.getElementById("A_radio_" + i).disabled = true
-                document.getElementById("A_radio_" + i).checked = false
+        for (let i = 0; i < pokemon.length; i++){
+            if (rec["user" + me].con.name == pokemon[i][1]){
+                document.getElementById("A_image").src = "poke_figure/" + pokemon[i][0] + ".gif"
             }
-            socketio.emit("thinking", "yes")
-        } else if (new get("B").f_con.includes("選択中・・・")){
-            for (let i = 0; i < 4; i++){
-                document.getElementById("A_radio_" + i).disabled = true
-            }
-            for (let i = 0; i < 3; i++){
-                document.getElementById("A_" + i + "_button").disabled = true
-            }
-            socketio.emit("thinking", "no")
         }
-        start_action_timer()
-    })
-
-    socketio.on("summon poke", function(val) {
-        if (val > 3){
-            document.getElementById("B_" + Number(val - 4) + "_button").checked = true
+        // 相手のポケモンの情報を記入
+        for (const parameter of ["name", "sex", "level", "type", "abnormal", "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank"]){
+            document.getElementById("B_" + parameter).textContent = rec["user" + you].con[parameter]
         }
-        button_validation()
-        choose_poke()
-        start_action_timer()
+        for (const parameter of ["p_con", "f_con", "used"]){
+            document.battle["B_" + parameter].value = rec["user" + you].con[parameter]
+        }
+        for (let i = 0; i < pokemon.length; i++){
+            if (rec["user" + you].con.name == pokemon[i][1]){
+                document.getElementById("B_image").src = "poke_figure/" + pokemon[i][0] + ".gif"
+            }
+        }
+        // HPバーの表示
+        document.getElementById("A_HP_bar").value = rec["user" + me].con.last_HP / rec["user" + me].con.full_HP
+        document.getElementById("B_HP_bar").value = rec["user" + you].con.last_HP / rec["user" + you].con.full_HP
+        document.getElementById("A_percent").textContent = Math.ceil(rec["user" + me].con.last_HP * 100 / rec["user" + me].con.full_HP)
+        document.getElementById("B_percent").textContent = Math.ceil(rec["user" + you].con.last_HP * 100 / rec["user" + you].con.full_HP)
+        // ボタンの無効化
+        for (let i = 0; i < 7; i++){
+            document.getElementById("radio_" + i).disabled = rec["user" + me].data["radio_" + i]
+            document.getElementById("radio_" + i).checked = false
+        }
+        // 決定ボタンの有効化
+        document.getElementById("battle_button").disabled = false
     })
 
     // 相手の接続が切れた時

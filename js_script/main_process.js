@@ -2,6 +2,8 @@
 const summon = require("./1_summon")
 const actOrder = require("./2_decide_order")
 const success = require("./3_move_success")
+const process = require("./4_move_effect")
+const end = require("./5_end_process")
 const afn = require("./function")
 const bfn = require("./base_function")
 const cfn = require("./law_function")
@@ -10,17 +12,14 @@ const item = require("./item_effect")
 // 初めのポケモンを場に出す
 // 適当なポケモンであれば、メガ進化ボタンとZワザボタンを有効にする
 // 場に出た時の特性などの効果発動
-exports.battle_start = function(rec){
-    CR = String.fromCharCode(13)
+exports.battleStart = function(rec){
 
-    cfn.logWrite(rec.user1, rec.user2,  "---------- バトル開始 ----------" + CR)
+    cfn.logWrite(rec.user1, rec.user2,  "---------- バトル開始 ----------" + "\n")
 
     summon.pokeReplace(rec.user1, rec.user2)
     summon.pokeReplace(rec.user2, rec.user1)
 
     summon.activAbility(rec.user1, rec.user2, "both")
-
-    console.log(rec)
 
     return rec
 
@@ -44,45 +43,45 @@ exports.runBattle = function(rec){
 
     // 素早さ判定
     let order = afn.speedCheck(rec.user1.con, rec.user2.con)
-    if (order = [1, 2]){
+    if (order[0] > order[1] || (order[0] == order[1] && Math.random() < 0.5)){
         order = [rec.user1, rec.user2]
-    } else if (order = [2, 1]){
+    } else if (order[0] < order[1]){
         order = [rec.user2, rec.user1]
+    }
+    if (rec.user1.con.f_con.includes("トリックルーム")){
+        order = [order[1], order[0]]
     }
 
     // わるあがきをするかどうか
-    if (user1.data.radio_0 && user1.data.radio_1 && user1.data.radio_2 && user1.data.radio_3 && !user1.con.f_con.includes("溜め技") && user1.data.command == ""){
-        user1.con.command = "struggle"
+    if (rec.user1.data.radio_0 && rec.user1.data.radio_1 && rec.user1.data.radio_2 && rec.user1.data.radio_3 && !rec.user1.con.f_con.includes("溜め技") && rec.user1.data.command == ""){
+        rec.user1.con.command = "struggle"
     }
-    if (user2.data.radio_0 && user2.data.radio_1 && user2.data.radio_2 && user2.data.radio_3 && !user2.con.f_con.includes("溜め技") && user2.data.command == ""){
-        user2.con.command = "struggle"
+    if (rec.user2.data.radio_0 && rec.user2.data.radio_1 && rec.user2.data.radio_2 && rec.user2.data.radio_3 && !rec.user2.con.f_con.includes("溜め技") && rec.user2.data.command == ""){
+        rec.user2.con.command = "struggle"
     }
 
     // 選択ボタンの有効化
     buttonValidation(order)
 
-    // 改行のコード
-    CR = String.fromCharCode(13)
-
     // ターン開始宣言
     const num = (rec.user1.con.log.match( /ターン目/g ) || []).length + 1
-    cfn.logWrite(rec.user1, rec.user2, "---------- " + num + "ターン目 ----------" + CR)
+    cfn.logWrite(rec.user1, rec.user2, "---------- " + num + "ターン目 ----------" + "\n")
 
     // トレーナーの行動、ポケモンの行動順に関する行動
     // 1.クイックドロウ/せんせいのツメ/イバンのみの発動
     for (const team of order){
         if (team.data.command < 4){
             if (team.con.ability == "クイックドロウ" && Math.random() < 0.3 && cfn.moveSearch(team)[2] != "変化"){
-                cfn.logWrite(rec.user1, rec.user2, team.con.TN + "　の　" + team.con.name + "は　クイックドロウで　行動が　早くなった！" + CR)
-                team.con.p_con += "優先" + CR
+                cfn.logWrite(rec.user1, rec.user2, team.con.TN + "　の　" + team.con.name + "は　クイックドロウで　行動が　早くなった！" + "\n")
+                team.con.p_con += "優先" + "\n"
             } else if (team.con.item == "せんせいのツメ" && Math.random() < 0.2){
-                cfn.logWrite(rec.user1, rec.user2, team.con.TN + "　の　" + team.con.name + "は　せんせいのツメで　行動が　早くなった！" + CR)
-                team.con.p_con += "優先" + CR
+                cfn.logWrite(rec.user1, rec.user2, team.con.TN + "　の　" + team.con.name + "は　せんせいのツメで　行動が　早くなった！" + "\n")
+                team.con.p_con += "優先" + "\n"
             } else if (team.con.item == "イバンのみ" && (team.con.last_HP <= team.confull_HP / 4 || (team.con.last_HP <= team.con.full_HP / 2 && team.con.ability == "くいしんぼう"))){
                 cfn.setRecycle(team)
                 cfn.setBelch(team)
-                cfn.logWrite(rec.user1, rec.user2, team.con.TN + "　の　" + team.con.name + "は　イバンのみで　行動が　早くなった！" + CR)
-                team.con.p_con += "優先" + CR
+                cfn.logWrite(rec.user1, rec.user2, team.con.TN + "　の　" + team.con.name + "は　イバンのみで　行動が　早くなった！" + "\n")
+                team.con.p_con += "優先" + "\n"
             }
         }
     }
@@ -94,8 +93,8 @@ exports.runBattle = function(rec){
             if (user == rec.user1){
                 enemy = rec.user2
             }
-            cfn.logWrite(rec.user1, rec.user2, "(" + user.con.TN + "の行動)" + CR)
-            cfn.logWrite(rec.user1, rec.user2, user.con.TN + "　は　" + user.con.name + "を　引っ込めた！" + CR)
+            cfn.logWrite(rec.user1, rec.user2, "(" + user.con.TN + "の行動)" + "\n")
+            cfn.logWrite(rec.user1, rec.user2, user.con.TN + "　は　" + user.con.name + "を　引っ込めた！" + "\n")
             summon.comeBack(user, enemy)
             summon.pokeReplace(user, enemy)
             summon.activAbility(user, enemy, 1)
@@ -121,14 +120,14 @@ exports.runBattle = function(rec){
         if (user.data.command < 4){
             let move = cfn.moveSearch(user)
             if (move[0] == "きあいパンチ"){
-                user.con.p_con += "きあいパンチ" + CR
-                cfn.logWrite(user, enemy, user.con.TN + "　の　" + user.con.name + "は　集中している" + CR)
+                user.con.p_con += "きあいパンチ" + "\n"
+                cfn.logWrite(user, enemy, user.con.TN + "　の　" + user.con.name + "は　集中している" + "\n")
             } else if (move[0] == "トラップシェル"){
-                cfn.logWrite(user, enemy, user.con.TN + "　の　" + user.con.name + "は トラップシェルを仕掛けた！" + CR)
-                user.con.p_con += "トラップシェル：不発" + CR
+                cfn.logWrite(user, enemy, user.con.TN + "　の　" + user.con.name + "は トラップシェルを仕掛けた！" + "\n")
+                user.con.p_con += "トラップシェル：不発" + "\n"
             } else if (move[0] == "くちばしキャノン"){
-                user.con.p_con += "くちばしキャノン" + CR
-                cfn.logWrite(user, enemy, user.con.TN + "　の　" + user.con.name + "は くちばしを加熱し始めた！" + CR)
+                user.con.p_con += "くちばしキャノン" + "\n"
+                cfn.logWrite(user, enemy, user.con.TN + "　の　" + user.con.name + "は くちばしを加熱し始めた！" + "\n")
             }
         }
     }
@@ -142,17 +141,17 @@ exports.runBattle = function(rec){
     const log_list = rec.user1.con.log.split("\n")
     let A_check = "未行動"
     let B_check = "未行動"
-    if (log_list.slice(log_list.lastIndexOf(turn)).includes("(" + rec.user1.con.TN + "の行動)")){
+    if (log_list.slice(log_list.lastIndexOf(turn)).includes("(" + rec.user1.con.TN + "の行動)" + "\n")){
         A_check = "行動済"
     }
-    if (log_list.slice(log_list.lastIndexOf(turn)).includes("(" + rec.user2.con.TN + "の行動)")){
+    if (log_list.slice(log_list.lastIndexOf(turn)).includes("(" + rec.user2.con.TN + "の行動)" + "\n")){
         B_check = "行動済"
     }
 
     // 両方が交代する時
     if (A_check == "行動済" && B_check == "行動済"){
-        end_process()
-        return
+        end.endProcess(rec.user1, rec.user2)
+        return rec
     }
     
     // 片方が交代、片方が攻撃する時
@@ -165,7 +164,7 @@ exports.runBattle = function(rec){
         }
         let move = move_success_judge(atk, def, order)
         if (move == false){
-            process_at_failure(atk)
+            processAtFailure(atk)
         } else {
             if (move[9] == "反射"){
                 let save = atk
@@ -177,8 +176,8 @@ exports.runBattle = function(rec){
                 return
             }
         }
-        end_process()
-        return
+        end.endProcess(rec.user1, rec.user2)
+        return rec
     }
 
     // 両方が攻撃する時
@@ -187,7 +186,7 @@ exports.runBattle = function(rec){
         let reverse = [rec.user2, rec.user1]
         if (order[0] == 1){
             order = [rec.user1, rec.user2]
-        } else if (order[0] == 1){
+        } else if (order[0] == 2){
             order = [rec.user2, rec.user1]
             reverse = [rec.user1, rec.user2]
         }
@@ -198,22 +197,22 @@ exports.runBattle = function(rec){
             if (!atk.con.f_con.includes("ひんし")){
                 let move = success.moveSuccessJudge(atk, def, order)
                 if (move == false){
-                    process_at_failure(atk)
+                    processAtFailure(atk)
                 } else {
                     if (move[9] == "反射"){
                         let save = atk
                         atk = def
                         def = save
                     }
-                    const stop_check = move_process(atk, def, move, order)
-                    if (stop_check == "stop"){
+                    let stopCheck = process.moveProcess(atk, def, move, order)
+                    if (stopCheck == "stop"){
                         return
                     }
                 }
             }
         }
-        end_process()
-        return
+        end.endProcess(rec.user1, rec.user2)
+        return rec
     }
 }
 
@@ -230,12 +229,12 @@ function move_search(team){
 
 
 
-function process_at_failure(team){
-    condition_remove(team, "poke", "アイスボール")
-    condition_remove(team, "poke", "ころがる")
-    condition_remove(team, "poke", "さわぐ")
-    condition_remove(team, "poke", "れんぞくぎり")
-    condition_remove(team, "poke", "がまん")
+function processAtFailure(team){
+    cfn.conditionRemove(team.con, "poke", "アイスボール")
+    cfn.conditionRemove(team.con, "poke", "ころがる")
+    cfn.conditionRemove(team.con, "poke", "さわぐ")
+    cfn.conditionRemove(team.con, "poke", "れんぞくぎり")
+    cfn.conditionRemove(team.con, "poke", "がまん")
 }
 
 

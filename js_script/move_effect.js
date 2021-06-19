@@ -98,6 +98,9 @@ var self_melt_move_list = [
 // トライアタックではまひ/やけど/こおりのいずれかを発生させる確率が合わせて20%。
 // しっとのほのお/そのターン相手のランク補正が上昇していたときのみ
 
+exports.additionalEffect = function(){
+    return additional_effect_move_list
+}
 var additional_effect_move_list = [
     ['アイアンテール', 'e', 30, ['B', -1]], 
     ['アイアンヘッド', 'f', 30], 
@@ -119,7 +122,7 @@ var additional_effect_move_list = [
     ['エレキネット', 'e', 100, ['S', -1]], 
     ['オーラぐるま', 's', 100, ['S', 1]], 
     ['オーロラビーム', 'e', 10, ['A', -1]], 
-    ['オクタンほう', 'e', 50, ['accuracy', -1]], 
+    ['オクタンほう', 'e', 50, ['X', -1]], 
     ['おしゃべり', 'a', 100, 'こんらん'], 
     ['おどろかす', 'f', 30], 
     ['オリジンズスーパーノヴァ'], 
@@ -139,7 +142,7 @@ var additional_effect_move_list = [
     ['きあいだま', 'e', 10, ['D', -1]], 
     ['ぎんいろのかぜ', 's', 10, ['A', 1], ['B', 1], ['C', 1], ['D', 1], ['S', 1]], 
     ['クロスポイズン', 'a', 10, 'どく'], 
-    ['グラスミキサー', 'e', 50, ['accuracy', -1]], 
+    ['グラスミキサー', 'e', 50, ['X', -1]], 
     ['グロウパンチ', 's', 100, ['A', 1]], 
     ['げんしのちから', 's', 10, ['A', 1], ['B', 1], ['C', 1], ['D', 1], ['S', 1]], 
     ['コールドフレア', 'a', 30, 'やけど'], 
@@ -180,7 +183,7 @@ var additional_effect_move_list = [
     ['だいちのちから', 'e', 10, ['D', -1]], 
     ['だいもんじ', 'a', 10, 'やけど'], 
     ['ダイヤストーム', 's', 50, ['B', 2]], 
-    ['だくりゅう', 'e', 30, ['accuracy', -1]], 
+    ['だくりゅう', 'e', 30, ['X', -1]], 
     ['ダストシュート', 'a', 30, 'どく'], 
     ['ダブルニードル', 'a', 20, 'どく'], 
     ['ダブルパンツァー', 'f', 30], 
@@ -197,9 +200,9 @@ var additional_effect_move_list = [
     ['どくばり', 'a', 30, 'どく'], 
     ['ドラゴンダイブ', 'f', 20], 
     ['ドラムアタック', 'e', 100, ['S', -1]], 
-    ['どろかけ', 'e', 100, ['accuracy',-1]], 
-    ['どろばくだん', 'e', 30, ['accuracy', -1]], 
-    ['ナイトバースト', 'e', 40, ['accuracy', -1]], 
+    ['どろかけ', 'e', 100, ['X',-1]], 
+    ['どろばくだん', 'e', 30, ['X', -1]], 
+    ['ナイトバースト', 'e', 40, ['X', -1]], 
     ['ニードルアーム', 'f', 30], 
     ['ニトロチャージ', 's', 100, ['S', 1]], 
     ['なげつける', 'fling'], 
@@ -252,7 +255,7 @@ var additional_effect_move_list = [
     ['まわしげり', 'f', 30], 
     ['ミストボール', 'e', 50, ['C', -1]], 
     ['みずのはどう', 'a', 20, 'こんらん'], 
-    ['ミラーショット', 'e', 30, ['accuracy', -1]], 
+    ['ミラーショット', 'e', 30, ['X', -1]], 
     ['ムーンフォース', 'e', 30, ['C', -1]], 
     ['むしのさざめき', 'e', 10, ['D', -1]], 
     ['むしのていこう', 'e', 100, ['C', -1]], 
@@ -297,6 +300,9 @@ var additional_effect_move_list = [
 // 自分のランクが減少する技:d
 // 反動ダメージを受ける技:
 // HPを回復する技:r
+exports.otherEffect = function(){
+    return other_effect_move_list
+}
 var other_effect_move_list = [
     ['アームハンマー', 'd', ['S', -1]], 
     ['アイスハンマー', 'd', ['S', -1]], 
@@ -330,6 +336,9 @@ var other_effect_move_list = [
 ]
 
 // 急所に当たりやすい技
+exports.critical = function(){
+    return critical_move_list
+}
 var critical_move_list = [
     ['1000まんボルト', 2], 
     ['あくうせつだん', 1], 
@@ -361,6 +370,9 @@ var critical_move_list = [
 ]
 
 // 反動ダメージを受ける技
+exports.recoil = function(){
+    return recoil_move_list
+}
 var recoil_move_list = [
     ['アフロブレイク', 0.25], 
     ['ウッドハンマー', 0.33], 
@@ -468,6 +480,9 @@ var music_move_list = [
 ]
 
 // 反動で動けない技
+exports.cannotMove = function(){
+    return cannot_move_list
+}
 var cannot_move_list = [
     'がんせきほう', 
     'ギガインパクト', 
@@ -482,6 +497,9 @@ var cannot_move_list = [
 ]
 
 // てつのこぶし対応
+exports.ironFist = function(){
+    return iron_fist_move_list
+}
 var iron_fist_move_list = [
     'アームハンマー', 
     'アイスハンマー', 
@@ -506,19 +524,22 @@ var iron_fist_move_list = [
 ]
 
 // ランク変化させる変化技
+exports.rankChange = function(){
+    return rank_change_status_move_list
+}
 var rank_change_status_move_list = [
     ['アシストギア', 's', ['A', 1], ['C', 1]], 
-    ['あまいかおり', 'e', ['evasiveness', -2]], 
+    ['あまいかおり', 'e', ['Y', -2]], 
     ['あまえる', 'e', ['A', -2]], 
     ['いとをはく', 'e', ['S', -2]], 
     ['いやなおと', 'e', ['B', -2]], 
     ['うそなき', 'e', ['D', -2]], 
-    ['えんまく', 'e', ['accuracy', -1]], 
+    ['えんまく', 'e', ['X', -1]], 
     ['おきみやげ', 'e', ['A', -2], ['C', -2]], 
     ['おたけび', 'e', ['A', -1], ['C', -1]], 
     ['かいでんぱ', 'e', ['C', -2]], 
     ['かくばる', 's', ['A', 1]], 
-    ['かげぶんしん', 's', ['evasiveness', 1]], 
+    ['かげぶんしん', 's', ['Y', 1]], 
     ['かたくなる', 's', ['B', 1]], 
     ['からにこもる', 's', ['B', 1]], 
     ['からをやぶる', 's', ['B', -1], ['D', -1], ['A', 2], ['C', 2], ['S', 2]], 
@@ -533,18 +554,18 @@ var rank_change_status_move_list = [
     ['ジオコントロール', 's', ['C', 2], ['D', 2], ['S', 2]], 
     ['じばそうさ', 's', ['B', 1], ['D', 1]], 
     ['すてゼリフ', 'e', ['A', -1], ['C', -1]], 
-    ['すなかけ', 'e', ['accuracy', -1]], 
-    ['スプーンまげ', 'e', ['accuracy', -1]], 
+    ['すなかけ', 'e', ['X', -1]], 
+    ['スプーンまげ', 'e', ['X', -1]], 
     ['タールショット', 'e', ['S', -1]], 
-    ['ちいさくなる', 's', ['evasiveness', 2]], 
+    ['ちいさくなる', 's', ['Y', 2]], 
     ['ちょうのまい', 's', ['C', 1], ['D', 1], ['S', 1]], 
     ['つぶらなひとみ', 'e', ['A', -1]], 
-    ['つめとぎ', 's', ['A', 1], ['accuracy', 1]], 
+    ['つめとぎ', 's', ['A', 1], ['X', 1]], 
     ['つるぎのまい', 's', ['A', 2]], 
     ['てっぺき', 's', ['B', 2]], 
     ['デコレーション', 'e', ['A', 2], ['C', 2]], 
     ['とおぼえ', 's', ['A', 1]], 
-    ['とぐろをまく', 's', ['A', 1], ['B', 1], ['accuracy', 1]], 
+    ['とぐろをまく', 's', ['A', 1], ['B', 1], ['X', 1]], 
     ['とける', 's', ['B', 2]], 
     ['ドわすれ', 's', ['D', 2]], 
     ['ないしょばなし', 'e', ['C', -1]], 
@@ -556,7 +577,7 @@ var rank_change_status_move_list = [
     ['バリアー', 's', ['B', 2]], 
     ['ビルドアップ', 's', ['A', 1], ['B', 1]], 
     ['フェザーダンス', 'e', ['A', -2]], 
-    ['フラッシュ', 'e', ['accuracy', -1]], 
+    ['フラッシュ', 'e', ['X', -1]], 
     ['ふるいたてる', 's', ['A', 1], ['C', 1]], 
     ['ベノムトラップ', 'e', ['A', -1], ['C', -1], ['S', -1]], 
     ['ほたるび', 's', ['C', 3]], 
@@ -571,6 +592,9 @@ var rank_change_status_move_list = [
 ]
 
 // 状態異常を付与する変化技
+exports.abnormal = function(){
+    return abnormal_status_move_list
+}
 var abnormal_status_move_list = [
     ['あくまのキッス', 'ねむり'], 
     ['あやしいひかり', 'こんらん'], 
@@ -766,6 +790,9 @@ var magic_coat_move_list = [
 ]
 
 // 粉系の技
+exports.powder = function(){
+    return powder_move_list
+}
 var powder_move_list = [
     'ねむりごな', 
     'しびれごな', 
@@ -778,6 +805,9 @@ var powder_move_list = [
 ]
 
 // ぼうだんで防がれる技
+exports.ball = function(){
+    return ball_move_list
+}
 var ball_move_list = [
     'アイスボール', 
     'アシッドボム', 
@@ -828,6 +858,9 @@ var one_shot_deadly_move_list = [
 ]
 
 // 技名、状態名、発生場所
+exports.fieldCondition = function(){
+    return field_condition_move_list
+}
 var field_condition_move_list = [
     ['おいかぜ', 'おいかぜ', 's'], 
     ['おまじない', 'おまじない', 's'], 
@@ -866,6 +899,9 @@ var field_condition_move_list = [
 ]
 
 // コートチェンジで移動する状態
+exports.courtChange = function(){
+    return court_change_list
+}
 var court_change_list = [
     'リフレクター', 
     'ひかりのかべ', 
@@ -888,6 +924,9 @@ var court_change_list = [
 ]
 
 // 反動ダメージを受ける技
+exports.reckless = function(){
+    return reckless_move_list
+}
 var reckless_move_list = [
     'アフロブレイク', 
     'じごくぐるま', 
@@ -905,6 +944,9 @@ var reckless_move_list = [
 ]
 
 // がんじょうあご対応
+exports.bite = function(){
+    return bite_move_list
+}
 var bite_move_list = [
     'エラがみ', 
     'かみくだく', 
@@ -919,6 +961,9 @@ var bite_move_list = [
 ]
 
 // メガランチャー対応
+exports.megaLauncher = function(){
+    return mega_launcher_move_list
+}
 var mega_launcher_move_list = [
     'あくのはどう', 
     'いやしのはどう', 
@@ -952,6 +997,9 @@ var all_field_status_move_list = [
     ['ワンダールーム', 'ワンダールーム', '防御と特防が入れ替わった', 'ルーム']
 ]
 
+exports.selfField = function(){
+    return self_field_status_move_list
+}
 var self_field_status_move_list = [
     ['オーロラベール', 'オーロラベールが現れた', '壁'], 
     ['おいかぜ', '追い風が吹き始めた', 'おいかぜ'], 
@@ -962,6 +1010,9 @@ var self_field_status_move_list = [
     ['リフレクター', 'リフレクターが現れた', '壁']
 ]
 
+exports.enemyField = function(){
+    return enemy_field_status_move_list
+}
 var enemy_field_status_move_list = [
     ['ステルスロック', 'とがった岩がただよいはじめた'], 
     ['どくびし', 'どくびしが　散らばった'], 
@@ -969,6 +1020,9 @@ var enemy_field_status_move_list = [
     ['ねばねばネット', 'ねばねばネットが　撒き散らかされた']
 ]
 
+exports.selfStatus = function(){
+    return self_change_status_move_list
+}
 var self_change_status_move_list = [
     ['アクアリング', 'アクアリング', '水をまとった'], 
     ['いかりのこな', 'ちゅうもくのまと', '注目の的になった'], 
@@ -1007,6 +1061,9 @@ var self_change_status_move_list = [
     ['ワイドガード', 'ワイドガード', '範囲技を警戒している']
 ]
 
+exports.enemyStatus = function(){
+    return enemy_change_status_move_list
+}
 var enemy_change_status_move_list = [
     ['あくび', 'ねむけ　宣言ターン', '眠気を誘った'], 
     ['あくむ', 'あくむ', '悪夢を見せられた'], 
@@ -1106,6 +1163,9 @@ var protect_move_list = [
 ]
 
 // バインド状態にする技
+exports.bind = function(){
+    return bind_move_list
+}
 var bind_move_list = [
     'しめつける', 
     'まきつく', 
@@ -1122,6 +1182,9 @@ var bind_move_list = [
 ]
 
 // 連続攻撃技
+exports.continue = function(){
+    return continuous_move_list
+}
 var continuous_move_list = [
     ['ダブルニードル', 2], 
     ['にどげり', 2], 
@@ -1154,6 +1217,9 @@ var continuous_move_list = [
 ]
 
 // 固定ダメージ技
+exports.fixDamage = function(){
+    return fixed_damage_move_list
+}
 var fixed_damage_move_list = [
     'ソニックブーム', 
     'りゅうのいかり', 
@@ -1176,6 +1242,9 @@ var fixed_damage_move_list = [
 ]
 
 // 身代わりを貫通する変化技
+exports.substitute = function(){
+    return substitute_through_status_move_list
+}
 var substitute_through_status_move_list = [
     'オウムがえし', 
     'かなしばり', 
@@ -1248,6 +1317,9 @@ var me_first_move_list = [
 ]
 
 // ちいさくなるで威力が2倍になる技
+exports.minimize = function(){
+    return minimize_move_list
+}
 var minimize_move_list = [
     'のしかかり', 
     'ふみつけ', 
@@ -1635,6 +1707,9 @@ var protect_type_move_list = [
 ]
 
 // ものまねでコピーできない技 Z技、ダイマックス技、自分が覚えている技
+exports.mimic = function(){
+    return mimic_move_list
+}
 var mimic_move_list = [
     'ものまね', 
     'へんしん', 
@@ -2304,6 +2379,9 @@ var metronome_move_list = [
 ]
 
 // バトンタッチで受け継ぐもの
+exports.batton = function(){
+    return baton_pass_condition_list
+}
 var baton_pass_condition_list = [
     'こんらん', 
     'きゅうしょアップ', 
@@ -2322,6 +2400,9 @@ var baton_pass_condition_list = [
 ]
 
 // なげつけるの威力10：きのみ、おこう
+exports.fling10 = function(){
+    return fling_pow_10
+}
 var fling_pow_10 = [
     'あかいいと', 
     'エレキシード', 
@@ -2359,6 +2440,9 @@ var fling_pow_10 = [
 ]
 
 // なげつけるの威力30
+exports.fling30 = function(){
+    return fling_pow_30
+}
 var fling_pow_30 = [
     'いのちのたま', 
     'おうじゃのしるし', 
@@ -2394,6 +2478,9 @@ var fling_pow_30 = [
     'ゆきだま']
     
 // なげつけるの威力40
+exports.fling40 = function(){
+    return fling_pow_40
+}
 var fling_pow_40 = [
     'しんかのきせき', 
     'つめたいいわ', 
@@ -2401,12 +2488,18 @@ var fling_pow_40 = [
 ]
 
 // なげつけるの威力50：メモリ
+exports.fling50 = function(){
+    return fling_pow_50
+}
 var fling_pow_50 = [
     'するどいくちばし', 
     'だっしゅつパック'
 ]
 
 // なげつけるの威力60
+exports.fling60 = function(){
+    return fling_pow_60
+}
 var fling_pow_60 = [
     'こんごうだま', 
     'しらたま', 
@@ -2420,12 +2513,18 @@ var fling_pow_60 = [
 ]
 
 // なげつけるの威力70：カセット、パワー系
+exports.fling70 = function(){
+    return fling_pow_70
+}
 var fling_pow_70 = [
     'どくバリ', 
     'りゅうのキバ'
 ]
 
 // なげつけるの威力80：メガストーン
+exports.fling80 = function(){
+    return fling_pow_80
+}
 var fling_pow_80 = [
     'あつぞこブーツ', 
     'からぶりほけん', 
@@ -2438,6 +2537,9 @@ var fling_pow_80 = [
 ]
 
 // なげつけるの威力90：プレート
+exports.fling90 = function(){
+    return fling_pow_90
+}
 var fling_pow_90 = [
     'プレート', 
     'しんかいのキバ', 
@@ -2446,6 +2548,9 @@ var fling_pow_90 = [
 ]
 
 // なげつけるの威力100
+exports.fling100 = function(){
+    return fling_pow_100
+}
 var fling_pow_100 = [
     'かたいいし', 
     'きちょうなホネ', 
@@ -2453,6 +2558,9 @@ var fling_pow_100 = [
 ]
 
 // なげつけるの威力130
+exports.fling130 = function(){
+    return fling_pow_130
+}
 var fling_pow_130 = [
     'くろいてっきゅう'
 ]
@@ -2603,21 +2711,21 @@ var Z_status_move = [
     ['トリック', 'S', 2], 
     ['すりかえ', 'S', 2], 
     ['よこどり', 'S', 2], 
-    ['あまいかおり', 'accuracy', 1], 
-    ['きあいだめ', 'accuracy', 1], 
-    ['まねっこ', 'accuracy', 1, '繰り出す技をZワザにする'], 
-    ['まるくなる', 'accuracy', 1], 
-    ['ものまね', 'accuracy', 1], 
-    ['きりばらい', 'accuracy', 1], 
-    ['トリックルーム', 'accuracy', 1], 
-    ['えんまく', 'evasiveness', 1], 
-    ['おまじない', 'evasiveness', 1], 
-    ['フラッシュ', 'evasiveness', 1], 
-    ['ほごしょく', 'evasiveness', 1], 
-    ['でんじふゆう', 'evasiveness', 1], 
-    ['みきり', 'evasiveness', 1], 
-    ['すなかけ', 'evasiveness', 1], 
-    ['スプーンまげ', 'evasiveness', 1], 
+    ['あまいかおり', 'X', 1], 
+    ['きあいだめ', 'X', 1], 
+    ['まねっこ', 'X', 1, '繰り出す技をZワザにする'], 
+    ['まるくなる', 'X', 1], 
+    ['ものまね', 'X', 1], 
+    ['きりばらい', 'X', 1], 
+    ['トリックルーム', 'X', 1], 
+    ['えんまく', 'Y', 1], 
+    ['おまじない', 'Y', 1], 
+    ['フラッシュ', 'Y', 1], 
+    ['ほごしょく', 'Y', 1], 
+    ['でんじふゆう', 'Y', 1], 
+    ['みきり', 'Y', 1], 
+    ['すなかけ', 'Y', 1], 
+    ['スプーンまげ', 'Y', 1], 
     ['おいわい', 'all', 1], 
     ['テクスチャー', 'all', 1], 
     ['てをつなぐ', 'all', 1], 

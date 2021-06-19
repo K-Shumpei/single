@@ -53,6 +53,9 @@ var berry_item_list = [
 ]
 
 // 半減きのみ
+exports.halfBerry = function(){
+    return half_damage_berry_list
+}
 var half_damage_berry_list = [
     ['オッカのみ', 'ほのお'], 
     ['イトケのみ', 'みず'], 
@@ -148,6 +151,9 @@ var natural_gift_item_list = [
     ['タラプのみ', 'あく', 100]
 ]
 
+exports.incense = function(){
+    return incense_item_list
+}
 var incense_item_list = [
     ['シルクのスカーフ', 'ノーマル'], 
     ['うしおのおこう', 'みず'], 

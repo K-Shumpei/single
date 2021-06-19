@@ -1,4 +1,7 @@
 // なかまづくりが失敗する相手の特性
+exports.entrainmentEnemy = function(){
+    return entrainment_enemy_ability_list
+}
 var entrainment_enemy_ability_list = [
     'ARシステム', 
     'アイスフェイス', 
@@ -17,6 +20,9 @@ var entrainment_enemy_ability_list = [
 ]
 
 // なかまづくりが失敗する自分の特性
+exports.entrainmentSelf = function(){
+    return entrainment_self_ability_list
+}
 var entrainment_self_ability_list = [
     'アイスフェイス', 
     'イリュージョン', 
@@ -35,6 +41,9 @@ var entrainment_self_ability_list = [
 ]
 
 // いえきが失敗する相手の特性
+exports.gastro = function(){
+    return gastro_acid_enemy_ability_list
+}
 var gastro_acid_enemy_ability_list = [
     'ARシステム', 
     'アイスフェイス', 
@@ -52,6 +61,9 @@ var gastro_acid_enemy_ability_list = [
 ]
 
 // なりきりが失敗する相手の特性
+exports.rolePlayEnemy = function(){
+    return role_play_enemy_ability_list
+}
 var role_play_enemy_ability_list = [
     'てんきや', 
     'トレース', 
@@ -79,6 +91,9 @@ var role_play_enemy_ability_list = [
 ]
 
 // なりきりが失敗する自分の特性
+exports.rolePlaySelf = function(){
+    return role_play_self_ability_list
+}
 var role_play_self_ability_list = [
     'ARシステム', 
     'アイスフェイス', 
@@ -97,6 +112,9 @@ var role_play_self_ability_list = [
 ]
 
 // シンプルビームが失敗する相手の特性
+exports.simpleBeam = function(){
+    return simple_beam_enemy_ability_list
+}
 var simple_beam_enemy_ability_list = [
     'ARシステム', 
     'アイスフェイス', 
@@ -115,6 +133,9 @@ var simple_beam_enemy_ability_list = [
 ]
 
 // なやみのタネが失敗する相手の特性
+exports.worrySeed = function(){
+    return worry_seed_enemy_ability_list
+}
 var worry_seed_enemy_ability_list = [
     'ARシステム', 
     'アイスフェイス', 
@@ -133,6 +154,9 @@ var worry_seed_enemy_ability_list = [
 ]
 
 // どちらかが当てはまればスキルスワップが失敗する特性
+exports.skillSwap = function(){
+    return skill_swap_ability_list
+}
 var skill_swap_ability_list = [
     'ARシステム', 
     'アイスフェイス', 
@@ -154,6 +178,9 @@ var skill_swap_ability_list = [
 ]
 
 // ミイラが失敗する自分の特性
+exports.mummy = function(){
+    return mummy_self_ability_list
+}
 var mummy_self_ability_list = [
     'ARシステム', 
     'アイスフェイス', 
@@ -171,6 +198,9 @@ var mummy_self_ability_list = [
 ]
 
 // さまようたましいが失敗する自分の特性
+exports.wanderSpirit = function(){
+    return wandering_spirit_self_ability_list
+}
 var wandering_spirit_self_ability_list = [
     'ARシステム', 
     'アイスフェイス', 

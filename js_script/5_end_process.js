@@ -1,3 +1,12 @@
+const moveEff = require("./move_effect")
+const itemEff = require("./item_effect")
+const afn = require("./function")
+const bfn = require("./base_function")
+const cfn = require("./law_function")
+const summon = require("./1_summon")
+const process = require("./4_move_effect")
+const com = require("./compatibility")
+
 // ターン終了時の処理順
 
 // 0.その他の終了
@@ -9,101 +18,92 @@
 
 
 
-function end_process(){
+exports.endProcess = function(user1, user2){
 
-    document.battle_log.battle_log.value += "---------- 終了時の処理 ----------" + CR
+    cfn.logWrite(user1, user2, "---------- 終了時の処理 ----------" + "\n")
 
     // 素早さ判定
-    let order = ["A", "B"]
-    const speed = speed_check()
-    if (speed[0] > speed[1]){
-        order =  trick_room(["A", "B"])
-    } else if (speed[0] < speed[1]){
-        order =  trick_room(["B", "A"])
-    } else {
-        // 6.乱数
-        if (Math.random() < 0.5){
-            order =  ["A", "B"]
-        } else {
-            order =  ["B", "A"]
-        }
+    let order = afn.speedCheck(user1.con, user2.con)
+    if (order[0] > order[1] || (order[0] == order[1] && Math.random() < 0.5)){
+        order = [user1, user2]
+    } else if (order[0] < order[1]){
+        order = [user2, user1]
+    }
+    if (user1.con.f_con.includes("トリックルーム")){
+        order = [order[1], order[0]]
     }
     const reverse = [order[1], order[0]]
 
     // 1.てんきの効果
-    weather_effect(order)
+    weatherEffect(order, reverse)
     // 2.みらいよち/はめつのねがい: 技が使用された順に発動
-    future_attack(order)
+    futureAttack(order, reverse)
     // 3.ねがいごと
-    wish_recover(order)
+    wishRecover(order, reverse)
     // 4.場の状態・特性・もちものによる回復・ダメージ
-    field_ability_item_damage(order)
+    fieldAbilityItemDamage(order, reverse)
     // 5.アクアリング
-    aqua_ring(order)
+    aquaRing(order, reverse)
     // 6.ねをはる
-    ingrain(order)
+    ingrain(order, reverse)
     // 7.やどりぎのタネ
-    leech_seed(order)
+    leechSeed(order, reverse)
     // 8 どく/もうどく/ポイズンヒール
-    acid_check(order)
+    acidCheck(order, reverse)
     // 9 やけど
-    burn_check(order)
+    burnCheck(order, reverse)
     // 10.あくむ
-    nightmare(order)
+    nightmare(order, reverse)
     // 11.のろい
-    curse(order)
+    curse(order, reverse)
     // 12.バインド
-    bind_check(order)
-    // 13.たこがため
-    octolock(order)
+    bindCheck(order, reverse)
+    // 1[3.たこが, reverse]ため
+    octolock(order, reverse)
     // 14.ちょうはつの終了
-    taunt_end(order)
+    tauntEnd(order, reverse)
     // 15.アンコールの終了
-    encore_end(order)
+    encoreEnd(order, reverse)
     // 16.かなしばりの終了
-    disable_end(order)
+    disableEnd(order, reverse)
     // 17.でんじふゆうの終了
-    magnet_rise_end(order)
+    magnetRiseEnd(order, reverse)
     // 18.テレキネシスの終了
-    telekinesis_end(order)
+    telekinesisEnd(order, reverse)
     // 19.かいふくふうじの終了
-    heal_block_end(order)
-    // 20.さしおさえの終了
-    embargo_end(order)
+    healBlockEnd(order, reverse)
+    // 20.さ[しおさえの, reverse]終了
+    embargoEnd(order, reverse)
     // 21.ねむけ
-    sleep_check(order)
-    // 22.ほろびのうた
-    perish_song(order)
+    sleepCheck(order, reverse)
+    // 22, reverse.ほろびのうた
+    perishSong(order, reverse)
     // 23.片側の場の状態の継続/終了: ホスト側の状態が先にすべて解除された後に、ホストでない側の状態が解除される。
-    one_side_field_end(order)
+    oneSideFieldEnd(order, reverse)
     // 24.全体の場の状態の継続/終了
-    both_side_field_end(order)
+    bothSideFieldEnd(order, reverse)
     // 25.はねやすめ解除
-    roost_end(order)
+    roostEnd(order, reverse)
     // 26.その他の状態・特性・もちもの
-    other_condition_ability_item(order)
-        // a. さわぐ
-        // b. ねむりによるあばれるの中断
-        // c. かそく/ムラっけ/スロースタート/ナイトメア
-        // d. くっつきバリ/どくどくだま/かえんだま
-        // e. ものひろい/しゅうかく/たまひろい
+    otherConditionAbilityItem(order, reverse)
     // 27.ダルマモード
-    zen_mode(order)
+    zenMode(order, reverse)
     // 28.リミットシールド
-    shields_down(order)
+    shieldsDown(order, reverse)
     // 29.スワームチェンジ
-    power_construct(order)
+    powerConstruct(order, reverse)
     // 30.ぎょぐん
     // 31.はらぺこスイッチ
-    hunger_switch(order)
+    hungerSwitch(order, reverse)
 
     // A.その他の終了
-    other_end(order)
+    otherEnd(order, reverse)
     // B.その他の処理
-    other_process(order)
+    otherProcess(order, reverse)
 
-    document.battle.battle_button.disabled = false
-    document.battle_log.battle_log.value += "---------- ターン終了 ----------" + CR
+    cfn.logWrite(order[0], order[1], "---------- ターン終了 ----------" + "\n")
+
+    return
 
     // C.ひんしのポケモンがいる時、交換する
     return_fainted_pokemon(order)
@@ -112,83 +112,43 @@ function end_process(){
 }
 
 // A.その他の終了
-function other_end(order){
+function otherEnd(order, reverse){
     // ポケモンの状態の終了
     for (const team of order){
         for (let text of end_process_poke_condition){
-            condition_remove(team, "poke", text)
+            cfn.conditionRemove(team.con, "poke", text)
         }
     }
     // フィールドの状態の終了
     for (const team of order){
         for (let text of end_process_field_condition){
-            condition_remove(team, "field", text)
+            cfn.conditionRemove(team.con, "field", text)
         }
     }
-
-    // じごくづきのターン消費
-    for (const team of order){
-        let p_con = new get(team).p_con
-        document.battle[team + "_poke_condition"].value = ""
-        for (let i = 0; i < p_con.split("\n").length - 1; i++){
-            if (p_con.split("\n")[i] == "じごくづき　2/2"){
-                document.battle[team + "_poke_condition"].value += "じごくづき　1/2" + CR
-            } else if (p_con.split("\n")[i] == "じごくづき　1/2"){
-                txt = team + "チームの　" + new get(team).name + "は　じごくづきの効果が切れた！" + CR
-                document.battle_log.battle_log.value += txt
-            } else {
-                document.battle[team + "_poke_condition"].value += p_con.split("\n")[i] + CR
-            }
+    
+    for (const team of [order, reverse]){
+        // じごくづきのターン消費
+        decreasePerTurn(team[0], team[1], "じごくづき", "p")
+        // じゅうでんのテキスト変更
+        if (team[0].con.p_con.includes("じゅうでん　開始")){
+            cfn.conditionRemove(team[0].con, "poke", "じゅうでん　開始")
+            team[0].con.p_con += "じゅうでん"
+        } else {
+            cfn.conditionRemove(team[0].con, "poke", "じゅうでん")
         }
-    }
-    // じゅうでんのテキスト変更
-    for (const team of order){
-        let p_con = new get(team).p_con
-        document.battle[team + "_poke_condition"].value = ""
-        for (let i = 0; i < p_con.split("\n").length - 1; i++){
-            if (p_con.split("\n")[i] == "じゅうでん　開始"){
-                document.battle[team + "_poke_condition"].value += "じゅうでん" + CR
-            } else if (p_con.split("\n")[i] != "じゅうでん"){
-                document.battle[team + "_poke_condition"].value += p_con.split("\n")[i] + CR
-            }
+        // とぎすますのテキスト変更
+        if (team[0].con.p_con.includes("とぎすます　開始")){
+            cfn.conditionRemove(team[0].con, "poke", "とぎすます　開始")
+            team[0].con.p_con += "とぎすます"
+        } else {
+            cfn.conditionRemove(team[0].con, "poke", "とぎすます")
         }
-    }
-    // とぎすますのテキスト変更
-    for (const team of order){
-        let p_con = new get(team).p_con
-        document.battle[team + "_poke_condition"].value = ""
-        for (let i = 0; i < p_con.split("\n").length - 1; i++){
-            if (p_con.split("\n")[i] == "とぎすます　開始"){
-                document.battle[team + "_poke_condition"].value += "とぎすます" + CR
-            } else if (p_con.split("\n")[i] != "とぎすます"){
-                document.battle[team + "_poke_condition"].value += p_con.split("\n")[i] + CR
-            }
-        }
-    }
-    // フェアリーロックのテキスト変更
-    for (const team of order){
-        let f_con = new get(team).f_con
-        document.battle[team + "_field_condition"].value = ""
-        for (let i = 0; i < f_con.split("\n").length - 1; i++){
-            if (f_con.split("\n")[i] == "逃げられない：フェアリーロック　開始"){
-                document.battle[team + "_field_condition"].value += "逃げられない：フェアリーロック" + CR
-            } else if (f_con.split("\n")[i] == "逃げられない：フェアリーロック"){
-
-            } else {
-                document.battle[team + "_field_condition"].value += f_con.split("\n")[i] + CR
-            }
-        }
-    }
-    // かたやぶりなどの特性無視の終了
-    for (const team of order){
-        let p_con = document.battle[team + "_poke_condition"].value
-        document.battle[team + "_poke_condition"].value = ""
-        for (let i = 0; i < p_con.split("\n").length - 1; i++){
-            if (p_con.split("\n")[i].includes("特性無視：")){
-                document.getElementById(team + "_ability").textContent = p_con.split("\n")[i].slice(5)
-            } else {
-                document.battle[team + "_poke_condition"].value += p_con.split("\n")[i] + CR
-            }
+        // フェアリーロックのテキスト変更
+        if (team[0].con.p_con.includes("逃げられない：フェアリーロック　開始")){
+            cfn.conditionRemove(team[0].con, "poke", "逃げられない：フェアリーロック　開始")
+            team[0].con.p_con += "逃げられない：フェアリーロック"
+        } else {
+            cfn.conditionRemove(team[0].con, "poke", "逃げられない：フェアリーロック")
         }
     }
 }
@@ -213,7 +173,6 @@ var end_process_poke_condition = [
     'ころがる　+5', 
     'そうでん', 
     'ダメおし', 
-    'とぎすます', 
     'トラップシェル：成功', 
     'ダメージ', 
     'よこどり', 
@@ -233,24 +192,16 @@ var end_process_field_condition = [
 
 // 技選択肢の無効化　アンコール、いちゃもん、かなしばり、溜め技、ちょうはつ、ふういん
 // B.その他の処理
-function other_process(order){
-    for (const team of order){
-        const p_con = document.battle[team + "_poke_condition"].value
-        const f_con = document.battle[team + "_field_condition"].value
+function otherProcess(order, reverse){
+    for (const team of [order, reverse]){
         // エコーボイスのターン経過
-        if (f_con.includes("エコーボイス")){
-            document.battle[team + "_field_condition"].value = ""
-            for (let i = 0; i < f_con.split("\n").length - 1; i++){
-                if (f_con.split("\n")[i].includes("エコーボイス")){
-                    const num = Number(f_con.split("\n")[i].slice(8))
-                    if (num % 1 != 0){
-                        document.battle[team + "_field_condition"].value += "エコーボイス　+" + Math.ceil(num) +　CR
-                    }
-                } else {
-                    document.battle[team + "_field_condition"].value += f_con.split("\n")[i] + CR
-                }
+        let list = team[0].con.p_con.split("\n")
+        for (let i = 0; i < list.length; i++){
+            if (list[i].includes("エコーボイス") &&  Number(list[i].slice(8)) % 1 != 0){
+                list[i] = "エコーボイス　+" + Math.ceil(turn)
             }
         }
+        team[0].con.p_con = list.join("\n")
     }
 }
 
@@ -258,8 +209,8 @@ function other_process(order){
 function return_fainted_pokemon(order){
     let check = 0
     for (const team of order){
-        if (new get(team).f_con.includes("ひんし")){
-            document.battle_log.battle_log.value += team + "チームは　戦闘に出すポケモンを選んでください" + CR
+        if (team.con.f_con.includes("ひんし")){
+            document.battle_log.battle_log.value += team + "チームは　戦闘に出すポケモンを選んでください" + "\n"
             check += 1
         }
     }
@@ -367,407 +318,329 @@ function cannot_choose_action(order, reverse){
 
 
 // 1.てんきの効果
-function weather_effect(order){
+function weatherEffect(order, reverse){
     // a. にほんばれ/あめ/すなあらし/あられの終了
-    for (const team of order){
-        if (!new get(team).f_con.includes("おおひでり") && !new get(team).f_con.includes("おおあめ")){
-            decrease_per_turn(team, "にほんばれ", "field")
-            decrease_per_turn(team, "あめ", "field")
-            decrease_per_turn(team, "すなあらし", "field")
-            decrease_per_turn(team, "あられ", "field")
+    for (const team of [order, reverse]){
+        if (!team[0].con.f_con.includes("おおひでり") && !team[0].con.f_con.includes("おおあめ")){
+            decreasePerTurn(team[0], team[1], "にほんばれ", "f")
+            decreasePerTurn(team[0], team[1], "あめ", "f")
+            decreasePerTurn(team[0], team[1], "すなあらし", "f")
+            decreasePerTurn(team[0], team[1], "あられ", "f")
         }
     }
     // b. すなあらし/あられのダメージ
-    for (const team of order){
-        if (new get(team).last_HP > 0 && new get(team).ability != "ぼうじん" && new get(team).item != "ぼうじんゴーグル" && !(new get("A").ability == "エアロック" || new get("A").ability == "ノーてんき" || new get("B").ability == "エアロック" || new get("B").ability == "ノーてんき")){
-            if (new get(team).f_con.includes("すなあらし") && !(new get(team).type.includes("いわ") || new get(team).type.includes("じめん") || new get(team).type.includes("はがね") || new get(team).ability == "すながくれ" || new get(team).ability == "すなかき" || new get(team).ability == "すなのちから")){
-                HP_change_not_attack(team, Math.floor(new get(team).full_HP / 16), "-", "すなあらし")
-            } else if (new get(team).f_con.includes("あられ") && !(new get(team).type.includes("こおり") || new get(team).ability == "アイスボディ" || new get(team).ability == "ゆきかき" || new get(team).ability == "ゆきがくれ")){
-                HP_change_not_attack(team, Math.floor(new get(team).full_HP / 16), "-", "あられ")
+    for (const team of [order, reverse]){
+        if (team[0].con.last_HP > 0 && team[0].con.ability != "ぼうじん" && team[0].con.item != "ぼうじんゴーグル" && cfn.isWeather(order[0].con, order[1].con)){
+            if (team[0].con.f_con.includes("すなあらし") && !(team[0].con.type.includes("いわ") || team[0].con.type.includes("じめん") || team[0].con.type.includes("はがね") || team[0].con.ability == "すながくれ" || team[0].con.ability == "すなかき" || team[0].con.ability == "すなのちから")){
+                cfn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "-", "すなあらし")
+            } else if (team[0].con.f_con.includes("あられ") && !(team[0].con.type.includes("こおり") || team[0].con.ability == "アイスボディ" || team[0].con.ability == "ゆきかき" || team[0].con.ability == "ゆきがくれ")){
+                cfn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "-", "あられ")
             }
         }
     }
     // c. かんそうはだ/サンパワー/あめうけざら/アイスボディ
-    for (const team of order){
-        if (new get(team).last_HP > 0 && !(new get("A").ability == "エアロック" || new get("A").ability == "ノーてんき" || new get("B").ability == "エアロック" || new get("B").ability == "ノーてんき")){
-            if (new get(team).ability == "かんそうはだ" && new get(team).f_con.includes("にほんばれ")){
-                HP_change_not_attack(team, Math.floor(new get(team).full_HP / 8), "-", "かんそうはだ")
-            } else if (new get(team).ability == "かんそうはだ" && new get(team).f_con.includes("あめ")){
-                HP_change_not_attack(team, Math.floor(new get(team).full_HP / 8), "+", "かんそうはだ")
-            } else if (new get(team).ability == "サンパワー" && new get(team).f_con.includes("にほんばれ")){
-                HP_change_not_attack(team, Math.floor(new get(team).full_HP / 8), "-", "サンパワー")
-            } else if (new get(team).ability == "あめうけざら" && new get(team).f_con.includes("あめ")){
-                HP_change_not_attack(team, Math.floor(new get(team).full_HP / 16), "+", "あめうけざら")
-            } else if (new get(team).ability == "アイスボディ" && new get(team).f_con.includes("あられ")){
-                HP_change_not_attack(team, Math.floor(new get(team).full_HP / 16), "+", "アイスボディ")
+    for (const team of [order, reverse]){
+        if (team[0].con.last_HP > 0 && cfn.isWeather(order[0].con, order[1].con)){
+            if (team[0].con.ability == "かんそうはだ" && team[0].con.f_con.includes("にほんばれ")){
+                afn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "-", "かんそうはだ")
+            } else if (team[0].con.ability == "かんそうはだ" && team[0].con.f_con.includes("あめ")){
+                afn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "+", "かんそうはだ")
+            } else if (team[0].con.ability == "サンパワー" && team[0].con.f_con.includes("にほんばれ")){
+                afn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "-", "サンパワー")
+            } else if (team[0].con.ability == "あめうけざら" && team[0].con.f_con.includes("あめ")){
+                afn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "+", "あめうけざら")
+            } else if (team[0].con.ability == "アイスボディ" && team[0].con.f_con.includes("あられ")){
+                afn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "+", "アイスボディ")
             }
         }
     }
 }
 
 // 2.みらいよち/はめつのねがい: 技が使用された順に発動
-function future_attack(order){
-    for (const team of order){
-        let enemy = "B"
-        if (team == "B"){
-            enemy = "A"
-        }
-        let f_con = new get(enemy).f_con
-        document.battle[enemy + "_field_condition"].value = ""
-        let move_name = ""
-        for (let i = 0; i < f_con.split("\n").length - 1; i++){
-            if (f_con.split("\n")[i].includes("みらいよち") || f_con.split("\n")[i].includes("はめつのねがい")){
-                let turn = Number(f_con.split("\n")[i].slice(-3, -2))
-                document.battle[enemy + "_field_condition"].value += f_con.split("\n")[i].slice(0, -3) + (turn - 1) + "/3" + CR
-                if (turn == 1){
-                    move_name = f_con.split("\n")[i].slice(0, -7)
+function futureAttack(order, reverse){
+    for (const team of [order, reverse]){
+        let list = team[0].con.f_con.split("\n")
+        for (let i = 0; i < list.length; i++){
+            if (list[i].includes("みらいよち") || list[i].includes("はめつのねがい")){
+                const turn = Number(f_list[i].slice(-3, -2)) - 1
+                list[i] = list[i].slice(0, -3) + turn + "/3"
+                if (turn == 0){
+                    if (!team[0].con.f_con.includes("ひんし")){
+                        cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　未来の攻撃を受けた！" + "\n")
+                        if (bfn.accuracyFailure(team[1], team[0], cfn.moveSearchByName(list[i].slice(0, -7)))){
+                            cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　には当たらなかった" + "\n")
+                        } else {
+                            process.moveProcess(team[1], team[0], cfn.moveSearchByName(list[i].slice(0, -7)), team)
+                        }
+                    }
+                    list.slice(i, 1)
                 }
-            } else {
-                document.battle[enemy + "_field_condition"].value += f_con.split("\n")[i] + CR
             }
+            break
         }
-        if (move_name != "" && new get(enemy).last_HP > 0){
-            txt = enemy + "チームの　" + new get(enemy).name + "は　未来の攻撃を受けた！" + CR
-            document.battle_log.battle_log.value += txt
-            if (accuracy_failure(team, enemy, move_search_by_name(move_name), order)){
-                txt = enemy + "チームの　" + new get(enemy).name + "　には当たらなかった" + CR
-                document.battle_log.battle_log.value += txt
-            } else {
-                move_process(team, enemy, move_search_by_name(move_name), order)
-            }
-            condition_remove(enemy, "field", move_name)
-        }
+        team[0].con.f_con = list.join("\n")
     }
 }
 
 // 3.ねがいごと
-function wish_recover(order){
-    for (const team of order){
-        const f_con = document.battle[team + "_field_condition"].value
-        if (f_con.includes("ねがいごと")){
-            document.battle[team + "_field_condition"].value = ""
-            for (let i = 0; i < f_con.split("\n").length - 1; i++){
-                if (f_con.split("\n")[i].includes("ねがいごと宣言ターン")){
-                    document.battle[team + "_field_condition"].value += f_con.split("\n")[i].substring(0, f_con.split("\n")[i].indexOf("：") + 1) + "回復ターン" + CR
-                } else if (f_con.split("\n")[i].includes("回復ターン") && new get(team).last_HP > 0){
-                    txt = "願いが叶った！" + CR
-                    document.battle_log.battle_log.value += txt
-                    let damage = Number(f_con.split("\n")[i].replace(/[^0-9]/g, ""))
-                    HP_change_not_attack(team, damage, "+", "ねがいごと")
-                } else if (f_con.split("\n")[i].includes("回復ターン") && new get(team).last_HP == 0){
-                    txt = "願いは叶わなかった！" + CR
-                    document.battle_log.battle_log.value += txt
-                } else {
-                    document.battle[team + "_field_condition"].value += f_con.split("\n")[i] + CR
+function wishRecover(order, reverse){
+    for (const team of [order, reverse]){
+        let list = team[0].con.f_con.split("\n")
+        for (let i = 0; i < list.length; i++){
+            if (list[i].includes("ねがいごと宣言ターン")){
+                list[i] = list[i].substring(0, list[i].indexOf("：") + 1) + "回復ターン"
+            } else if (list[i].includes("回復ターン")){
+                if (!team[0].con.f_con.includes("ひんし")){
+                    cfn.logWrite(team[0], team[1], "願いが叶った！" + "\n")
+                    afn.HPchangeMagic(team[0], team[1], Number(list[i].replace(/[^0-9]/g, "")), "+", "ねがいごと")
                 }
+                list.slice(i, 1)
             }
+            break
         }
+        team[0].con.f_con = list.join("\n")
     }
 }
 
 // 4.場の状態・特性・もちものによる回復・ダメージ
-function field_ability_item_damage(order){
+function fieldAbilityItemDamage(order, reverse){
     // a. ひのうみ/キョダイベンタツ/キョダイゴクエン/キョダイホウゲキ/キョダイフンセキ(ダメージ): 技が使用された順に発動。
     // b. グラスフィールド(回復)
-    if (new get("A").f_con.includes("グラスフィールド")){
-        for (const team of order){
-            if (grounded_check(team) && new get(team).last_HP > 0){
-                HP_change(team, Math.floor(new get(team).full_HP / 16), "+", "グラスフィールド")
-            }
+    for (const team of [order, reverse]){
+        if (cfn.groundedCheck(team[0].con) && !team[0].con.f_con.includes("ひんし") && team[0].con.f_con.includes("グラスフィールド")){
+            afn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "+", "グラスフィールド")
         }
     }
     // c. うるおいボディ/だっぴ/いやしのこころ
-    for (const team of order){
-        if (new get(team).last_HP > 0){
-            if (new get(team).ability == "うるおいボディ" && new get(team).f_con.includes("あめ") && new get(team).abnormal != "" && !(new get("A").ability == "エアロック" || new get("A").ability == "ノーてんき" || new get("B").ability == "エアロック" || new get("B").ability == "ノーてんき")){
-                txt = team + "チームの　" + new get(team).name + "は　うるおいボディで状態異常が回復！" + CR
-                document.battle_log.battle_log.value += txt
-                document.getElementById(team + "_abnormal").textContent = ""
-                document.getElementById(team + "_" + battle_poke_num(team) + "_abnormal").textContent = ""
-            } else if (new get(team).ability == "だっぴ" && new get(team).abnormal != ""){
-                let random = Math.random()
-                if (random < 0.3){
-                    txt = team + "チームの　" + new get(team).name + "は　だっぴで状態異常が回復！" + CR
-                    document.battle_log.battle_log.value += txt
-                    document.getElementById(team + "_abnormal").textContent = ""
-                    document.getElementById(team + "_" + battle_poke_num(team) + "_abnormal").textContent = ""
-                }
+    for (const team of [order, reverse]){
+        if (team[0].con.last_HP > 0){
+            if (team[0].con.ability == "うるおいボディ" && team[0].con.f_con.includes("あめ") && team[0].con.abnormal != "" && cfn.isWeather(order[0].con, order[1].con)){
+                cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　うるおいボディで状態異常が回復！" + "\n")
+                team[0].con.abnormal = ""
+                team[0]["poke" + cfn.battleNum(team[0])].abnormal = ""
+            } else if (team[0].con.ability == "だっぴ" && team[0].con.abnormal != "" && Math.random() < 0.3){
+                cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　だっぴで状態異常が回復！" + "\n")
+                team[0].con.abnormal = ""
+                team[0]["poke" + cfn.battleNum(team[0])].abnormal = ""
             }
         }
     }
     // b. たべのこし/くろいヘドロ
-    for (const team of order){
-        if (new get(team).item == "たべのこし" && new get(team).last_HP > 0){
-            HP_change_not_attack(team, Math.floor(new get(team).full_HP / 16), "+", "たべのこし")
-        } else if (new get(team).item == "くろいヘドロ" && new get(team).last_HP > 0){
-            if (new get(team).type.includes("どく")){
-                HP_change_not_attack(team, Math.floor(new get(team).full_HP / 16), "+", "くろいヘドロ")
+    for (const team of [order, reverse]){
+        if (team[0].con.item == "たべのこし" && team[0].con.last_HP > 0){
+            afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "+", "たべのこし")
+        } else if (team[0].con.item == "くろいヘドロ" && team[0].con.last_HP > 0){
+            if (team[0].con.type.includes("どく")){
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "+", "くろいヘドロ")
             } else {
-                HP_change_not_attack(team, Math.floor(new get(team).full_HP / 8), "-", "くろいヘドロ")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "-", "くろいヘドロ")
             }
         }
     }
 }
 
 // 5.アクアリング
-function aqua_ring(order){
-    for (const team of order){
-        if (new get(team).p_con.includes("アクアリング")){
-            let change = Math.floor(new get(team).full_HP / 16)
-            if (new get(team).item == "おおきなねっこ"){
-                change = five_cut(change * 5324 / 4096)
+function aquaRing(order, reverse){
+    for (const team of [order, reverse]){
+        if (team[0].con.p_con.includes("アクアリング")){
+            let change = Math.floor(team[0].con.full_HP / 16)
+            if (team[0].con.item == "おおきなねっこ"){
+                change = cfn.fiveCut(change * 5324 / 4096)
             }
-            HP_change_not_attack(team, change, "+", "アクアリング")
+            afn.HPchangeMagic(team[0], team[1], change, "+", "アクアリング")
         }
     }
 }
 
 // 6.ねをはる
-function ingrain(order){
-    for (const team of order){
-        if (new get(team).p_con.includes("ねをはる")){
-            let change = Math.floor(new get(team).full_HP / 16)
-            if (new get(team).item == "おおきなねっこ"){
-                change = five_cut(change * 5324 / 4096)
+function ingrain(order, reverse){
+    for (const team of [order, reverse]){
+        if (team[0].con.p_con.includes("ねをはる")){
+            let change = Math.floor(team[0].con.full_HP / 16)
+            if (team[0].con.item == "おおきなねっこ"){
+                change = cfn.fiveCut(change * 5324 / 4096)
             }
-            HP_change_not_attack(team, change, "+", "ねをはる")
+            afn.HPchangeMagic(team[0], team[1], change, "+", "ねをはる")
         }
     }
 }
 
 // 7.やどりぎのタネ
-function leech_seed(order){
-    let reverse = [order[1], order[0]]
-    for (const team of [order, reverse])
-    if (new get(team[0]).p_con.includes("やどりぎのタネ") && new get(team[1]).last_HP > 0){
-        let change = Math.floor(new get(team[0]).full_HP / 8)
-        HP_change_not_attack(team[0], change, "-", "やどりぎのタネ")
-        if (new get(team[1]).item == "おおきなねっこ"){
-            change = five_cut(change * 5324 / 4096)
-        }
-        if (new get(team[0]).ability == "ヘドロえき"){
-            HP_change_not_attack(team[1], change, "-", "やどりぎのタネ")
-        } else {
-            HP_change_not_attack(team[1], change, "+", "やどりぎのタネ")
-        }
-    }
-}
-
-// 8 どく/もうどく/ポイズンヒール
-function acid_check(order){
-    for (const team of order){
-        let condition = document.battle[team + "_poke_condition"].value
-        if (new get(team).abnormal == "どく" && new get(team).last_HP > 0){
-            if (new get(team).ability == "ポイズンヒール"){
-                HP_change_not_attack(team, Math.floor(new get(team).full_HP / 8), "+", "ポイズンヒール")   
+function leechSeed(order, reverse){
+    for (const team of [order, reverse]){
+        if (team[0].con.p_con.includes("やどりぎのタネ") && !team[1].con.f_con.includes("ひんし")){
+            let change = Math.floor(team[0].con.full_HP / 8)
+            afn.HPchangeMagic(team[0], team[1], change, "-", "やどりぎのタネ")
+            if (team[1].con.item == "おおきなねっこ"){
+                change = cfn.fiveCut(change * 5324 / 4096)
+            }
+            if (team[0].con.ability == "ヘドロえき"){
+                afn.HPchangeMagic(team[1], team[0], change, "-", "やどりぎのタネ")
             } else {
-                HP_change_not_attack(team, Math.floor(new get(team).full_HP / 8), "-", "どく")   
-            }   
-        }
-        if (new get(team).abnormal == "もうどく" && new get(team).last_HP > 0){
-            document.battle[team + "_poke_condition"].value = ""
-            for (let i = 0; i < condition.split("\n").length - 1; i++){
-                if (condition.split("\n")[i].includes("もうどく")){
-                    const turn = Number(condition.split("\n")[i].replace(/[^0-9]/g, ""))
-                    document.battle[team + "_poke_condition"].value += "もうどく　" + String(turn + 1) + "ターン目" + CR
-                    if (new get(team).ability == "ポイズンヒール"){
-                        HP_change_not_attack(team, Math.floor(new get(team).full_HP / 8), "+", "ポイズンヒール")
-                    } else {
-                        HP_change_not_attack(team, Math.floor(new get(team).full_HP * turn / 16), "-", "もうどく")
-                    }
-                } else {
-                    document.battle[team + "_poke_condition"].value += condition.split("\n")[i] + CR
-                }
+                afn.HPchangeMagic(team[1], team[0], change, "+", "やどりぎのタネ")
             }
         }
     }
 }
 
-// 9 やけど
-function burn_check(order){
-    for (const team of order){
-        if (new get(team).abnormal == "やけど" && new get(team).last_HP > 0){
-            if (new get(team).ability == "たいねつ"){
-                HP_change_not_attack(team, Math.floor(new get(team).full_HP / 32), "-", "やけど")
+// 8 どく/もうどく/ポイズンヒール
+function acidCheck(order, reverse){
+    for (const team of [order, reverse]){
+        if (team[0].con.abnormal == "どく" && team[0].con.last_HP > 0){
+            if (team[0].con.ability == "ポイズンヒール"){
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "+", "ポイズンヒール")   
             } else {
-                HP_change_not_attack(team, Math.floor(new get(team).full_HP / 16), "-", "やけど")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "-", "どく")   
+            }   
+        }
+        let list = team[0].con.p_con.split("\n")
+        for (let i = 0; i < list.length; i++){
+            if (list[i].includes("もうどく")){
+                const turn = Number(list[i].replace(/[^0-9]/g, ""))
+                list[i] = "もうどく　" + String(turn + 1) + "ターン目"
+                if (team[0].con.ability == "ポイズンヒール"){
+                    afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "+", "ポイズンヒール")
+                } else {
+                    afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP * turn / 16), "-", "もうどく")
+                }
+            }
+        }
+        team[0].con.p_con = list.join("\n")
+    }
+}
+
+// 9 やけど
+function burnCheck(order, reverse){
+    for (const team of [order, reverse]){
+        if (team[0].con.abnormal == "やけど" && team.con.last_HP > 0){
+            if (team[0].con.ability == "たいねつ"){
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team.con.full_HP / 32), "-", "やけど")
+            } else {
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team.con.full_HP / 16), "-", "やけど")
             }
         }
     }
 }
 
 // 10.あくむ
-function nightmare(order){
-    for (const team of order){
-        if (new get(team).p_con.includes("あくむ")){
-            HP_change_not_attack(team, Math.floor(new get(team).full_HP / 4), "-", "あくむ")
+function nightmare(order, reverse){
+    for (const team of [order, reverse]){
+        if (team[0].con.p_con.includes("あくむ")){
+            afn.HPchangeMagic(team[0], team[1], Math.floor(team.con.full_HP / 4), "-", "あくむ")
         }
     }
 }
 
 // 11.のろい
-function curse(order){
-    for (const team of order){
-        if (new get(team).p_con.includes("のろい")){
-            HP_change_not_attack(team, Math.floor(new get(team).full_HP / 4), "-", "のろい")
+function curse(order, reverse){
+    for (const team of [order, reverse]){
+        if (team[0].con.p_con.includes("のろい")){
+            afn.HPchangeMagic(team[0], team[1], Math.floor(team.con.full_HP / 4), "-", "のろい")
         }
     }
 }
 
 // 12.バインド
-function bind_check(order){
-    for (const team of order){
-        const poke = document.getElementById(team + "_poke").textContent
-        const p_con = document.battle[team + "_poke_condition"].value
-        const full_HP = Number(document.getElementById(team + "_HP").textContent)
-        document.battle[team + "_poke_condition"].value = ""
-        for (let i = 0; i < p_con.split("\n").length - 1; i++){
-            if (p_con.split("\n")[i].includes("バインド（長）")){
-                const turn = Number(p_con.split("\n")[i].replace(/[^0-9]/g, ""))
+function bindCheck(order, reverse){
+    for (const team of [order, reverse]){
+        let list = team[0].con.p_con.split("\n")
+        for (let i = 0; i < list.length; i++){
+            if (list[i].includes("バインド（長）")){
+                const turn = Number(list[i].replace(/[^0-9]/g, ""))
                 if (turn < 7){
-                    document.battle[team + "_poke_condition"].value += "バインド（長）　" + (turn + 1) + "ターン目" + CR
-                    HP_change_not_attack(team, Math.floor(full_HP / 8), "-", "バインド")
-                } else if (turn == 7){
-                    txt = team + "チームの　" + poke + "は　バインドから　解放された！" + CR
-                    document.battle_log.battle_log.value += txt
+                    list[i] = "バインド（長）　" + (turn + 1) + "ターン目"
+                    afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "-", "バインド")
+                } else {
+                    cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　バインドから　解放された！" + "\n")
+                    list.slice(i, 1)
                 }
-            } else if (p_con.split("\n")[i].includes("バインド")){
-                const turn = Number(p_con.split("\n")[i].replace(/[^0-9]/g, ""))
-                if (turn < 4){
-                    document.battle[team + "_poke_condition"].value += p_con.split("\n")[i].slice(0, -5) + (turn + 1) + "ターン目" + CR
-                    if (p_con.split("\n")[i].includes("バインド（強）")){
-                        HP_change_not_attack(team, Math.floor(full_HP / 6), "-", "バインド")
+                break
+            } else if (list[i].includes("バインド")){
+                const turn = Number(list[i].replace(/[^0-9]/g, ""))
+                if (turn < 4 || (turn == 5 && Math.random() < 0.5)){
+                    list[i] = list[i].slice(0, -5) + (turn + 1) + "ターン目"
+                    if (list[i].includes("バインド（強）")){
+                        afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 6), "-", "バインド")
                     } else {
-                        HP_change_not_attack(team, Math.floor(full_HP / 8), "-", "バインド")
+                        afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "-", "バインド")
                     }
-                } else if (turn == 4){
-                    const random = Math.random()
-                    if(random < 0.5){
-                        document.battle[team + "_poke_condition"].value += p_con.split("\n")[i].slice(0, -5) + "5ターン目" + CR
-                        if (p_con.split("\n")[i].includes("バインド（強）")){
-                            HP_change_not_attack(team, Math.floor(full_HP / 6), "-", "バインド")
-                        } else {
-                            HP_change_not_attack(team, Math.floor(full_HP / 8), "-", "バインド")
-                        }
-                    } else {
-                        txt = team + "チームの　" + poke + "は　バインドから　解放された！" + CR
-                        document.battle_log.battle_log.value += txt
-                    }
-                } else if (turn == 5){
-                    txt = team + "チームの　" + poke + "は　バインドから　解放された！" + CR
-                    document.battle_log.battle_log.value += txt
+                } else {
+                    cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　バインドから　解放された！" + "\n")
+                    list.slice(i, 1)
                 }
-            } else {
-                document.battle[team + "_poke_condition"].value += p_con.split("\n")[i] + CR
+                break
             }
         }
+        team[0].con.p_con = list.join("\n")
     }
 }
 
 // 13.たこがため
-function octolock(order){
-    for (const team of order){
-        if (new get(team).p_con.includes("たこがため")){
-            txt = team + "チームの　" + new get(team).name + "は　たこがためを　受けている！" + CR
-            document.battle_log.battle_log.value += txt
-            rank_change(team, "B", -1)
-            rank_change(team, "D", -1)
+function octolock(order, reverse){
+    for (const team of [order, reverse]){
+        if (team[0].con.p_con.includes("たこがため")){
+            cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　たこがためを　受けている！" + "\n")
+            afn.rankChange(team[0], team[1], "B", -1, 100, "たこがため")
+            afn.rankChange(team[0], team[1], "D", -1, 100, "たこがため")
         }
     }
 }
 
 // 14.ちょうはつの終了
-function taunt_end(order){
-    for (const team of order){
-        let poke = document.getElementById(team + "_poke").textContent
-        let p_con = document.battle[team + "_poke_condition"].value
-        let check = 0
-        if (p_con.includes("ちょうはつ")){
-            document.battle[team + "_poke_condition"].value = ""
-            for (let i = 0; i < p_con.split("\n").length - 1; i++){
-                if (p_con.split("\n")[i] == "ちょうはつ　3/3"){
-                    document.battle[team + "_poke_condition"].value += "ちょうはつ　2/3" + CR
-                    check += 1
-                } else if (p_con.split("\n")[i] == "ちょうはつ　2/3"){
-                    document.battle[team + "_poke_condition"].value += "ちょうはつ　1/3" + CR
-                    check += 1
-                } else if (p_con.split("\n")[i] == "ちょうはつ　1/3"){
-                    txt = team + "チームの　" + poke + "の　ちょうはつが　とけた！" + CR
-                    document.battle_log.battle_log.value += txt
+function tauntEnd(order, reverse){
+    for (const team of [order, reverse]){
+        let list = team[0].con.p_con.split("\n")
+        for (let i = 0; i < list.length; i++){
+            if (list[i].includes("ちょうはつ")){
+                const turn = Number(list[i].slice(6, 7)) - 1
+                if (turn > 0){
+                    list[i] = "ちょうはつ　" + turn + "/3"
                 } else {
-                    document.battle[team + "_poke_condition"].value += p_con.split("\n")[i] + CR
+                    cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　の　ちょうはつが　とけた！" + "\n")
+                    list.slice(i, 1)
                 }
+                break
             }
         }
-        if (check > 0){
-            for (let i = 0; i < 4; i++){
-                let move = document.getElementById(team + "_move_" + i).textContent
-                if (move_search_by_name(move)[2] == "変化"){
-                    document.getElementById(team + "_radio_" + i).disabled = true
-                    document.getElementById(team + "_radio_" + i).checked = false
-                }
-            }
-        }
+        team[0].con.p_con = list.join("\n")
     }
 }
 
 // 15.アンコールの終了
-function encore_end(order){
-    for (const team of order){
-        let check = 0
-        if (new get(team).p_con.includes("アンコール")){
-            if (new get(team).p_con.includes("アンコール　0/3")){
-                check += 1
-            } else {
-                // アンコールが終わらなかった時、次のターンの技の固定
-                for (let i = 0; i < new get(team).p_len; i++){
-                    if (new get(team).p_list[i].includes("アンコール")){
-                        const move = new get(team).p_list[i].slice(10)
-                        for (let j = 0; j < 4; j++){
-                            if (move == document.getElementById(team + "_move_" + j).textContent){
-                                const PP_now = Number(document.getElementById(team + "_move_" + j + "_last").textContent)
-                                document.getElementById(team + "_radio_" + j).disabled = false
-                                if (PP_now == 0){
-                                    check += 1
-                                }
-                            } else {
-                                document.getElementById(team + "_radio_" + j).disabled = true
-                            }
-                        }
+function encoreEnd(order, reverse){
+    for (const team of [order, reverse]){
+        let list = team[0].con.p_con.split("\n")
+        for (let i = 0; i < list.length; i++){
+            if (list[i].includes("アンコール　0/3")){
+                cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　の　アンコールが　とけた！" + "\n")
+                list.slice(i, 1)
+                team[0].con.p_con = list.join("\n")
+                break
+            } else if (list[i].includes("アンコール")){
+                for (let j = 0; j < 4; j++){
+                    if (team[0].con["move_" + j] != list[i].slice(10)){
+                        team[0].data["radio_" + j] = true
                     }
                 }
-            }
-        }
-        if (check > 0){
-            txt = team + "チームの　" + new get(team).name + "　の　アンコールが　とけた！" + CR
-            document.battle_log.battle_log.value += txt
-            condition_remove(team, "poke", "アンコール")
-            for (let i = 0; i < 4; i++){
-                document.getElementById(team + "_radio_" + i).disabled = false
             }
         }
     }
 }
 
 // 16.かなしばりの終了
-function disable_end(order){
-    for (const team of order){
-        if (new get(team).p_con.includes("かなしばり")){
-            for (let i = 0; i < new get(team).p_len; i++){
-                if (new get(team).p_list[i].includes("かなしばり")){
-                    const move = new get(team).p_list[i].slice(10)
-                    for (let j = 0; j < 4; j++){
-                        if (move == document.getElementById(team + "_move_" + j).textContent){
-                            if (new get(team).p_list[i].includes("かなしばり　0/4")){
-                                condition_remove(team, "poke", "かなしばり")
-                                txt = team + "チームの　" + new get(team).name + "の　かなしばりが　とけた！" + CR
-                                document.battle_log.battle_log.value += txt
-                                document.getElementById(team + "_radio_" + j).disabled = false
-                            } else {
-                                document.getElementById(team + "_radio_" + j).disabled = true
-                                document.getElementById(team + "_radio_" + j).checked = false
-                            }
-                        }
+function disableEnd(order, reverse){
+    for (const team of [order, reverse]){
+        let list = team[0].con.p_con.split("\n")
+        for (let i = 0; i < list.length; i++){
+            if (list[i].includes("かなしばり　0/4")){
+                cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　の　かなしばりが　とけた！" + "\n")
+                list.slice(i, 1)
+                team[0].con.p_con = list.join("\n")
+                break
+            } else if (list[i].includes("かなしばり")){
+                for (let j = 0; j < 4; j++){
+                    if (list[i].slice(10) == team[0].con["move_" + j]){
+                        team[0].data["radio_" + j] = true
                     }
                 }
             }
@@ -776,334 +649,296 @@ function disable_end(order){
 }
 
 // 17.でんじふゆうの終了
-function magnet_rise_end(order){
-    for (const team of order){
-        decrease_per_turn(team, "でんじふゆう", "poke")
+function magnetRiseEnd(order, reverse){
+    for (const team of [order, reverse]){
+        decreasePerTurn(team[0], team[1], "でんじふゆう", "p")
     }
 }
 
 // 18.テレキネシスの終了
-function telekinesis_end(order){
-    for (const team of order){
-        decrease_per_turn(team, "テレキネシス", "poke")
+function telekinesisEnd(order, reverse){
+    for (const team of [order, reverse]){
+        decreasePerTurn(team[0], team[1], "テレキネシス", "p")
     }
 }
 
 // 19.かいふくふうじの終了
-function heal_block_end(order){
-    for (const team of order){
-        decrease_per_turn(team, "かいふくふうじ", "poke")
+function healBlockEnd(order, reverse){
+    for (const team of [order, reverse]){
+        decreasePerTurn(team[0], team[1], "かいふくふうじ", "p")
     }
 }
 
 // 20.さしおさえの終了
-function embargo_end(order){
-    for (const team of order){
-        let poke = document.getElementById(team + "_poke").textContent
-        let p_con = document.battle[team + "_poke_condition"].value
-        if (p_con.includes("さしおさえ")){
-            document.battle[team + "_poke_condition"].value = ""
-            for (let i = 0; i < p_con.split("\n").length - 1; i++){
-                if (p_con.split("\n")[i].includes("さしおさえ　5/5：")){
-                    document.battle[team + "_poke_condition"].value += "さしおさえ　4/5：" + p_con.split("\n")[i].slice(10) + CR
-                } else if (p_con.split("\n")[i].includes("さしおさえ　4/5：")){
-                    document.battle[team + "_poke_condition"].value += "さしおさえ　3/5：" + p_con.split("\n")[i].slice(10) + CR
-                } else if (p_con.split("\n")[i].includes("さしおさえ　3/5：")){
-                    document.battle[team + "_poke_condition"].value += "さしおさえ　2/5：" + p_con.split("\n")[i].slice(10) + CR
-                } else if (p_con.split("\n")[i].includes("さしおさえ　2/5：")){
-                    document.battle[team + "_poke_condition"].value += "さしおさえ　1/5：" + p_con.split("\n")[i].slice(10) + CR
-                } else if (p_con.split("\n")[i].includes("さしおさえ　1/5：")){
-                    txt = team + "チームの　" + poke + "の　さしおさえが　とけた！" + CR
-                    document.battle_log.battle_log.value += txt
-                    document.getElementById(team + "_item").textContent = p_con.split("\n")[i].slice(10)
+function embargoEnd(order, reverse){
+    for (const team of [order, reverse]){
+        let list = team[0].con.p_con.split("\n")
+        for (let i = 0; i < list.length; i++){
+            if (list[i].includes("さしおさえ")){
+                const turn = Number(list[i].slice(6, 7)) - 1
+                if (turn > 0){
+                    list[i] = "さしおさえ　" + turn + "/5：" + list[i].slice(10)
                 } else {
-                    document.battle[team + "_poke_condition"].value += p_con.split("\n")[i] + CR
+                    cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　の　さしおさえが　とけた！" + "\n")
+                    team[0].con.item = list[i].slice(10)
+                    list.slice(i, 0)
                 }
+                break
             }
         }
+        team[0].con.p_con = list.join("\n")
     }
 }
 
 // 21.ねむけ
-function sleep_check(order){
-    for (const team of order){
-        let p_con = document.battle[team + "_poke_condition"].value
-        if (p_con.includes("ねむけ　宣言ターン")){
-            document.battle[team + "_poke_condition"].value = ""
-            for (let i = 0; i < p_con.split("\n").length - 1; i++){
-                if (p_con.split("\n")[i] == "ねむけ　宣言ターン"){
-                    document.battle[team + "_poke_condition"].value += "ねむけ" + CR
-                } else {
-                    document.battle[team + "_poke_condition"].value += p_con.split("\n")[i] + CR
-                }
+function sleepCheck(order, reverse){
+    for (const team of [order, reverse]){
+        let list = team[0].con.p_con.split("\n")
+        for (let i = 0; i < list.length; i++){
+            if (list[i].includes("ねむけ　宣言ターン")){
+                list[i] = "ねむけ"
+                break
+            } else if (list[i].includes("ねむけ")){
+                list.slice(i, 1)
+                afn.makeAbnormal(team[0], team[1], "ねむり", 100, "ねむけ")
+                break
             }
-        } else if (p_con.includes("ねむけ")){
-            make_abnormal_attack_or_ability(team, "ねむり", 100, "ねむけ")
-            condition_remove(team, "poke", "ねむけ")
         }
+        team[0].con.p_con = list.join("\n")
     }
 }
 
 // 22.ほろびのうた
-function perish_song(order){
-    for (const team of order){
-        let poke = document.getElementById(team + "_poke").textContent
-        let p_con = document.battle[team + "_poke_condition"].value
-        if (p_con.includes("ほろびカウント")){
-            document.battle[team + "_poke_condition"].value = ""
-            for (let i = 0; i < p_con.split("\n").length - 1; i++){
-                if (p_con.split("\n")[i].includes("ほろびカウント")){
-                    const turn = Number(p_con.split("\n")[i].slice(8))
-                    if (turn > 1){
-                        document.battle[team + "_poke_condition"].value += "ほろびカウント　" + (turn - 1) + CR
-                        txt = team + "チームの　" + poke + "は　ほろびのカウントが　" + (turn - 1) + "になった！" + CR
-                        document.battle_log.battle_log.value += txt
-                    } else {
-                        txt = team + "チームの　" + poke + "は　ほろびのカウントが　0になった！" + CR
-                        document.battle_log.battle_log.value += txt
-                        document.getElementById(team + "_HP").textContent = 0
-                        fainted_process(team)
-                    }
+function perishSong(order, reverse){
+    for (const team of [order, reverse]){
+        let list = team[0].con.p_con.split("\n")
+        for (let i = 0; i < list.length; i++){
+            if (list[i].includes("ほろびカウント")){
+                const turn = Number(list[i].slice(8)) - 1
+                cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　ほろびのカウントが　" + turn + "になった！" + "\n")
+                if (turn > 0){
+                    list[i] = "ほろびカウント　" + turn
                 } else {
-                    document.battle[team + "_poke_condition"].value += p_con.split("\n")[i] + CR
+                    list.slice(i, 1)
+                    team[0].con.last_HP = 0
+                    bfn.fainted(team[0], team[1])
                 }
+                break
             }
         }
+        team[0].con.p_con = list.join("\n")
     }
 }
 
 // 23.片側の場の状態の継続/終了: ホスト側の状態が先にすべて解除された後に、ホストでない側の状態が解除される。
-function one_side_field_end(order){
-    for (const team of order){
+function oneSideFieldEnd(order, reverse){
+    for (const team of [order, reverse]){
         // a. リフレクター
-        decrease_per_turn(team, "リフレクター", "field")
+        decreasePerTurn(team[0], team[1], "リフレクター", "f")
         // b. ひかりのかべ
-        decrease_per_turn(team, "ひかりのかべ", "field")
+        decreasePerTurn(team[0], team[1], "ひかりのかべ", "f")
         // c. しんぴのまもり
-        decrease_per_turn(team, "しんぴのまもり", "field")
+        decreasePerTurn(team[0], team[1], "しんぴのまもり", "f")
         // d. しろいきり
-        decrease_per_turn(team, "しろいきり", "field")
+        decreasePerTurn(team[0], team[1], "しろいきり", "f")
         // e. おいかぜ
-        decrease_per_turn(team, "おいかぜ", "field")
+        decreasePerTurn(team[0], team[1], "おいかぜ", "f")
         // f. おまじない
-        decrease_per_turn(team, "おまじない", "field")
+        decreasePerTurn(team[0], team[1], "おまじない", "f")
         // g. にじ
-        decrease_per_turn(team, "にじ", "field")
+        decreasePerTurn(team[0], team[1], "にじ", "f")
         // h. ひのうみ
-        decrease_per_turn(team, "ひのうみ", "field")
+        decreasePerTurn(team[0], team[1], "ひのうみ", "f")
         // i. しつげん
-        decrease_per_turn(team, "しつげん", "field")
+        decreasePerTurn(team[0], team[1], "しつげん", "f")
         // j. オーロラベール
-        decrease_per_turn(team, "オーロラベール", "field")
+        decreasePerTurn(team[0], team[1], "オーロラベール", "f")
     }
 }
 
 // 24.全体の場の状態の継続/終了
-function both_side_field_end(order){
-    for (const team of order){
+function bothSideFieldEnd(order, reverse){
+    for (const team of [order, reverse]){
         // a. トリックルーム
-        decrease_per_turn(team, "トリックルーム", "field")
+        decreasePerTurn(team[0], team[1], "トリックルーム", "f")
         // b. じゅうりょく
-        decrease_per_turn(team, "じゅうりょく", "field")
+        decreasePerTurn(team[0], team[1], "じゅうりょく", "f")
         // c. みずあそび
-        decrease_per_turn(team, "みずあそび", "poke")
+        decreasePerTurn(team[0], team[1], "みずあそび", "p")
         // d. どろあそび
-        decrease_per_turn(team, "どろあそび", "poke")
+        decreasePerTurn(team[0], team[1], "どろあそび", "p")
         // e. ワンダールーム
-        decrease_per_turn(team, "ワンダールーム", "field")
+        decreasePerTurn(team[0], team[1], "ワンダールーム", "f")
         // f. マジックルーム
-        decrease_per_turn(team, "マジックルーム", "field")
+        decreasePerTurn(team[0], team[1], "マジックルーム", "f")
         // g. エレキフィールド/グラスフィールド/ミストフィールド/サイコフィールド
-        decrease_per_turn(team, "エレキフィールド", "field")
-        decrease_per_turn(team, "グラスフィールド", "field")
-        decrease_per_turn(team, "ミストフィールド", "field")
-        decrease_per_turn(team, "サイコフィールド", "field")
+        decreasePerTurn(team[0], team[1], "エレキフィールド", "f")
+        decreasePerTurn(team[0], team[1], "グラスフィールド", "f")
+        decreasePerTurn(team[0], team[1], "ミストフィールド", "f")
+        decreasePerTurn(team[0], team[1], "サイコフィールド", "f")
     }
 }
 
 // 25.はねやすめ解除
-function roost_end(order){
-    for (const team of order){
-        let p_con = document.battle[team + "_poke_condition"].value
-        if (p_con.includes("はねやすめ")){
-            document.battle[team + "_poke_condition"].value = ""
-            for (let i = 0; i < p_con.split("\n").length - 1; i++){
-                if (p_con.split("\n")[i].includes("はねやすめ")){
-                    document.getElementById(team + "_type").textContent = p_con.split("\n")[i].slice(6)
-                } else {
-                    document.battle[team + "_poke_condition"].value += p_con.split("\n")[i]
-                }
+function roostEnd(order, reverse){
+    for (const team of [order, reverse]){
+        let list = team[0].con.p_con.split("\n")
+        for (let i = 0; i < list.length; i++){
+            if (list[i].includes("はねやすめ")){
+                team[0].con.type += "、" + list[i].slice(6)
+                list.slice(i, 1)
+                break
             }
         }
+        team[0].con.p_con = list.join("\n")
     }
 }
 
 // 26.その他の状態・特性・もちもの
-function other_condition_ability_item(order){
-    for (const team of order){
-        let enemy = "A"
-        if (team == "A"){
-            enemy = "B"
-        }
+function otherConditionAbilityItem(order, reverse){
+    for (const team of [order, reverse]){
         // a. さわぐ
-        let p_con = document.battle[team + "_poke_condition"].value
-        document.battle[team + "_poke_condition"].value = ""
-        for (let i = 0; i < p_con.split("\n").length - 1; i++){
-            if (p_con.split("\n")[i] == "さわぐ　1ターン目"){
-                document.battle[team + "_poke_condition"].value += "さわぐ　2ターン目" + CR
-                txt = team + "チームの　" + new get(team).name + "は　さわいでいる" + CR
-                document.battle_log.battle_log.value += txt
-            } else if (p_con.split("\n")[i] == "さわぐ　2ターン目"){
-                document.battle[team + "_poke_condition"].value += "さわぐ　3ターン目" + CR
-                txt = team + "チームの　" + new get(team).name + "は　さわいでいる" + CR
-                document.battle_log.battle_log.value += txt
-            } else if (p_con.split("\n")[i] == "さわぐ　3ターン目"){
-                txt = team + "チームの　" + new get(team).name + "は　おとなしくなった" + CR
-                document.battle_log.battle_log.value += txt
-            }
-            else {
-                document.battle[team + "_poke_condition"].value += p_con.split("\n")[i] + CR
+        let list = team[0].con.p_con.split("\n")
+        for (let i = 0; i < list.length; i++){
+            if (list[i].includes("さわぐ")){
+                const turn = Number(lisst[i].slice(4, 5)) + 1
+                if (turn < 4){
+                    list[i] = "さわぐ　" + turn + "ターン目"
+                    cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　騒いでいる" + "\n")
+                } else {
+                    list.slice(i, 1)
+                    cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　おとなしくなった" + "\n")
+                }
+                break
             }
         }
+        team[0].con.p_con = list.join("\n")
         // b. ねむりによるあばれるの中断
         // c. かそく/ムラっけ/スロースタート/ナイトメア
-        if (new get(team).ability == "かそく"){
-            rank_change_not_status(team, "S", 1, 100, "かそく")
-        } else if (new get(team).ability == "ムラっけ"){
+        if (team[0].con.ability == "かそく"){
+            afn.rankChange(team[0], team[1], "S", 1, 100, "かそく")
+        } else if (team[0].con.ability == "ムラっけ"){
             const parameter = ["A", "B", "C", "D", "S"]
             const plus = Math.floor(Math.random() * 5)
-            rank_change_not_status(team, parameter[plus], 2, 100, "ムラっけ")
+            afn.rankChange(team[0], team[1], parameter[plus], 2, 100, "ムラっけ")
             parameter.pop(plus)
             const minus = Math.floor(Math.random() * 4)
-            rank_change_not_status(team, parameter[minus], -1, 100, "ムラっけ")
-        } else if (new get(team).ability == "スロースタート"){
-            decrease_per_turn(team, "スロースタート", "poke")
-        } else if (new get(team).ability == "ナイトメア" && new get(enemy).abnormal == "ねむり"){
-            HP_change_not_attack(enemy, Math.floor(new get(enemy).full_HP / 8), "-", "ナイトメア")
+            afn.rankChange(team[0], team[1], parameter[minus], -1, 100, "ムラっけ")
+        } else if (team[0].con.ability == "スロースタート"){
+            decreasePerTurn(team[0], team[1], "スロースタート", "p")
+        } else if (team[0].con.ability == "ナイトメア" && team[1].con.abnormal == "ねむり"){
+            afn.HPchangeMagic(team[1], team[0], Math.floor(team[0].con.full_HP / 8), "-", "ナイトメア")
         }
         // d. くっつきバリ/どくどくだま/かえんだま
-        if (new get(team).item == "くっつきバリ"){
-            HP_change_not_attack(team, Math.floor(new get(team).full_HP / 8), "-", new get(team).item)
-        } else if (new get(team).item == "どくどくだま"){
-            make_abnormal_attack_or_ability(team, "もうどく", 100, new get(team).item)
-        } else if (new get(team).item == "かえんだま"){
-            make_abnormal_attack_or_ability(team, "やけど", 100, new get(team).item)
+        if (team[0].con.item == "くっつきバリ"){
+            afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "-", "くっつきバリ")
+        } else if (team[0].con.item == "どくどくだま"){
+            afn.makeAbnormal(team[0], team[1], "もうどく", 100, "どくどくだま")
+        } else if (team[0].con.item == "かえんだま"){
+            afn.makeAbnormal(team[0], team[1], "やけど", 100, "かえんだま")
         }
         // e. ものひろい/しゅうかく/たまひろい
-        if (new get(team).ability == "ものひろい" && new get(team).item == ""){
+        if (team[0].con.ability == "ものひろい" && team[0].con.item == ""){
 
         }
-        if (new get(team).ability == "しゅうかく" && !new get(team).f_con.includes("ひんし") && new get(team).item == "" && berry_item_list.includes(document.getElementById(team + "_" + battle_poke_num(team) + "_recycle").textContent)){
-            if (new get(team).f_con.includes("にほんばれ") || Math.random() < 0.5){
-                txt = team + "チームの　" + new get(team).name + "は　しゅうかくで　" + document.getElementById(team + "_" + battle_poke_num(team) + "_recycle").textContent +"を　拾ってきた" + CR
-                document.battle_log.battle_log.value += txt
-                document.getElementById(team + "_item").textContent = document.getElementById(team + "_" + battle_poke_num(team) + "_recycle").textContent
-                document.getElementById(team + "_" + battle_poke_num(team) + "_recycle").textContent = ""
-                berry_in_pinch(team)
-                berry_in_abnormal(team)
-            }
+        if (team[0].con.ability == "しゅうかく" && team[0].con.item == "" && itemEff.berryList().includes(team[0]["poke" + cfn.battleNum(team[0])].recycle) && ((team[0].con.f_con.includes("にほんばれ") && cfn.isWeather(team[0].con, team[1].con)) || Math.random() < 0.5)){
+            cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　しゅうかくで　" + team[0]["poke" + cfn.battleNum(team[0])].recycle + "　を　拾ってきた" + "\n")
+            team[0].con.item = team[0]["poke" + cfn.battleNum(team[0])].recycle
+            team[0]["poke" + cfn.battleNum(team[0])].recycle = ""
+            bfn.berryPinch(team[0])
+            bfn.berryAbnormal(team[0])
         }
     }
 }
 
 // 27.ダルマモード
-function zen_mode(order){
-    for (const team of order){
-        if (!new get(team).f_con.includes("ひんし") && new get(team).last_HP <= new get(team).full_HP / 2){
-            if (new get(team).ability == "ダルマモード" && new get(team).name == "ヒヒダルマ"){
-                txt = team + "チームの　" + new get(team).name + "　の　ダルマモード！" + CR
-                document.battle_log.battle_log.value += txt
-                form_chenge(team, "ヒヒダルマ(ダルマモード)")
-            } else if (new get(team).ability == "ダルマモード" && new get(team).name == "ヒヒダルマ(ガラルのすがた)"){
-                txt = team + "チームの　" + new get(team).name + "　の　ダルマモード！" + CR
-                document.battle_log.battle_log.value += txt
-                form_chenge(team, "ヒヒダルマ(ダルマモード(ガラルのすがた))")
+function zenMode(order, reverse){
+    for (const team of [order, reverse]){
+        if (!team[0].con.f_con.includes("ひんし") && team[0].con.last_HP <= team[0].con.full_HP / 2){
+            if (team[0].con.ability == "ダルマモード" && team[0].con.name == "ヒヒダルマ"){
+                cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　の　ダルマモード！" + "\n")
+                afn.formChenge(team[0], team[1], "ヒヒダルマ(ダルマモード)")
+            } else if (team[0].con.ability == "ダルマモード" && team[0].con.name == "ヒヒダルマ(ガラルのすがた)"){
+                cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　の　ダルマモード！" + "\n")
+                afn.formChenge(team[0], team[1], "ヒヒダルマ(ダルマモード(ガラルのすがた))")
             }
-        } else if (!new get(team).f_con.includes("ひんし") && new get(team).last_HP > new get(team).full_HP / 2){
-            if (new get(team).ability == "ダルマモード" && new get(team).name == "ヒヒダルマ(ダルマモード)"){
-                txt = team + "チームの　" + new get(team).name + "　の　ダルマモード！" + CR
-                document.battle_log.battle_log.value += txt
-                form_chenge(team, "ヒヒダルマ")
-            } else if (new get(team).ability == "ダルマモード" && new get(team).name == "ヒヒダルマ(ダルマモード(ガラルのすがた))"){
-                txt = team + "チームの　" + new get(team).name + "　の　ダルマモード！" + CR
-                document.battle_log.battle_log.value += txt
-                form_chenge(team, "ヒヒダルマ(ガラルのすがた)")
+        } else if (!team[0].con.f_con.includes("ひんし") && team[0].con.last_HP > team[0].con.full_HP / 2){
+            if (team[0].con.ability == "ダルマモード" && team[0].con.name == "ヒヒダルマ(ダルマモード)"){
+                cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　の　ダルマモード！" + "\n")
+                afn.formChenge(team[0], team[1], "ヒヒダルマ")
+            } else if (team[0].con.ability == "ダルマモード" && team[0].con.name == "ヒヒダルマ(ダルマモード(ガラルのすがた))"){
+                cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　の　ダルマモード！" + "\n")
+                afn.formChenge(team[0], team[1], "ヒヒダルマ(ガラルのすがた)")
             }
         }
     }
 }
 
 // 28.リミットシールド
-function shields_down(order){
-    for (const team of order){
-        if (new get(team).ability == "リミットシールド" && new get(team).last_HP <= new get(team).full_HP / 2 && new get(team).name == "メテノ(りゅうせいのすがた)"){
-            txt = team + "チームの　" + new get(team).name + "　の　リミットシールド！" + CR
-            document.battle_log.battle_log.value += txt
-            form_chenge(team, "メテノ(コア)")
-        } else if (new get(team).ability == "リミットシールド" && new get(team).last_HP > new get(team).full_HP / 2 && new get(team).name == "メテノ(コア)"){
-            txt = team + "チームの　" + new get(team).name + "　の　リミットシールド！" + CR
-            document.battle_log.battle_log.value += txt
-            form_chenge(team, "メテノ(りゅうせいのすがた)")
+function shieldsDown(order, reverse){
+    for (const team of [order, reverse]){
+        if (team[0].con.ability == "リミットシールド" && team[0].con.last_HP <= team[0].con.full_HP / 2 && team[0].con.name == "メテノ(りゅうせいのすがた)"){
+            cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　の　リミットシールド！" + "\n")
+            afn.formChenge(team[0], team[1], "メテノ(コア)")
+        } else if (team[0].con.ability == "リミットシールド" && team[0].con.last_HP > team[0].con.full_HP / 2 && team[0].con.name == "メテノ(コア)"){
+            cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　の　リミットシールド！" + "\n")
+            afn.formChenge(team[0], team[1], "メテノ(りゅうせいのすがた)")
         }
     }
 }
 
 // 29.スワームチェンジ
-function power_construct(order){
-    for (const team of order){
-        if (new get(team).ability == "スワームチェンジ" && new get(team).last_HP <= new get(team).full_HP / 2){
-            document.battle_log.battle_log.value += "たくさんの　気配を　感じる・・・！" + CR
-            form_chenge(team, "ジガルデ(パーフェクトフォルム)")
+function powerConstruct(order, reverse){
+    for (const team of [order, reverse]){
+        if (team[0].con.ability == "スワームチェンジ" && team[0].con.last_HP <= team[0].con.full_HP / 2){
+            cfn.logWrite(team[0], team[1], "たくさんの　気配を　感じる・・・！" + "\n")
+            afn.formChenge(team[0], team[1], "ジガルデ(パーフェクトフォルム)")
         }
     }
 }
 
 // 31.はらぺこスイッチ
-function hunger_switch(order){
-    for (const team of order){
-        if (new get(team).ability == "はらぺこスイッチ"){
-            document.battle_log.battle_log.value += team + "チームの　" + new get(team).name + "　の　はらぺこスイッチ！" + CR
-            if (new get(team).p_con.includes("はらぺこもよう")){
-                condition_remove(team, "poke", "はらぺこもよう")
-                document.battle[team + "_poke_condition"].value += "まんぷくもよう" + CR
-            } else if (new get(team).p_con.includes("まんぷくもよう")){
-                condition_remove(team, "poke", "まんぷくもよう")
-                document.battle[team + "_poke_condition"].value += "はらぺこもよう" + CR
+function hungerSwitch(order, reverse){
+    for (const team of [order, reverse]){
+        if (team[0].con.ability == "はらぺこスイッチ"){
+            cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　の　はらぺこスイッチ！" + "\n")
+            if (team[0].con.p_con.includes("はらぺこもよう")){
+                cfn.conditionRemove(team[0].con, "poke", "はらぺこもよう")
+                team[0].con.p_con += "まんぷくもよう" + "\n"
+            } else if (team.con.p_con.includes("まんぷくもよう")){
+                cfn.conditionRemove(team[0].con, "poke", "まんぷくもよう")
+                team[0].con.p_con += "はらぺこもよう" + "\n"
             }
         }
     }
 }
 
 
-function decrease_per_turn(team, content, position){
-    const condition = document.battle[team + "_" + position + "_condition"].value
-    if (condition.includes(content)){
-        document.battle[team + "_" + position + "_condition"].value = ""
-        for (let i = 0; i < condition.split("\n").length - 1; i++){
-            if (condition.split("\n")[i].includes(content)){
-                const turn = Number(condition.split("\n")[i].slice(-3, -2))
-                if (turn > 1){
-                    txt = content + "　" + String(turn - 1) + "/" + condition.split("\n")[i].slice(-1) + CR
-                    document.battle[team + "_" + position + "_condition"].value += txt
-                } else {
-                    txt = team + "チームの　" + content + "は　終了した！" + CR
-                    document.battle_log.battle_log.value += txt
-                    if (content.includes("フィールド") && new get(team).ability == "ぎたい"){
-                        txt = team + "チームの　" + new get(team).name + "　は　元のタイプに戻った" + CR
-                        document.battle_log.battle_log.value += txt
-                        let num = battle_poke_num(team)
-                        document.getElementById(team + "_type").textContent = document.getElementById(team + "_" + num + "_type").textContent
-                        if (new get(team).p_con.includes("もりののろい")){
-                            document.getElementById(team + "_type").textContent += "、くさ"
+function decreasePerTurn(team, enemy, content, PorF){
+    let list = team.con[PorF + "_con"].split("\n")
+    for (let i = 0; i < list.length; i++){
+        if (list[i].includes(content)){
+            const turn = Number(list[i].slice(-3, -2)) - 1
+            if (turn > 0){
+                list[i] = content + "　" + turn + "/" + list[i].slice(-1)
+            } else {
+                list.slice(i, 1)
+                cfn.logWrite(team, enemy, team.con.TN + "　の　" + content + "は　終了した！" + "\n")
+                for (let side of [team, enemy]){
+                    if (side.con.ability == "ぎたい" && content.includes("フィールド")){
+                        cfn.logWrite(team, enemy, side.con.TN + "　の　" + side.con.name + "　は　元のタイプに戻った" + "\n")
+                        side.con.type = side["poke" + cfn.battleNum(side)].type
+                        if (side.con.p_con.includes("もりののろい")){
+                            side.con.type += "、くさ"
                         }
-                        if (new get(team).p_con.includes("ハロウィン")){
-                            document.getElementById(team + "_type").textContent += "、ゴースト"
+                        if (side.con.p_con.includes("ハロウィン")){
+                            side.con.type += "、ゴースト"
                         }
                     }
                 }
-            } else {
-                document.battle[team + "_" + position + "_condition"].value += condition.split("\n")[i] + CR
             }
+            break
         }
     }
+    team.con[PorF + "_con"] = list.join("\n")
 }

@@ -329,38 +329,6 @@ function PP_change(num, value){
     }
 }
 
-function mega_ev(team){
-    for (let i = 0; i < mega_stone_item_list.length; i++){
-        if (new get(team).item == mega_stone_item_list[i][0]){
-            let now_name = "" // 個体値と努力値と性格を参照する名称
-            let new_name = "" // 種族値を参照する名称
-            let check = 0
-            if (new get(team).name == mega_stone_item_list[i][1]){ // メガ進化する時
-                now_name = mega_stone_item_list[i][1] // メガ進化前の名称
-                new_name = mega_stone_item_list[i][2] // メガ進化後の名称
-            } else if (new get(team).name == mega_stone_item_list[i][2]){ // メガ退化するとき
-                now_name = mega_stone_item_list[i][1] // メガ進化前の名称
-                new_name = mega_stone_item_list[i][1] // メガ進化前の名称
-                check += 1
-            }
-
-            const id = poke_search(new_name)
-            
-            if (check == 0){ // メガ進化の特性は一つしかないから固定
-                document.getElementById(team + "_ability").textContent = id[15]
-            } else if (check == 1){ // メガ進化前は元の特性を参照する必要がある
-                for (let i = 0; i < 3; i++){
-                    if (now_name == document.getElementById(team + "_" + i + "_name").textContent){
-                        document.getElementById(team + "_ability").textContent = document.getElementById(team + "_" + i + "_ability").textContent
-                    }
-                }
-            }
-            // 新しい実数値の反映
-            quick_AV_calc(team, now_name, new_name)
-        }
-    }
-}
-
 function move_search_by_name(name){
     for (let i = 0; i < move_list.length; i++){
         if (name == move_list[i][0]){
@@ -374,126 +342,6 @@ function poke_search(name){
         if (name == pokemon[i][1]){
             return pokemon[i]
         }
-    }
-}
-
-function quick_AV_calc(team, now_name, new_name){
-    const id = poke_search(new_name)
-    // 名前の変更
-    document.getElementById(team + "_poke").textContent = id[1]
-    // タイプの変更
-    if (id[10] == "-"){
-        document.getElementById(team + "_type").textContent = id[9]
-    } else {
-        document.getElementById(team + "_type").textContent = id[9] + "、" + id[10]
-    }
-    const parameter = ["H", "A", "B", "C", "D", "S"]
-    let BS = [id[2], id[3], id[4], id[5], id[6], id[7]]
-    let IV = []
-    let EV = []
-    let poke_LV = 0
-    for (let i = 0; i < 3; i++){
-        if (now_name == document.getElementById(team + "_" + i + "_name").textContent){
-            poke_LV = Number(document.getElementById(team + "_" + i + "_level").textContent)
-            for (let j = 0; j < 6; j++){
-                IV.push(Number(document.getElementById(team + "_" + i + "_" + parameter[j] + "_IV").textContent))
-                EV.push(Number(document.getElementById(team + "_" + i + "_" + parameter[j] + "_EV").textContent))
-            }
-        }
-    }
-
-    let AV = []
-    for (let i = 0; i < 6; i++){
-        let base = parseInt(((BS[i]*2 + IV[i] + parseInt(EV[i]/4)) * poke_LV)/100)
-        if (i == 0){
-            AV.push(base + poke_LV + 10)
-        } else {
-            AV.push(parseInt(base + 5))
-        }
-    }
-    // 実数値の変更
-    for (let i = 0; i < 6; i++){
-        if (i > 0){
-            document.getElementById(team + "_" + parameter[i] + "_AV").textContent = AV[i]
-        }
-    }
-}
-
-// AチームとBチームの6択のポケモンセット
-function set_pokemon(){
-    if (Number(document.getElementById("EV_last").textContent) < 0){
-        alert("努力値振りすぎやで")
-        return
-    }
-    if (document.poke_name.poke_name.value == ""){
-        alert("ポケモン選択されてへんで")
-        return
-    }
-    let move_check = 0
-    for (let i = 0; i < 4; i++){
-        if (document.four_moves["move" + String(i)].value == ""){
-            move_check += 1
-        }
-    }
-    if (move_check == 4){
-        alert("技覚えてへんで")
-        return
-    }
-    const parameter = ["H", "A", "B", "C", "D", "S"]
-    const ability = document.poke_ID.ability
-    const num = ability.selectedIndex
-    const team = document.getElementById("team").team.value
-
-    document.getElementById(team + "_name").textContent = document.poke_name.poke_name.value
-    document.getElementById(team + "_sex").textContent = " " + document.getElementById("poke_name_id").sex.value + " "
-    document.getElementById(team + "_level").textContent = document.poke_ID.poke_LV.value
-    document.getElementById(team + "_type").textContent = document.getElementById("poke_type").textContent
-    document.getElementById(team + "_ability").textContent = ability.options[num].value
-    document.getElementById(team + "_item").textContent = document.poke_ID.poke_item.value
-    document.getElementById(team + "_nature").textContent = document.getElementById("nature").textContent
-    document.getElementById(team + "_full_HP").textContent = document.input_value.H_AV.value
-    document.getElementById(team + "_last_HP").textContent = document.input_value.H_AV.value
-    for (let i = 1; i < 6; i++){
-        document.getElementById(team + "_" + parameter[i] + "_AV").textContent = document.input_value[parameter[i] + "_AV"].value
-    }
-    for (let i = 0; i < 6; i++){
-        document.getElementById(team + "_" + parameter[i] + "_IV").textContent = document.input_value[parameter[i] + "_IV"].value
-        document.getElementById(team + "_" + parameter[i] + "_EV").textContent = document.input_value[parameter[i] + "_EV"].value
-    }
-    for (let i = 0; i < 4; i++){
-        document.getElementById(team + "_move_" + i).textContent = document.four_moves["move" + String(i)].value
-        document.getElementById(team + "_PP_" + i).textContent = document.getElementById("PP" + String(i)).textContent
-        document.getElementById(team + "_last_" + i).textContent = document.getElementById("PP" + String(i)).textContent
-    }
-
-    CR = String.fromCharCode(13)
-
-    // アルセウス：プレートによるタイプ変更
-    if (document.getElementById(team + "_ability").textContent == "マルチタイプ"){
-        for (let i = 0; i < judgement_plate.length; i++){
-            if (document.getElementById(team + "_item").textContent == judgement_plate[i][0]){
-                document.getElementById(team + "_type").textContent = judgement_plate[i][1]
-            }
-        }
-    }
-
-    // シルヴァディ：メモリによるタイプ変更
-    if (document.getElementById(team + "_ability").textContent == "ARシステム"){
-        for (let i = 0; i < multi_attack_memory.length; i++){
-            if (document.getElementById(team + "_item").textContent == multi_attack_memory[i][0]){
-                document.getElementById(team + "_type").textContent = multi_attack_memory[i][1]
-            }
-        }
-    }
-
-    let check = 0
-    for (let i = 0; i < 6; i++){
-        if (document.getElementById(i + "_name").textContent){
-            check += 1
-        }
-    }
-    if (check == 6){
-        document.getElementById("trainer_name").style.display = "block"
     }
 }
 
@@ -604,88 +452,6 @@ function choose_poke(){
 }
 
 
-// 戦闘中のポケモンを手持ちに戻す
-function come_back_pokemon(team){
-    let enemy = "B"
-    if (team == "B"){
-        enemy = "A"
-    }
-    for (let i = 0; i < 3; i++){
-        if (document.getElementById(team + "_" + i + "_existence").textContent == "戦闘中"){
-            if (new get(team).name == "ヒヒダルマ(ダルマモード)"){
-                form_chenge(team, "ヒヒダルマ")
-            } else if (new get(team).name == "ヒヒダルマ(ダルマモード(ガラルのすがた))"){
-                form_chenge(team, "ヒヒダルマ(ガラルのすがた)")
-            } else if (new get(team).name == "ギルガルド(ブレードフォルム)"){
-                form_chenge(team, "ギルガルド(シールドフォルム)")
-            } else if (new get(team).name == "メテノ(コア)"){
-                form_chenge(team, "メテノ(りゅうせいのすがた)")
-            }
-            // 名前・タイプ・特性・実数値・残りHP・残りPPは既に正しい表記になっている
-            // 持ち物、状態異常の移動
-            document.getElementById(team + "_" + i + "_item").textContent = document.getElementById(team + "_item").textContent
-            document.getElementById(team + "_" + i + "_abnormal").textContent = document.getElementById(team + "_abnormal").textContent
-            // 総HPの移動
-            document.getElementById(team + "_" + i + "_full_HP").textContent = document.getElementById(team + "_HP").textContent
-            // 「戦闘中」を「控え」に変更
-            document.getElementById(team + "_" + i + "_existence").textContent = "控え"
-            document.getElementById(team + "_" + i + "_button").disabled = true
-
-            // ポケモンの状態の削除
-            document.battle[team + "_poke_condition"].value = ""
-            // 相手のメロメロの解除
-            condition_remove(enemy, "poke", "メロメロ")
-
-            // 特性が「さいせいりょく」の時
-            if (new get(team).ability == "さいせいりょく"){
-                HP_change_not_attack(team, Math.floor(new get(team).full_HP / 3), "+", "さいせいりょく")
-            }
-            // 特性が「しぜんかいふく」の時
-            if (new get(team).ability == "しぜんかいふく"){
-                document.getElementById(team + "_" + i + "_abnormal").textContent = ""
-            }
-
-            // 特性の削除
-            document.getElementById(team + "_ability").textContent = ""
-
-            // 特性が「おわりのだいち」だった時、天候が元に戻る
-            if (document.getElementById(team + "_" + i + "_ability").textContent == "おわりのだいち" && (new get(enemy).ability != "おわりのだいち" || new get(enemy).last_HP == 0)){
-                document.battle_log.battle_log.value += "おおひでりが終わった" + CR
-                condition_remove("A", "field", "おおひでり")
-                condition_remove("B", "field", "おおひでり")
-            }
-            // 特性が「はじまりのうみ」だった時、天候が元に戻る
-            if (document.getElementById(team + "_" + i + "_ability").textContent == "はじまりのうみ" && (new get(enemy).ability != "はじまりのうみ" || new get(enemy).last_HP == 0)){
-                document.battle_log.battle_log.value += "おおあめが終わった" + CR
-                condition_remove("A", "field", "おおあめ")
-                condition_remove("B", "field", "おおあめ")
-            }
-            // 特性が「かがくへんかガス」の時
-            if (document.getElementById(team + "_" + i + "_ability").textContent == "かがくへんかガス"){
-                document.battle_log.battle_log.value += "かがくへんかガスの効果が切れた" + CR
-                for (let j = 0; j < new get(enemy).p_len; j ++){
-                    if (new get(enemy).p_list[j].includes("かがくへんかガス")){
-                        document.getElementById(enemy + "_ability").textContent = new get(enemy).p_list[j].slice(9)
-                    }
-                }
-                condition_remove(enemy, "poke", "かがくへんかガス")
-                summon_pokemon(1, enemy)
-            }
-            // 特性が「きんちょうかん」の時
-            if (document.getElementById(team + "_" + i + "_ability").textContent == "きんちょうかん"){
-                berry_in_pinch(enemy)
-                berry_in_abnormal(enemy)
-            }
-        }
-    }
-    for (const i of ["_poke", "_sex", "_level", "_type", "_nature", "_ability", "_item", "_abnormal"]){
-        document.getElementById(team + i).textContent = ""
-    }
-    for (const i of ["_rank_A", "_rank_B", "_rank_C", "_rank_D", "_rank_S", "_rank_accuracy", "_rank_evasiveness"]){
-        document.getElementById(team + i).textContent = 0
-    }
-}
-
 
 // Z技
 function Z_move(team){
@@ -762,4 +528,105 @@ function start_action_timer(){
 function stop_action_timer(){
     document.getElementById("action_time").textContent = 45
     clearInterval(action_timer)
+}
+
+
+// AチームとBチームの6択のポケモンセット
+function setAll(){
+    if (Number(document.getElementById("EV_last").textContent) < 0){
+        alert("努力値振りすぎやで")
+        return
+    }
+    if (document.poke_name.poke_name.value == ""){
+        alert("ポケモン選択されてへんで")
+        return
+    }
+    let move_check = 0
+    for (let i = 0; i < 4; i++){
+        if (document.four_moves["move" + String(i)].value == ""){
+            move_check += 1
+        }
+    }
+    if (move_check == 4){
+        alert("技覚えてへんで")
+        return
+    }
+    const parameter = ["H", "A", "B", "C", "D", "S"]
+    const ability = document.poke_ID.ability
+    const num = ability.selectedIndex
+
+    for (let team of [0, 1, 2, 3, 4, 5]){
+
+        document.getElementById(team + "_name").textContent = document.poke_name.poke_name.value
+        document.getElementById(team + "_sex").textContent = " " + document.getElementById("poke_name_id").sex.value + " "
+        document.getElementById(team + "_level").textContent = document.poke_ID.poke_LV.value
+        document.getElementById(team + "_type").textContent = document.getElementById("poke_type").textContent
+        document.getElementById(team + "_ability").textContent = ability.options[num].value
+        document.getElementById(team + "_item").textContent = document.poke_ID.poke_item.value
+        document.getElementById(team + "_nature").textContent = document.getElementById("nature").textContent
+        document.getElementById(team + "_full_HP").textContent = document.input_value.H_AV.value
+        document.getElementById(team + "_last_HP").textContent = document.input_value.H_AV.value
+        for (let i = 1; i < 6; i++){
+            document.getElementById(team + "_" + parameter[i] + "_AV").textContent = document.input_value[parameter[i] + "_AV"].value
+        }
+        for (let i = 0; i < 6; i++){
+            document.getElementById(team + "_" + parameter[i] + "_IV").textContent = document.input_value[parameter[i] + "_IV"].value
+            document.getElementById(team + "_" + parameter[i] + "_EV").textContent = document.input_value[parameter[i] + "_EV"].value
+        }
+        for (let i = 0; i < 4; i++){
+            document.getElementById(team + "_move_" + i).textContent = document.four_moves["move" + String(i)].value
+            document.getElementById(team + "_PP_" + i).textContent = document.getElementById("PP" + String(i)).textContent
+            document.getElementById(team + "_last_" + i).textContent = document.getElementById("PP" + String(i)).textContent
+        }
+    
+        CR = String.fromCharCode(13)
+    
+        // アルセウス：プレートによるタイプ変更
+        if (document.getElementById(team + "_ability").textContent == "マルチタイプ"){
+            for (let i = 0; i < judgement_plate.length; i++){
+                if (document.getElementById(team + "_item").textContent == judgement_plate[i][0]){
+                    document.getElementById(team + "_type").textContent = judgement_plate[i][1]
+                }
+            }
+        }
+    
+        // シルヴァディ：メモリによるタイプ変更
+        if (document.getElementById(team + "_ability").textContent == "ARシステム"){
+            for (let i = 0; i < multi_attack_memory.length; i++){
+                if (document.getElementById(team + "_item").textContent == multi_attack_memory[i][0]){
+                    document.getElementById(team + "_type").textContent = multi_attack_memory[i][1]
+                }
+            }
+        }
+    }
+
+
+    let check = 0
+    for (let i = 0; i < 6; i++){
+        if (document.getElementById(i + "_name").textContent){
+            check += 1
+        }
+    }
+    if (check == 6){
+        document.getElementById("trainer_name").style.display = "block"
+    }
+}
+
+function selectPoke(){
+    for (let i = 0; i < 6; i++){
+        if (document.getElementById("first" + i).checked){
+            document.getElementById("second" + i).disabled = true
+            document.getElementById("third" + i).disabled = true
+        } else if (document.getElementById("second" + i).checked){
+            document.getElementById("first" + i).disabled = true
+            document.getElementById("third" + i).disabled = true
+        } else if (document.getElementById("third" + i).checked){
+            document.getElementById("second" + i).disabled = true
+            document.getElementById("first" + i).disabled = true
+        } else {
+            document.getElementById("first" + i).disabled = false
+            document.getElementById("second" + i).disabled = false
+            document.getElementById("third" + i).disabled = false
+        }
+    }
 }

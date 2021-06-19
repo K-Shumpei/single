@@ -19,7 +19,7 @@ exports.comeBack = function(user, enemy){
     // 名前・タイプ・特性・実数値・残りHP・残りPPは既に正しい表記になっている
     // 持ち物、状態異常の移動
     user["poke" + cfn.battleNum(user)].item = user.con.item
-    user["poke" + cfn.battleNum(user)].abnormal = user.con,abnormal
+    user["poke" + cfn.battleNum(user)].abnormal = user.con.abnormal
     // 総HPの移動
     user["poke" + cfn.battleNum(user)].full_HP = user.con.full_HP
 
@@ -39,19 +39,19 @@ exports.comeBack = function(user, enemy){
 
     // 特性が「おわりのだいち」だった時、天候が元に戻る
     if (user.con.ability == "おわりのだいち" && (enemy.con.ability != "おわりのだいち" || enemy.con.last_HP == 0)){
-        cfn.logWrite(user, enemy, "おおひでりが終わった" + CR)
+        cfn.logWrite(user, enemy, "おおひでりが終わった" + "\n")
         cfn.conditionRemove(user.con, "field", "おおひでり")
         cfn.conditionRemove(enemy.con, "field", "おおひでり")
     }
     // 特性が「はじまりのうみ」だった時、天候が元に戻る
     if (user.con.ability == "はじまりのうみ" && (enemy.con.ability != "はじまりのうみ" || enemy.con.last_HP == 0)){
-        cfn.logWrite(user, enemy, "おおあめが終わった" + CR)
+        cfn.logWrite(user, enemy, "おおあめが終わった" + "\n")
         cfn.conditionRemove(user.con, "field", "おおあめ")
         cfn.conditionRemove(enemy.con, "field", "おおあめ")
     }
     // 特性が「かがくへんかガス」の時
     if (user.con.ability == "かがくへんかガス"){
-        cfn.logWrite(user, enemy, "かがくへんかガスの効果が切れた" + CR)
+        cfn.logWrite(user, enemy, "かがくへんかガスの効果が切れた" + "\n")
         for (let i = 0; i < enemy.con.p_con.split("\n").length - 1; i++){
             if (enemy.con.p_con.split("\n")[i].includes("かがくへんかガス")){
                 enemy.con.ability = enemy.con.p_con.split("\n")[i].slice(9)
@@ -108,16 +108,16 @@ exports.pokeReplace = function(team, enemy){
 
     // ミミッキュの姿
     if (team["poke" + num].form == "ばけたすがた"){
-        team.con.p_con += "ばけたすがた" + CR
+        team.con.p_con += "ばけたすがた" + "\n"
     } else if (team["poke" + num].form == "ばれたすがた"){
-        team.con.p_con += "ばれたすがた" + CR
+        team.con.p_con += "ばれたすがた" + "\n"
     }
     // モルペコの模様
     if (team.con.ability == "はらぺこスイッチ"){
-        team.con.p_con += "まんぷくもよう" + CR
+        team.con.p_con += "まんぷくもよう" + "\n"
     }
 
-    cfn.logWrite(team, enemy, team.con.TN + "　は　" + team.con.name + "　を　繰り出した　！" + CR)
+    cfn.logWrite(team, enemy, team.con.TN + "　は　" + team.con.name + "　を　繰り出した　！" + "\n")
 
     return 
 
@@ -181,7 +181,7 @@ exports.pokeReplace = function(team, enemy){
 
     // 特性「かがくへんかガス」のポケモンがいる時
     if (new get(enemy).ability == "かがくへんかガス"){
-        document.battle[team + "_poke_condition"].value += "かがくへんかガス：" + new get(team).ability + CR
+        document.battle[team + "_poke_condition"].value += "かがくへんかガス：" + new get(team).ability + "\n"
         document.getElementById(team + "_ability").textContent = ""
     }
     // マジックルーム：持ち物を空欄にする
@@ -207,10 +207,13 @@ exports.activAbility = function(user1, user2, team){
     if (team == "both"){
         // 素早さ判定
         let order = afn.speedCheck(user1.con, user2.con)
-        if (order[0] == 1){
+        if (order[0] > order[1] || (order[0] == order[1] && Math.random() < 0.5)){
             order = [user1, user2]
-        } else {
+        } else if (order[0] < order[1]){
             order = [user2, user1]
+        }
+        if (user1.con.f_con.includes("トリックルーム")){
+            order = [order[1], order[0]]
         }
         // 1.かがくへんかガスの発動
         neutralizing_gas(order[0], order[1])
@@ -229,8 +232,8 @@ exports.activAbility = function(user1, user2, team){
         seed_service(order[1], order[0])
         // 6.フラワーギフト/てんきや/アイスフェイス
         // 7.しろいハーブ
-        white_herb(order[0], order[1])
-        white_herb(order[1], order[1])
+        bfn.whiteHerb(order[0], order[1])
+        bfn.whiteHerb(order[1], order[0])
         // 8.だっしゅつパックによる交代、交代先の繰り出し
         eject_pack(order[0], order[1])
         eject_pack(order[1], order[0])
@@ -254,7 +257,7 @@ exports.activAbility = function(user1, user2, team){
         seed_service(team, enemy)
         // 6.フラワーギフト/てんきや/アイスフェイス
         // 7.しろいハーブ
-        white_herb(team, enemy)
+        bfn.whiteHerb(team, enemy)
         // 8.だっしゅつパックによる交代、交代先の繰り出し
         eject_pack(team, enemy)
     }
@@ -275,10 +278,10 @@ exports.activAbility = function(user1, user2, team){
 function neutralizing_gas(team, enemy){
     const list = abiEff.neutralizing()
     if (team.con.ability == "かがくへんかガス"){
-        cfn.logWrite(team, enemy, "あたりに　かがくへんかガスが　充満した！" + CR)
+        cfn.logWrite(team, enemy, "あたりに　かがくへんかガスが　充満した！" + "\n")
         if (!list.includes(enemy.con.ability) && !enemy.con.p_con.includes("かがくへんかガス")){
             cfn.conditionRemove(enemy.con, "poke", "スロースタート：")
-            enemy.con.p_con += "かがくへんかガス：" + enemy.con.ability + CR
+            enemy.con.p_con += "かがくへんかガス：" + enemy.con.ability + "\n"
             enemy.con.ability = ""
         }
     }
@@ -287,10 +290,10 @@ function neutralizing_gas(team, enemy){
 // 2.きんちょうかん/じんばいったいの発動
 function unnerve(team, enemy){
     if (team.con.ability == "きんちょうかん"){
-        cfn.logWrite(team, enemy, enemy.con.TN + "　の　ポケモンは　緊張して　きのみが　食べられなくなった！" + CR)
+        cfn.logWrite(team, enemy, enemy.con.TN + "　の　ポケモンは　緊張して　きのみが　食べられなくなった！" + "\n")
     } else if (team.con.ability == "じんばいったい"){
-        cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　は　ふたつの　特性を　あわせ持つ！" + CR)
-        cfn.logWrite(team, enemy, enemy.con.TN + "　の　ポケモンは　緊張して　きのみが　食べられなくなった！" + CR)
+        cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　は　ふたつの　特性を　あわせ持つ！" + "\n")
+        cfn.logWrite(team, enemy, enemy.con.TN + "　の　ポケモンは　緊張して　きのみが　食べられなくなった！" + "\n")
     }
 }
 
@@ -299,7 +302,7 @@ function condition_ability_item_action(team, enemy){
     let con = team.con
     // 1.いやしのねがい/みかづきのまい/Zおきみやげ/Zすてゼリフによる回復
     if (con.f_con.includes("いやしのねがい") && (con.last_HP < con.full_HP || con.abnormal != "")){
-        cfn.logWrite(team, enemy, con.TN + "　の　いやしのねがいが　発動した！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　いやしのねがいが　発動した！" + "\n")
         con.last_HP = con.full_HP
         con.abnormal = ""
         bfn.conditionRemove(con, "field", "いやしのねがい")
@@ -312,7 +315,7 @@ function condition_ability_item_action(team, enemy){
             }
         }
         if (check != 4){
-            cfn.logWrite(team, enemy, con.TN + "　の　みかづきのまいが　発動した！" + CR)
+            cfn.logWrite(team, enemy, con.TN + "　の　みかづきのまいが　発動した！" + "\n")
             con.last_HP = con.full_HP
             con.abnormal = ""
             for (let i = 0; i < 4; i++){
@@ -322,32 +325,32 @@ function condition_ability_item_action(team, enemy){
         }
     }
     if ((con.f_con.includes("Zおきみやげ") || con.f_con.includes("Zすてゼリフ")) && con.last_HP < con.full_HP){
-        cfn.logWrite(team, enemy, con.TN + "　の　Zおきみやげが　発動した！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　Zおきみやげが　発動した！" + "\n")
         con.last_HP = con.full_HP
         bfn.conditionRemove(con, "field", "Zおきみやげ")
         bfn.conditionRemove(con, "field", "Zすてゼリフ")
     }
     // 2.設置技: 技が使用された順に発動
     if (con.item != "あつぞこブーツ"){
-        for (let i = 0; i < con.f_con.split("" + CR).length - 1; i++){
-            if (con.f_con.split("" + CR)[i].includes("まきびし") && cfn.groundedCheck(con)){
-                let num = Number(con.f_con.split("" + CR)[i].slice(5, 6))
+        for (let i = 0; i < con.f_con.split("" + "\n").length - 1; i++){
+            if (con.f_con.split("" + "\n")[i].includes("まきびし") && cfn.groundedCheck(con)){
+                let num = Number(con.f_con.split("" + "\n")[i].slice(5, 6))
                 let damage = Math.floor(con.full_HP / (10 - (num * 2)))
                 afn.HPchangeMagic(team, enemy, damage, "-", "まきびし")
-            } else if (con.f_con.split("" + CR)[i].includes("どくびし") && cfn.groundedCheck(con)){
-                let num = Number(con.f_con.split("" + CR)[i].slice(5, 6))
+            } else if (con.f_con.split("" + "\n")[i].includes("どくびし") && cfn.groundedCheck(con)){
+                let num = Number(con.f_con.split("" + "\n")[i].slice(5, 6))
                 if (num == 1){
                     afn.makeAbnormal(team, enemy, "どく", 100, "どくびし")
                 } else if (num == 2){
                     afn.makeAbnormal(team, enemy, "もうどく", 100, "どくびし")
                 }
-            } else if (con.f_con.split("" + CR)[i].includes("ステルスロック")){
+            } else if (con.f_con.split("" + "\n")[i].includes("ステルスロック")){
                 let rate = cfn.compatibilityCheck(team, enemy, cfn.moveSearchByName("アクセルロック"))
                 let damage = Math.floor(con.full_HP * rate / 8)
                 afn.HPchangeMagic(team, enemy, damage, "-", "ステルスロック")
-            } else if (con.f_con.split("" + CR)[i].includes("ねばねばネット") && cfn.groundedCheck(con)){
+            } else if (con.f_con.split("" + "\n")[i].includes("ねばねばネット") && cfn.groundedCheck(con)){
                 afn.rankChange(team, enemy, "S", -1, 100, "ねばねばネット")
-            } else if (con.f_con.split("" + CR)[i].includes("キョダイコウジン")){
+            } else if (con.f_con.split("" + "\n")[i].includes("キョダイコウジン")){
                 let rate = cfn.compatibilityCheck(team, enemy, cfn.moveSearchByName("バレットパンチ"))
                 let damage = Math.floor(con.full_HP * rate / 8)
                 afn.HPchangeMagic(team, enemy, damage, "-", "キョダイコウジン")
@@ -355,18 +358,18 @@ function condition_ability_item_action(team, enemy){
         }
     }
     if (con.type.includes("どく") && cfn.groundedCheck(con) && con.f_con.includes("どくびし")){
-        cfn.logWrite(team, enemy, "どくびしが　消え去った！" + CR)
+        cfn.logWrite(team, enemy, "どくびしが　消え去った！" + "\n")
         cfn.conditionRemove(con, "field", "どくびし")
     }
     // 3.場に出たときに発動する特性
     if (con.ability == "あめふらし" && !con.f_con.includes("あめ") && !con.f_con.includes("おおひでり") && !con.f_con.includes("らんきりゅう")){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　あめふらし！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　あめふらし！" + "\n")
         bfn.allFieldStatus(team, enemy, cfn.moveSearchByName("あまごい"))
     } else if (con.ability == "いかく"){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　いかく！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　いかく！" + "\n")
         if (enemy.con.ability == "ミラーアーマー"){
             if (!con.p_con.includes("みがわり")){
-                cfn.logWrite(team, enemy, enemy.con.TN + "　の　" + enemy.con.name + "　の　ミラーアーマーが　発動した！" + CR)
+                cfn.logWrite(team, enemy, enemy.con.TN + "　の　" + enemy.con.name + "　の　ミラーアーマーが　発動した！" + "\n")
                 afn.rankChange(team, enemy, "A", -1, 100, "いかく")
             }
         } else {
@@ -382,30 +385,30 @@ function condition_ability_item_action(team, enemy){
             }
         }
     } else if (con.ability == "エアロック" || con.ability == "ノーてんき"){
-        cfn.logWrite(team, enemy, "天気の影響がなくなった" + CR)
+        cfn.logWrite(team, enemy, "天気の影響がなくなった" + "\n")
     } else if (con.ability == "エレキメイカー" && !con.f_con.includes("エレキフィールド")){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　エレキメイカー！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　エレキメイカー！" + "\n")
         bfn.allFieldStatus(team, enemy, cfn.moveSearchByName("エレキフィールド"))
     } else if (con.ability == "オーラブレイク"){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　オーラブレイクが発動している！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　オーラブレイクが発動している！" + "\n")
     } else if (con.ability == "おみとおし" && con.item != ""){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　おみとおし！" + CR)
-        cfn.logWrite(team, enemy, enemy.con.TN + "　の　" + enemy.con.name + "の　" + enemy.con.item + "を　お見通しだ！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　おみとおし！" + "\n")
+        cfn.logWrite(team, enemy, enemy.con.TN + "　の　" + enemy.con.name + "の　" + enemy.con.item + "を　お見通しだ！" + "\n")
     } else if (con.ability == "おわりのだいち" && !con.f_con.includes("おおひでり")){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　おわりのだいち！" + CR)
-        cfn.logWrite(team, enemy, "日差しがとても強くなった！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　おわりのだいち！" + "\n")
+        cfn.logWrite(team, enemy, "日差しがとても強くなった！" + "\n")
         for (const player of [team, enemy]){
             cfn.conditionRemove(player.con, "field", "あめ")
             cfn.conditionRemove(player.con, "field", "にほんばれ")
             cfn.conditionRemove(player.con, "field", "すなあらし")
             cfn.conditionRemove(player.con, "field", "あられ")
             cfn.conditionRemove(player.con, "field", "らんきりゅう")
-            player.con.f_con += "にほんばれ（おおひでり）" + CR
+            player.con.f_con += "にほんばれ（おおひでり）" + "\n"
         }
     } else if (con.ability == "かたやぶり" || con.ability == "ターボブレイズ" || con.ability == "テラボルテージ"){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "は　" + con.ability + "だ！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "は　" + con.ability + "だ！" + "\n")
     } else if (con.ability == "かわりもの" && !enemy.con.p_con.includes("みがわり") && !enemy.con.p_con.includes("へんしん")){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　かわりもの！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　かわりもの！" + "\n")
         for (const parameter of ["sex", "type", "nature", "ability", 
         "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
         "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank", 
@@ -424,53 +427,53 @@ function condition_ability_item_action(team, enemy){
             }
             break
         }
-        con.p_con += "へんしん" + CR
+        con.p_con += "へんしん" + "\n"
         cfn.conditionRemove(con, "poke", "きゅうしょアップ")
         cfn.conditionRemove(con, "poke", "とぎすます")
         cfn.conditionRemove(con, "poke", "キョダイシンゲキ")
         cfn.conditionRemove(con, "poek", "ボディパージ")
-        for (let i = 0; i < enemy.con.p_con.split("" + CR).length - 1; i++){
-            if (enemy.con.p_con.split("" + CR)[i].includes("きゅうしょアップ") 
-            || enemy.con.p_con.split("" + CR)[i].includes("とぎすます") 
-            || enemy.con.p_con.split("" + CR)[i].includes("キョダイシンゲキ") 
-            || enemy.con.p_con.split("" + CR)[i].includes("ボディパージ")){
-                con.p_con += enemy.con.p_con.split("" + CR)[i] + CR
+        for (let i = 0; i < enemy.con.p_con.split("" + "\n").length - 1; i++){
+            if (enemy.con.p_con.split("" + "\n")[i].includes("きゅうしょアップ") 
+            || enemy.con.p_con.split("" + "\n")[i].includes("とぎすます") 
+            || enemy.con.p_con.split("" + "\n")[i].includes("キョダイシンゲキ") 
+            || enemy.con.p_con.split("" + "\n")[i].includes("ボディパージ")){
+                con.p_con += enemy.con.p_con.split("" + "\n")[i] + "\n"
             }
         }
-        cfn.logWrite(team, enemy, enemy.con.name + "に　へんしんした" + CR)
+        cfn.logWrite(team, enemy, enemy.con.name + "に　へんしんした" + "\n")
     } else if (con.ability == "きけんよち"){
         let check = 0
         const list = moveEff.oneShot()
         for (let i = 0; i < 4; i++){
             if (con["move_" + i] != ""){
-                let move = cgn.moveSearchByName(con["move_" + i])
-                if ((bfn.compatibilityCheck(team, enemy, move) > 1 && move[2] != "変化") || list.includes(move[0])){
+                let move = cfn.moveSearchByName(con["move_" + i])
+                if ((cfn.compatibilityCheck(team, enemy, move) > 1 && move[2] != "変化") || list.includes(move[0])){
                     check += 1
                 }
             }
         }
         if (check > 0){
-            cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "は　身震いした！" + CR)
+            cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "は　身震いした！" + "\n")
         }
     } else if (con.ability == "きみょうなくすり"){
         
     } else if (con.ability == "グラスメイカー" && !con.f_con.includes("グラスフィールド")){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　グラスメイカー！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　グラスメイカー！" + "\n")
         bfn.allFieldStatus(team, enemy, cfn.moveSearchByName("グラスフィールド"))
     } else if (con.ability == "サイコメイカー" && !con.f_con.includes("サイコフィールド")){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　サイコメイカー！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　サイコメイカー！" + "\n")
         bfn.allFieldStatus(team, enemy, cfn.moveSearchByName("サイコフィールド"))
     } else if (con.ability == "スロースタート"){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　スロースタート！" + CR)
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "は　調子が上がらない！" + CR)
-        con.p_con += "スロースタート　5/5" + CR
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　スロースタート！" + "\n")
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "は　調子が上がらない！" + "\n")
+        con.p_con += "スロースタート　5/5" + "\n"
     } else if (con.ability == "すなおこし" && !con.f_con.includes("すなあらし") && !con.f_con.includes("おおあめ") && !con.f_con.includes("おおひでり") && !con.f_con.includes("らんきりゅう")){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　すなおこし！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　すなおこし！" + "\n")
         bfn.allFieldStatus(team, enemy, cfn.moveSearchByName("すなあらし"))
     } else if (con.ability == "ぜったいねむり"){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "は　夢うつつの状態！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "は　夢うつつの状態！" + "\n")
     } else if (con.ability == "ダークオーラ"){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　ダークオーラが発動している！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　ダークオーラが発動している！" + "\n")
     } else if (con.ability == "ダウンロード"){
         let B_AV = 0
         let D_AV = 0
@@ -490,34 +493,34 @@ function condition_ability_item_action(team, enemy){
             afn.rankChange(team, enemy, "A", 1, 100, "ダウンロード")
         }
     } else if (con.ability == "デルタストリーム" && !con.f_con.includes("らんきりゅう")){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　デルタストリーム！" + CR)
-        cfn.logWrite(team, enemy, "乱気流状態になった！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　デルタストリーム！" + "\n")
+        cfn.logWrite(team, enemy, "乱気流状態になった！" + "\n")
         for (const player of [team, enemy]){
             cfn.conditionRemove(player.con, "field", "あめ")
             cfn.conditionRemove(player.con, "field", "にほんばれ")
             cfn.conditionRemove(player.con, "field", "すなあらし")
             cfn.conditionRemove(player.con, "field", "あられ")
-            player.con.f_con += "らんきりゅう" + CR
+            player.con.f_con += "らんきりゅう" + "\n"
         }
     } else if (con.ability == "トレース" && !abiEff.trace().includes(enemy.con.ability)){
-        cfn.logWrite(team, enemy, con.TN + "　の　" +　con.name + "の　トレース！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" +　con.name + "の　トレース！" + "\n")
         afn.changeAbility(enemy, team, 1, "NA")
     } else if (con.ability == "はじまりのうみ" && !con.f_con.includes("おおあめ")){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　はじまりのうみ！" + CR)
-        cfn.logWrite(team, enemy, "雨がとても強くなった！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　はじまりのうみ！" + "\n")
+        cfn.logWrite(team, enemy, "雨がとても強くなった！" + "\n")
         for (const player of [team, enemy]){
             cfn.conditionRemove(player.con, "field", "あめ")
             cfn.conditionRemove(player.con, "field", "にほんばれ")
             cfn.conditionRemove(player.con, "field", "すなあらし")
             cfn.conditionRemove(player.con, "field", "あられ")
             cfn.conditionRemove(player.con, "field", "らんきりゅう")
-            player.con.f_con += "あめ（おおあめ）" + CR
+            player.con.f_con += "あめ（おおあめ）" + "\n"
         }
     } else if (con.ability == "バリアフリー"){
         if (con.f_con.includes("リフレクター") || con.f_con.includes("ひかりのかべ") || con.f_con.includes("オーロラベール") 
         || enemy.con.f_con.includes("リフレクター") || enemy.con.f_con.includes("ひかりのかべ") || enemy.con.f_con.includes("オーロラベール")){
-            cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　バリアフリー！" + CR)
-            cfn.logWrite(team, enemy, "お互いの場の壁が破壊された！" + CR)
+            cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　バリアフリー！" + "\n")
+            cfn.logWrite(team, enemy, "お互いの場の壁が破壊された！" + "\n")
         }
         for (const player of [team, enemy]){
             cfn.conditionRemove(player.con, "field", "リフレクター")
@@ -525,10 +528,10 @@ function condition_ability_item_action(team, enemy){
             cfn.conditionRemove(player.con, "field", "オーロラベール")
         }
     } else if (con.ability == "ひでり" && !con.f_con.includes("にほんばれ") && !con.f_con.includes("おおあめ") && !con.f_con.includes("らんきりゅう")){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　ひでり！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　ひでり！" + "\n")
         bfn.allFieldStatus(team, enemy, cfn.moveSearchByName("にほんばれ"))
     } else if (con.ability == "フェアリーオーラ"){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　フェアリーオーラが発動している！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　フェアリーオーラが発動している！" + "\n")
     } else if (con.ability == "ふくつのたて"){
         afn.rankChange(team, enemy, "B", 1, 100, "ふくつのたて")
     } else if (con.ability == "ふとうのけん"){
@@ -537,12 +540,12 @@ function condition_ability_item_action(team, enemy){
         cfn.conditionRemove(con, "poke", "ねむり")
         cfn.conditionRemove(con, "poke", "ねむる")
     } else if (con.ability == "プレッシャー"){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "は　プレッシャーを放っている！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "は　プレッシャーを放っている！" + "\n")
     } else if (con.ability == "ミストメイカー" && !con.f_con.includes("ミストフィールド")){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　ミストメイカー！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　ミストメイカー！" + "\n")
         bfn.allFieldStatus(team, enemy, cfn.moveSearchByName("ミストフィールド"))
     } else if (con.ability == "ゆきふらし" && !con.f_con.includes("あられ") && !con.f_con.includes("おおあめ") && !con.f_con.includes("おおひでり") && !con.f_con.includes("らんきりゅう")){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　ゆきふらし！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　ゆきふらし！" + "\n")
         bfn.allFieldStatus(team, enemy, cfn.moveSearchByName("あられ"))
     } else if (con.ability == "よちむ"){
         let power = []
@@ -555,13 +558,13 @@ function condition_ability_item_action(team, enemy){
             }
         }
         power.sort()
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　は　" + power[0][1] + "を　読み取った！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　は　" + power[0][1] + "を　読み取った！" + "\n")
     }
     // 4.ふうせん/きのみ/きのみジュース/メンタルハーブ
     if (con.item == "ふうせん"){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "は　ふうせんで浮いている！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "は　ふうせんで浮いている！" + "\n")
     } else if (con.item == "メンタルハーブ" && con.p_con.includes("かいふくふうじ")){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "は　メンタルハーブで　かいふくふうじが解除された！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "は　メンタルハーブで　かいふくふうじが解除された！" + "\n")
         cfn.setRecycle(team)
         cfn.conditionRemove(con, "poke", "かいふくふうじ")
     }
@@ -571,7 +574,7 @@ function condition_ability_item_action(team, enemy){
 function ability_form_change(team, enemy){
     let con = team.con
     if (con.ability == "リミットシールド" && con.last_HP > con.full_HP / 2 && con.name == "メテノ(コア)"){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　リミットシールド！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　リミットシールド！" + "\n")
         afn.formChenge(team, enemy, "メテノ(りゅうせいのすがた)")
     }
 }
@@ -591,33 +594,16 @@ function seed_service(team, enemy){
     }
 }
 
-// 7.しろいハーブ
-function white_herb(team, enemy){
-    let con = team.con
-    if (con.item == "しろいハーブ"){
-        let check = 0
-        for (const parameter of ["A", "B", "C", "D", "S", "X", "Y"]){
-            if (con[parameter + "_rank"] < 0){
-                con[parameter + "_rank"] = 0
-                check += 1
-            }
-        }
-        if (check > 0){
-            cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　は　しろいハーブで　下がった能力を元に戻した" + CR)
-            cfn.setRecycle(team)
-        }
-    }
-}
 
 // 8.だっしゅつパックによる交代、交代先の繰り出し
 function eject_pack(team, enemy){
     if (team.con.item == "だっしゅつパック" && team.con.p_con.includes("ランク下降")){
-        cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "は　だっしゅつパックで手持ちに戻った" + CR)
-        team.con.f_con += "選択中・・・" + CR
+        cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "は　だっしゅつパックで手持ちに戻った" + "\n")
+        team.con.f_con += "選択中・・・" + "\n"
         cfn.setRecycle(team)
         //come_back_pokemon(team)
     
-        cfn.logWrite(team, enemy, team.con.TN + "　は　戦闘に出すポケモンを選んでください" + CR)
+        cfn.logWrite(team, enemy, team.con.TN + "　は　戦闘に出すポケモンを選んでください" + "\n")
         return true
     }
 }

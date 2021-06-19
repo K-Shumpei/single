@@ -1,398 +1,348 @@
+const moveEff = require("./move_effect")
+const itemEff = require("./item_effect")
+const afn = require("./function")
+const bfn = require("./base_function")
+const cfn = require("./law_function")
+const summon = require("./1_summon")
+const com = require("./compatibility")
+
 // 変化技の効果処理
-function status_move_effect(atk, def, atk_poke, def_poke, move){
+exports.statusMoveEffect = function(atk, def, move){
     // ランク変化のみ
-    rank_change_only_status_move(atk, def, move)
+    rankChangeOnlyStatusMove(atk, def, move)
     // ランク変化 + その他の効果のある技
-    if (rank_change_etc_status_move(atk, def, move)){return true}
+    if (rankChangeEtcStatusMove(atk, def, move)){return true}
     // 状態異常のみ
-    make_abnormal_only_status_move(def, move)
+    makeAbnormalOnlyStatusMove(atk, def, move)
     // 全体の場へ効果をもたらす技
-    all_field_status_move(atk, move)
+    bfn.allFieldStatus(atk, def, move)
     // 自分の場へ効果をもたらす技
-    self_field_status_move(atk, move)
+    selfFieldStatusMove(atk, def, move)
     // 相手の場へ効果をもたらす技
-    enemy_field_status_move(def, move)
+    enemyFieldStatusMove(atk, def, move)
     // 自分の状態を変化させる技
-    self_poke_status_move(atk, atk_poke, move)
+    selfStatusMove(atk, def, move)
     // 相手の状態を変化させる技
-    enemy_poke_status_move(atk, def, def_poke, move)
+    enemyStatusMove(atk, def, move)
     // 回復系の技
-    recover_status_move(atk, def, move)
+    recoverStatusMove(atk, def, move)
     // その他の技
-    other_status_move(atk, def, move)
+    otherStatusMove(atk, def, move)
 
 }
 
 // ランク変化のみ
-function rank_change_only_status_move(atk, def, move){
-    for (let i = 0; i < rank_change_status_move_list.length; i++){
-        if (move[0] == rank_change_status_move_list[i][0]){
-            let team = rank_change_status_move_list[i][1]
-            if (team == "s"){
-                team = atk
-            } else if (team == "e"){
-                team = def
+function rankChangeOnlyStatusMove(atk, def, move){
+    const list = moveEff.rankChange()
+    for (let i = 0; i < list.length; i++){
+        if (move[0] == list[i][0] && list[i][1] == "s"){
+            for (let j = 2; j < list[i].length; j++){
+                afn.rankChange(atk, def, list[i][j][0], list[i][j][1], 100, move)
             }
-            for (let j = 2; j < rank_change_status_move_list[i].length; j++){
-                let parameter = rank_change_status_move_list[i][j][0]
-                let change = rank_change_status_move_list[i][j][1]
-                rank_change(team, parameter, change)
+        } else if (move[0] == list[i][0] && list[i][1] == "e"){
+            for (let j = 2; j < list[i].length; j++){
+                afn.rankChange(def, atk, list[i][j][0], list[i][j][1], 100, move)
             }
         }
     }
-    white_herb(atk)
-    white_herb(def)
+    bfn.whiteHerb(atk, def)
+    bfn.whiteHerb(def, atk)
 }
 
 // ランク変化 + その他の効果のある技
-function rank_change_etc_status_move(atk, def, move){
-    const atk_poke = document.getElementById(atk + "_poke").textContent
-    const atk_type = document.getElementById(atk + "_type").textContent
-    const def_type = document.getElementById(def + "_type").textContent
-    const def_abnormal = document.getElementById(def + "_abnormal").textContent
-    const atk_f_con = document.battle[atk + "_field_condition"].value
-    const atk_full_HP = Number(document.getElementById(atk + "_HP").textContent)
-    const atk_HP_last = Number(document.getElementById(atk + "_HP_last").textContent)
+function rankChangeEtcStatusMove(atk, def, move){
     if (move[0] == "いばる"){
-        rank_change(def, "A", 2)
-        make_abnormal_attack_or_ability(def, "こんらん", 100, move)
+        afn.rankChange(def, atk, "A", 2, 100, move)
+        afn.makeAbnormal(def, atk, "こんらん", 100, move)
     } else if (move[0] == "おだてる"){
-        rank_change(def, "C", 1)
-        make_abnormal_attack_or_ability(def, "こんらん", 100, move)
+        afn.rankChange(def, atk, "C", 1, 100, move)
+        afn.makeAbnormal(def, atk, "こんらん", 100, move)
     } else if (move[0] == "すてゼリフ" || move[0] == "テレポート"){
-        come_back_pokemon(atk)
-        document.battle[atk + "_field_condition"].value += "選択中・・・" + CR
-        txt = atk + "チームは　戦闘に出すポケモンを選んでください" + CR
-        document.battle_log.battle_log.value += txt
+        summon.comeBack(atk, def)
+        atk.con.f_con += "選択中・・・" + "\n"
+        cfn.logWrite(atk, def, atk.con.TN + "　は　戦闘に出すポケモンを選んでください" + "\n")
         return true
     } else if (move[0] == "せいちょう"){
-        if (atk_f_con.includes("にほんばれ") && new get(atk).item != "ばんのうがさ" && !(new get("A").ability == "エアロック" || new get("A").ability == "ノーてんき" || new get("B").ability == "エアロック" || new get("B").ability == "ノーてんき")){
-            rank_change(atk, "A", 2)
-            rank_change(atk, "C", 2)
+        if (atk.con.f_con.includes("にほんばれ") && atk.con.item != "ばんのうがさ" && cfn.isWeather(atk.con, def.con)){
+            afn.rankChange(atk, def, "A", 2, 100, move)
+            afn.rankChange(atk, def, "C", 2, 100, move)
         } else {
-            rank_change(atk, "A", 1)
-            rank_change(atk, "C", 1)
+            afn.rankChange(atk, def, "A", 1, 100, move)
+            afn.rankChange(atk, def, "C", 1, 100, move)
         }
     } else if (move[0] == "ソウルビート"){
-        document.getElementById(atk + "_HP_last").textContent = atk_HP_last - Math.floor(atk_full_HP / 3)
-        txt = atk + "チームの　" + atk_poke + "は　体力を削って力を得た！" + CR
-        document.battle_log.battle_log.value += txt
-        for (const i of ["A", "B", "C", "D", "S"]){
-            rank_change(atk, i, 1)
+        atk.con.last_HP -= Math.floor(atk.con.full_HP / 3)
+        atk["poke" + cfn.battleNum(atk)].last_HP = atk.con.last_HP
+        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　体力を削って力を得た！" + "\n")
+        for (const parameter of ["A", "B", "C", "D", "S"]){
+            afn.rankChange(atk, def, parameter, 1, 100, move)
         }
-        if (new get(atk).item == "のどスプレー" && music_move_list.includes(move[0]) && new get(atk).C_rank < 6){
-            rank_change_not_status(atk, "C", 1, 100, "のどスプレー")
-            set_recycle_item(atk)
+        if (atk.con.item == "のどスプレー" && atk.con.C_rank < 6){
+            afn.rankChange(atk, def, "C", 1, 100, "のどスプレー")
+            cfn.setRecycle(atk)
         }
     } else if (move[0] == "たがやす"){
-        if (atk_type.includes("くさ") && grounded_check(atk)){
-            rank_change(atk, "A", 1)
-            rank_change(atk, "C", 1)
+        if (atk.con.type.includes("くさ") && cfn.groundedCheck(atk.con)){
+            afn.rankChange(atk, def, "A", 1, 100, move)
+            afn.rankChange(atk, def, "C", 1, 100, move)
         }
-        if (def_type.includes("くさ") && grounded_check(def)){
-            rank_change(def, "A", 1)
-            rank_change(def, "C", 1)
+        if (def.con.type.includes("くさ") && cfn.groundedCheck(def.con)){
+            afn.rankChange(def, atk, "A", 1, 100, move)
+            afn.rankChange(def, atk, "C", 1, 100, move)
         }
     } else if (move[0] == "つぼをつく"){
         const random = Math.random()
-        const parameter = [["A", 0], ["B", 1/7], ["C", 2/7], ["D", 3/7], ["S", 4/7], ["accuracy", 5/7], ["evasiveness", 6/7]]
+        const parameter = [["A", 0], ["B", 1/7], ["C", 2/7], ["D", 3/7], ["S", 4/7], ["X", 5/7], ["Y", 6/7]]
         let check = ""
         for (let i = 0; i < 7; i++){
             if (random > parameter[i][1]){
                 check = parameter[i][0]
             }
         }
-        rank_change(atk, check, 2)
-    } else if (move[0] == "どくのいと") {
-        rank_change(def, "S", -1)
-        if (!def_type.includes("どく") && def_abnormal == ""){
-            make_abnormal(def, "どく")
-        }
+        afn.rankChange(atk, def, check, 2, 100, move)
+    } else if (move[0] == "どくのいと"){
+        afn.rankChange(def, atk, "S", -1, 100, move)
+        afn.makeAbnormal(def, atk, "どく", 100, move)
     } else if (move[0] == "はらだいこ"){
-        HP_change(atk, Math.floor(atk_full_HP / 2), "-")
-        txt = atk + "チームの　" + atk_poke + "は　体力を削ってパワー全開！" + CR
-        document.battle_log.battle_log.value += txt
-        document.getElementById(atk + "_rank_A").textContent = 6
+        atk.con.last_HP -= Math.floor(atk.con.full_HP / 2)
+        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　体力を削ってパワー全開！" + "\n")
+        atk.con.A_rank = 6
     } else if (move[0] == "バトンタッチ"){
-        const atk_p_con = document.battle[atk + "_poke_condition"].value
-        const rank = new get(atk).A_rank + "/" + new get(atk).B_rank + "/" + new get(atk).C_rank + "/" + new get(atk).D_rank 
-        + "/" + new get(atk).S_rank + "/" + new get(atk).accuracy_rank + "/" + new get(atk).evasiveness_rank + CR
-        come_back_pokemon(atk)
-        for (let i = 0; i < atk_p_con.split("\n").length; i++){
-            for (let j = 0; j < baton_pass_condition_list.length; j++){
-                if (atk_p_con.split("\n")[i].includes(baton_pass_condition_list[j])){
-                    document.battle[atk + "_poke_condition"].value += atk_p_con.split("\n")[i] + CR
-                }
+        const p_list = atk.con.p_con.split("\n")
+        const rank = atk.con.A_rank + "/" + atk.con.B_rank + "/" + atk.con.C_rank + "/" + atk.con.D_rank + "/" + atk.con.S_rank + "/" + atk.con.X_rank + "/" + atk.con.Y_rank
+        summon.comeBack(atk, def)
+        for (let i = 0; i < p_list.length; i++){
+            if (moveEff.batton().includes(p_list[i])){
+                atk.con.p_con += p_list[i] + "\n"
             }
         }
-        document.battle[atk + "_poke_condition"].value += "バトンタッチ：" + rank
-        document.battle[atk + "_field_condition"].value += "選択中・・・" + CR
-        txt = atk + "チームは　戦闘に出すポケモンを選んでください" + CR
-        document.battle_log.battle_log.value += txt
+        atk.con.p_con += "バトンタッチ：" + rank + "\n"
+        atk.con.f_con += "選択中・・・" + "\n"
+        cfn.logWrite(atk, def, atk.con.TN + "　は　戦闘に出すポケモンを選んでください" + "\n")
         return true
     } else if (move[0] == "フラワーガード"){
-        if (atk_type.includes("くさ")){
-            rank_change(atk, "B", 1)
+        if (atk.con.type.includes("くさ")){
+            afn.rankChange(atk, def, "B", 1, 100, move)
         }
-        if (def_type.includes("くさ")){
-            rank_change(def, "B", 1)
+        if (def.con.type.includes("くさ")){
+            afn.rankChange(def, atk, "B", 1, 100, move)
         }
     } else if (move[0] == "ほおばる"){
-        eating_berry_effect(atk, new get(atk).item)
+        bfn.eatingBerry(atk, def, atk.con.item)
+        afn.rankChange(atk, def, "B", 2, 100, move)
+
+        eating_berry_effect(atk, atk.con.item)
         rank_change(atk, "B", 2)
+        cfn.setRecycle(atk)
     }
-    white_herb(atk)
-    white_herb(def)
+    bfn.whiteHerb(atk, def)
+    bfn.whiteHerb(def, atk)
 }
 
 
 // 状態異常のみ
-function make_abnormal_only_status_move(def, move){
-    for (let i = 0; i < abnormal_status_move_list.length; i++){
-        if (move[0] == abnormal_status_move_list[i][0]){
-            let abnormal = abnormal_status_move_list[i][1]
-            make_abnormal(def, abnormal)
+function makeAbnormalOnlyStatusMove(atk, def, move){
+    for (let i = 0; i < moveEff.abnormal().length; i++){
+        if (move[0] == moveEff.abnormal()[i][0]){
+            afn.makeAbnormal(def, atk, moveEff.abnormal()[i][1], 100, move)
         }
     }
 }
 
 
 // 自分の場へ効果をもたらす技
-function self_field_status_move(atk, move){
-    const atk_item = document.getElementById(atk + "_item").textContent
-    for (let i = 0; i < self_field_status_move_list.length; i++){
-        if (move[0] == self_field_status_move_list[i][0]){
-            document.battle_log.battle_log.value += self_field_status_move_list[i][1] + CR
-            if (self_field_status_move_list[i][2] == "おいかぜ"){
-                document.battle[atk + "_field_condition"].value += "おいかぜ　4/4" + CR
-            } else if (self_field_status_move_list[i][2] == "壁"){
-                if (atk_item == "ひかりのねんど"){
-                    document.battle[atk + "_field_condition"].value += move[0] + "　8/8" + CR
+function selfFieldStatusMove(atk, def, move){
+    const list = moveEff.selfField()
+    for (let i = 0; i < list.length; i++){
+        if (move[0] == list[i][0]){
+            cfn.logWrite(atk, def, list[i][1] + "\n")
+            if (list[i][2] == "おいかぜ"){
+                atk.con.f_con += "おいかぜ　4/4" + "\n"
+            } else if (list[i][2] == "壁"){
+                if (atk.con.item == "ひかりのねんど"){
+                    atk.con.f_con += move[0] + "　8/8" + "\n"
                 } else {
-                    document.battle[atk + "_field_condition"].value += move[0] + "　5/5" + CR
+                    atk.con.f_con += move[0] + "　5/5" + "\n"
                 }
             } else {
-                document.battle[atk + "_field_condition"].value += move[0] + "　5/5" + CR
+                atk.con.f_con += move[0] + "　5/5" + "\n"
             }
         }
     }
 }
 
 // 相手の場へ効果をもたらす技
-function enemy_field_status_move(def, move){
-    for (let i = 0; i < enemy_field_status_move_list.length; i++){
-        if (move[0] == enemy_field_status_move_list[i][0]){
-            txt = enemy_field_status_move_list[i][1] + CR
-            document.battle_log.battle_log.value += txt
-            const condition = document.battle[def + "_field_condition"].value
+function enemyFieldStatusMove(atk, def, move){
+    const list = moveEff.enemyField()
+    for (let i = 0; i < list.length; i++){
+        if (move[0] == list[i][0]){
+            cfn.logWrite(atk, def, list[i][1] + "\n")
+            let f_list = def.con.f_con.split("\n")
             if (move[0] == "どくびし"){
-                if (condition.includes("どくびし　1回目")){
-                    document.battle[def + "_field_condition"].value = ""
-                    for (let j = 0; j < condition.split("\n").length - 1; j++){
-                        if (condition.split("\n")[j] == "どくびし　1回目"){
-                            document.battle[def + "_field_condition"].value += "どくびし　2回目" + CR
-                        } else {
-                            document.battle[def + "_field_condition"].value += condition.split("\n")[j] + CR
+                if (def.con.f_con.includes("どくびし　1回目")){
+                    for (let i = 0; i < f_list.length; i++){
+                        if (f_list[i] == "どくびし　1回目"){
+                            f_list[i] = "どくびし　2回目"
                         }
                     }
+                    def.con.f_con = f_list.join("\n")
                 } else {
-                    document.battle[def + "_field_condition"].value += "どくびし　1回目" + CR
+                    def.con.f_con += "どくびし　1回目" + "\n"
                 }
             } else if (move[0] == "まきびし"){
-                if (condition.includes("まきびし")){
-                    document.battle[def + "_field_condition"].value = ""
-                    for (let j = 0; j < condition.split("\n").length - 1; j++){
-                        if (condition.split("\n")[j] == "まきびし　1回目"){
-                            document.battle[def + "_field_condition"].value += "まきびし　2回目" + CR
-                        } else if (condition.split("\n")[j] == "まきびし　2回目"){
-                            document.battle[def + "_field_condition"].value += "まきびし　3回目" + CR
-                        } else {
-                            document.battle[def + "_field_condition"].value += condition.split("\n")[j] + CR
+                if (def.con.f_con.includes("まきびし")){
+                    for (let i = 0; i < f_list.length; i++){
+                        if (f_list[i] == "まきびし　1回目"){
+                            f_list[i] = "まきびし　2回目"
+                        } else if (f_list[i] == "まきびし　2回目"){
+                            f_list[i] = "まきびし　3回目"
                         }
                     }
+                    def.con.f_con = f_list.join("\n")
                 } else {
-                    document.battle[def + "_field_condition"].value += "まきびし　1回目" + CR
+                    def.con.f_con += "まきびし　1回目" + "\n"
                 }
             } else {
-                document.battle[def + "_field_condition"].value += move[0] + CR
+                def.con.f_con += move[0] + "\n"
             }
         }
     }
 }
 
 // 自分の状態を変化させる技
-function self_poke_status_move(atk, atk_poke, move){
-    const atk_p_con = document.battle[atk + "_poke_condition"].value
-    const atk_full_HP = Number(document.getElementById(atk + "_HP").textContent)
-    const atk_HP_last = Number(document.getElementById(atk + "_HP_last").textContent)
-    for (let i = 0; i < self_change_status_move_list.length; i++){
-        if (move[0] == self_change_status_move_list[i][0]){
-            document.battle_log.battle_log.value += atk + "チームの　" + atk_poke + "は　"
-            if (move[0] == "じゅうでん"){
-                rank_change(atk, "D", 1)
-                if (!atk_p_con.includes("じゅうでん")){
-                    document.battle[atk + "_poke_condition"].value += "じゅうでん　開始" + CR
-                }
-            } else if (move[0] == "たくわえる"){
-                rank_change(atk, "B", 1)
-                rank_change(atk, "D", 1)
-                if (atk_p_con.includes("たくわえる")){
-                    document.battle[atk + "_poke_condition"].value = ""
-                    if (atk_p_con.includes("たくわえる　1回目")){
-                        for (let j = 0; j < atk_p_con.split("\n").length - 1; j++){
-                            if (atk_p_con.split("\n")[j].includes("たくわえる")){
-                                document.battle[atk + "_poke_condition"].value += "たくわえる　2回目" + CR
-                                document.battle_log.battle_log.value += "2つ　"
-                            } else {
-                                document.battle[atk + "_poke_condition"].value += atk_p_con.split("\n")[j] + CR
-                            }
-                        }
-                    } else if (atk_p_con.includes("たくわえる　2回目")){
-                        for (let j = 0; j < atk_p_con.split("\n").length - 1; j++){
-                            if (atk_p_con.split("\n")[j].includes("たくわえる")){
-                                document.battle[atk + "_poke_condition"].value += "たくわえる　3回目" + CR
-                                document.battle_log.battle_log.value += "3つ　"
-                            } else {
-                                document.battle[atk + "_poke_condition"].value += atk_p_con.split("\n")[j] + CR
-                            }
-                        }
-                    }
+function selfStatusMove(atk, def, move){
+    const list = moveEff.selfStatus()
+    for (let i = 0; i < list.length; i++){
+        if (move[0] == list[i][0]){
+            if (move[0] == "たくわえる"){
+                afn.rankChange(atk, def, "B", 1, 100, move)
+                afn.rankChange(atk, def, "D", 1, 100, move)
+                if (atk.con.p_con.includes("たくわえる　1回目")){
+                    cfn.conditionRemove(atk.con, "poke", "たくわえる　1回目")
+                    atk.con.p_con += "たくわえる　2回目" + "\n"
+                    num = 2
+                } else if (atk.con.p_con.includes("たくわえる　2回目")){
+                    cfn.conditionRemove(atk.con, "poke", "たくわえる　2回目")
+                    atk.con.p_con += "たくわえる　3回目" + "\n"
+                    num = 3
                 } else {
-                    document.battle[atk + "_poke_condition"].value += "たくわえる　1回目" + CR
-                    document.battle_log.battle_log.value += "1つ　"
+                    atk.con.p_con += "たくわえる　1回目" + "\n"
+                    num = 1
                 }
-    
-            } else if (move[0] == "はいすいのじん"){
-                for (const j of ["A", "B", "C", "D", "S"]){
-                    rank_change(atk, j, 1)
-                    if (!new get(atk).p_con.includes("はいすいのじん")){
-                        document.battle[atk + "_poke_condition"].value += "逃げられない：はいすいのじん" + CR
-                    }
+                cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　" + num + "つ　たくわえた" + "\n")
+                return
+            }
+
+            if (move[0] == "じゅうでん"){
+                afn.rankChange(atk, def, "D", 1, 100, move)
+                atk.con.p_con += "じゅうでん　開始" + "\n"
+            } else  if (move[0] == "はいすいのじん"){
+                for (const parameter of ["A", "B", "C", "D", "S"]){
+                    afn.rankChange(atk, def, parameter, 1, 100, move)
+                    atk.con.p_con += "逃げられない：はいすいのじん" + "\n"
                 }
             } else if (move[0] == "まるくなる"){
-                rank_change(atk, "B", 1)
-                if (!atk_p_con.includes("まるくなる")){
-                    document.battle[atk + "_poke_condition"].value += "まるくなる" + CR
+                afn.rankChange(atk, def, "B", 1, 100, move)
+                if (!atk.con.p_con.includes("まるくなる")){
+                    atk.con.p_con += "まるくなる" + "\n"
                 }
             } else if (move[0] == "パワートリック"){
-                const A_AV = new get(atk).A_AV
-                const B_AV = new get(atk).B_AV
-                document.getElementById(atk + "_A_AV").textContent = B_AV
-                document.getElementById(atk + "_B_AV").textContent = A_AV
-                if (atk_p_con.includes("パワートリック")){
-                    txt = "自分の攻撃と防御を　元に戻した！" + CR
-                    document.battle_log.battle_log.value += txt
-                    document.battle[atk + "_poke_condition"].value = ""
-                    for (let i = 0; i < atk_p_con.split("\n").length - 1; i++){
-                        if (atk_p_con.split("\n")[i] != "パワートリック"){
-                            document.battle[atk + "_poke_condition"].value += atk_p_con.split("\n")[i] + CR
-                        }
-                    }
+                const Aval = atk.con.A_AV
+                const Bval = atk.con.B_AV
+                atk.con.A_AV = Bval
+                atk.con.B_AV = Aval
+                if (atk.con.p_con.includes("パワートリック")){
+                    cfn.logWrite(atk, def, "自分の攻撃と防御を　元に戻した！" + "\n")
+                    cfn.conditionRemove(atk.con, "poke", "パワートリック")
                 } else {
-                    txt = "自分の攻撃と防御を　入れ替えた！" + CR
-                    document.battle_log.battle_log.value += txt
-                    document.battle[atk + "_poke_condition"].value += "パワートリック" + CR
+                    cfn.logWrite(atk, def, "自分の攻撃と防御を　入れ替えた！" + "\n")
+                    atk.con.p_con += "パワートリック" + "\n"
                 }
             } else if (move[0] == "みがわり"){
                 // バインド状態の解除
-                document.battle[atk + "_poke_condition"].value = ""
-                for (let i = 0; i < atk_p_con.split("\n").length - 1; i++){
-                    if (!atk_p_con.split("\n")[i].includes("バインド")){
-                        document.battle[atk + "_poke_condition"].value += atk_p_con.split("\n")[i] + CR
-                    }
-                }
+                cfn.conditionRemove(atk.con, "poke", "バインド")
                 // 身代わりの発生
-                const substitute_HP = Math.floor(atk_full_HP / 4)
-                document.getElementById(atk + "_HP_last").textContent = atk_HP_last - substitute_HP
-                document.battle[atk + "_poke_condition"].value += "みがわり：" + substitute_HP + "/" + substitute_HP + CR
+                atk.con.last_HP -= Math.floor(atk.con.full_HP / 4)
+                atk["poke" + cfn.battleNum(atk)].last_HP -= Math.floor(atk.con.full_HP / 4)
+                atk.con.p_con += "みがわり：" + Math.floor(atk.con.full_HP / 4) + "/" + Math.floor(atk.con.full_HP / 4) + "\n"
             } else if (move[0] == "ボディパージ"){
-                rank_change(atk, "S", 2)
-                if (atk_p_con.includes("ボディパージ")){
-                    document.battle[atk + "_poke_condition"].value = ""
-                    for (let j = 0; j < atk_p_con.split("\n").length - 1; j++){
-                        if (atk_p_con.split("\n")[j].includes("ボディパージ")){
-                            const num = Number(atk_p_con.split("\n")[j].replace(/[^0-9]/g, "")) + 1
-                            document.battle[atk + "_poke_condition"].value += "ボディパージ　" + num + "回目" + CR
-                        } else {
-                            document.battle[atk + "_poke_condition"].value += atk_p_con.split("\n")[j] + CR
+                afn.rankChange(atk, def, "S", 2, 100, move)
+                if (atk.con.p_con.includes("ボディパージ")){
+                    let p_list = atk.con.p_con.split("\n")
+                    for (let i = 0; i < p_list.length; i++){
+                        if (p_list[i].includes("ボディパージ")){
+                            p_list[i] = "ボディパージ　" + (Number(p_list[i].replace(/[^0-9]/g, "")) + 1) + "回目" + "\n"
                         }
                     }
+                    atk.con.p_con = p_list.join("\n")
                 } else {
-                    document.battle[atk + "_poke_condition"].value += "ボディパージ　1回目" + CR
+                    atk.con.p_con += "ボディパージ　1回目" + "\n"
                 }
             } else {
-                if (!atk_p_con.includes(move[0])){
-                    document.battle[atk + "_poke_condition"].value += self_change_status_move_list[i][1] + CR
+                if (!atk.con.p_con.includes(move[0])){
+                    atk.con.p_con += list[i][1] + "\n"
                 }
             }
-            document.battle_log.battle_log.value += self_change_status_move_list[i][2] + CR
+            cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　" + list[i][2] + "\n")
         }
     }
 }
 
 // 相手の状態を変化させる技
-function enemy_poke_status_move(atk, def, def_poke, move){
-    const atk_type = document.getElementById(atk + "_type").textContent
-    const def_ability = document.getElementById(def + "_ability").textContent
-    const atk_full_HP = Number(document.getElementById(atk + "_HP").textContent)
-    for (let i = 0; i < enemy_change_status_move_list.length; i++){
-        if (move[0] == enemy_change_status_move_list[i][0]){
-            if (move[0] == "のろい" && !atk_type.includes("ゴースト")){
-                rank_change(atk, "A", 1)
-                rank_change(atk, "B", 1)
-                rank_change(atk, "S", -1)
-                white_herb(atk)
-            } else {
-                if (move[0] == "アンコール"){
-                    document.battle[def + "_poke_condition"].value += "アンコール　3/3：" + document.battle[def + "_used_move"].value + CR
-                } else if (move[0] == "いえき"){
-                    if (new get(def).ability != ""){
-                        document.battle[def + "_poke_condition"].value += "特性なし：" + def_ability + CR
-                        document.getElementById(def + "_ability").textContent = ""
-                    } else {
-                        for (let i = 0; i < new get(def).p_len; i++){
-                            if (new get(def).p_list[i].includes("かがくへんかガス")){
-                                document.battle[def + "_poke_condition"].value += "特性なし：" + new get(def).p_list[i].slice(9) + CR
-                            }
+function enemyStatusMove(atk, def, move){
+    const list = moveEff.enemyStatus()
+    for (let i = 0; i < list.length; i++){
+        if (move[0] == list[i][0]){
+            if (move[0] == "のろい" && !atk.con.type.includes("ゴースト")){
+                afn.rankChange(atk, def, "A", 1, 100, move)
+                afn.rankChange(atk, def, "B", 1, 100, move)
+                afn.rankChange(atk, def, "S", -1, 100, move)
+                bfn.whiteHerb(atk, def)
+            } else if (move[0] == "アンコール"){
+                def.con.p_con += "アンコール　3/3：" + def.con.used + "\n"
+            } else if (move[0] == "いえき"){
+                if (def.con.ability != ""){
+                    def.con.p_con += "特性なし：" + def.con.ability + "\n"
+                    def.con.ability = ""
+                } else {
+                    for (let i = 0; i < def.con.p_con.split("\n").length - 1; i++){
+                        if (def.con.p_con.split("\n")[i].includes("かがくへんかガス")){
+                            def.con.p_con += "特性なし：" + def.con.p_con.split("\n")[i].slice(9) + "\n"
                         }
                     }
-                } else if (move[0] == "かなしばり"){
-                    document.battle[def + "_poke_condition"].value += "かなしばり　4/4：" + document.battle[def + "_used_move"].value + CR
-                } else if (move[0] == "たこがため"){
-                    document.battle[def + "_poke_condition"].value += "たこがため" + CR
-                    document.battle[def + "_poke_condition"].value += "逃げられない" + CR
-                } else if (move[0] == "のろい"){
-                    document.battle[def + "_poke_condition"].value += "のろい" + CR
-                    HP_change_not_attack(atk, Math.floor(atk_full_HP / 2), "-", "のろい")
-                } else {
-                    document.battle[def + "_poke_condition"].value += enemy_change_status_move_list[i][1] + CR
                 }
-                txt = def + "チームの　" + def_poke + "は　" + enemy_change_status_move_list[i][2] + CR
-                document.battle_log.battle_log.value += txt
-                if (new get(def).item == "メンタルハーブ" && (new get(def).p_con.includes("アンコール") || new get(def).p_con.includes("いちゃもん") || new get(def).p_con.includes("かいふくふうじ") 
-                || new get(def).p_con.includes("かなしばり") || new get(def).p_con.includes("ちょうはつ") || new get(def).p_con.includes("メロメロ"))){
-                    condition_remove(def, "poke", "アンコール")
-                    condition_remove(def, "poke", "いちゃもん")
-                    condition_remove(def, "poke", "かいふくふうじ")
-                    condition_remove(def, "poke", "かなしばり")
-                    condition_remove(def, "poke", "ちょうはつ")
-                    condition_remove(def, "poke", "メロメロ")
-                    set_recycle_item(def)
-                    txt = def + "チームの　" + new get(def).name + "の　メンタルハーブが発動した" + CR
-                    document.battle_log.battle_log.value += txt
-                }
-                if (move[0] == "メロメロ" && new get(def).item == "あかいいと"){
-                    txt = def + "チームの　" + new get(def).name + "の　あかいいとが発動した" + CR
-                    document.battle_log.battle_log.value += txt
-                    document.battle[atk + "_poke_condition"].value += "メロメロ" + CR
-                    txt = atk + "チームの　" + new get(atk).name + "は　メロメロになった" + CR
-                    document.battle_log.battle_log.value += txt
-                    if (new get(atk).item == "メンタルハーブ"){
-                        condition_remove(atk, "poke", "メロメロ")
-                        set_recycle_item(atk)
-                        txt = atk + "チームの　" + new get(atk).name + "の　メンタルハーブが発動した" + CR
-                        document.battle_log.battle_log.value += txt
-                    }
+            } else if (move[0] == "かなしばり"){
+                def.con.p_con += "かなしばり　4/4：" + def.con.used + "\n"
+            } else if (move[0] == "たこがため"){
+                def.con.p_con += "たこがため" + "\n"
+                def.con.p_con += "逃げられない" + "\n"
+            } else if (move[0] == "のろい"){
+                def.con.p_con += "のろい" + "\n"
+                atk.con.last_HP -= Math.floor(atk.con.full_HP / 2)
+                atk["poke" + cfn.battleNum(atk)].last_HP -= Math.floor(atk.con.full_HP / 2)
+            } else {
+                def.con.p_con += list[i][1] + "\n"
+            }
+            cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　" + list[i][2] + "\n")
+
+            if (def.con.item == "メンタルハーブ" && (def.con.p_con.includes("アンコール") || def.con.p_con.includes("いちゃもん") || def.con.p_con.includes("かいふくふうじ") || def.con.p_con.includes("かなしばり") || def.con.p_con.includes("ちょうはつ") || def.con.p_con.includes("メロメロ"))){
+                cfn.conditionRemove(def.con, "poke", "アンコール")
+                cfn.conditionRemove(def.con, "poke", "いちゃもん")
+                cfn.conditionRemove(def.con, "poke", "かいふくふうじ")
+                cfn.conditionRemove(def.con, "poke", "かなしばり")
+                cfn.conditionRemove(def.con, "poke", "ちょうはつ")
+                cfn.conditionRemove(def.con, "poke", "メロメロ")
+                cfn.setRecycle(def)
+                cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　メンタルハーブが発動した" + "\n")
+            }
+            if (move[0] == "メロメロ" && def.con.item == "あかいいと"){
+                cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　あかいいとが発動した" + "\n")
+                atk.con.p_con += "メロメロ" + "\n"
+                cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　メロメロになった" + "\n")
+                if (atk.con.item == "メンタルハーブ"){
+                    cfn.conditionRemove(atk.con, "poke", "メロメロ")
+                    cfn.setRecycle(atk)
+                    cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　の　メンタルハーブが発動した" + "\n")
                 }
             }
         }
@@ -400,381 +350,310 @@ function enemy_poke_status_move(atk, def, def_poke, move){
 }
 
 // 回復系の技
-function recover_status_move(atk, def, move){
-    const atk_full_HP = Number(document.getElementById(atk + "_HP").textContent)
-    const def_full_HP = Number(document.getElementById(def + "_HP").textContent)
-    const atk_HP_last = Number(document.getElementById(atk + "_HP_last").textContent)
-    const atk_p_con = document.battle[atk + "_poke_condition"].value
-    const atk_f_con = document.battle[atk + "_field_condition"].value
-    const atk_poke = document.getElementById(atk + "_poke").textContent
-    const def_poke = document.getElementById(def + "_poke").textContent
-    const def_abnormal = document.getElementById(def + "_abnormal").textContent
-    const atk_abnormal = document.getElementById(atk + "_abnormal").textContent
-    const atk_ability = document.getElementById(atk + "_ability").textContent
-    const atk_type = document.getElementById(atk + "_type").textContent
-
-    if (recover_status_move_list.includes(move[0])){
+function recoverStatusMove(atk, def, move){
+    if (moveEff.recover().includes(move[0])){
         if (move[0] == "かいふくしれい" || move[0] == "じこさいせい" || move[0] == "タマゴうみ" || move[0] == "なまける" || move[0] == "はねやすめ" || move[0] == "ミルクのみ"){
-            HP_change(atk, Math.ceil(atk_full_HP / 2), "+")
-            if (move[0] == "はねやすめ" && atk_type.includes("ひこう")){
-                document.battle[atk + "_poke_condition"].value += "はねやすめ：" + atk_type + CR
-                document.getElementById(atk + "_type").textContent = atk_type.replace("ひこう", "")
-                if (document.getElementById(atk + "_type").textContent == ""){
-                    document.getElementById(atk + "_type").textContent = "ノーマル"
+            afn.HPchangeMagic(atk, def, Math.ceil(atk.con.full_HP / 2), "+", move)
+            if (move[0] == "はねやすめ" && atk.con.type.includes("ひこう")){
+                atk.con.p_con += "はねやすめ：" + atk.con.type + "\n"
+                atk.con.type = atk.con.type.replace("ひこう", "")
+                if (atk.con.type == ""){
+                    atk.con.type = "ノーマル"
                 }
             }
         } else if (move[0] == "あさのひざし" || move[0] == "こうごうせい" || move[0] == "つきのひかり"){
-            if (atk_f_con.includes("にほんばれ") && new get(atk).item != "ばんのうがさ" && !(new get("A").ability == "エアロック" || new get("A").ability == "ノーてんき" || new get("B").ability == "エアロック" || new get("B").ability == "ノーてんき")){
-                HP_change(atk, five_cut(atk_full_HP * 2732 / 4096), "+")
-            } else if ((atk_f_con.includes("あめ") && new get(atk).item != "ばんのうがさ") || atk_f_con.includes("すなあらし") || atk_f_con.includes("あられ") && !(new get("A").ability == "エアロック" || new get("A").ability == "ノーてんき" || new get("B").ability == "エアロック" || new get("B").ability == "ノーてんき")){
-                HP_change(atk, five_cut(atk_full_HP / 4), "+")
+            if (atk.con.f_con.includes("にほんばれ") && atk.con.item != "ばんのうがさ" && cfn.isWeather(atk.con, def.con)){
+                afn.HPchangeMagic(atk, def, cfn.fiveCut(atk.con.full_HP * 2732 / 4096), "+", move)
+            } else if ((atk.con.f_con.includes("あめ") && atk.con.item != "ばんのうがさ") || atk.con.f_con.includes("すなあらし") || atk.con.f_con.includes("あられ") && cfn.isWeather(atk.con, def.con)){
+                afn.HPchangeMagic(atk, def, cfn.fiveCut(atk.con.full_HP / 4), "+", move)
             } else {
-                HP_change(atk, five_cut(atk_full_HP / 2), "+")
+                afn.HPchangeMagic(atk, def, cfn.fiveCut(atk.con.full_HP / 2), "+", move)
             }
         } else if (move[0] == "すなあつめ"){
-            if (atk_f_con.includes("すなあらし")){
-                HP_change(atk, five_cut(atk_full_HP * 2732 / 4096), "+")
+            if (atk.con.f_con.includes("すなあらし") && cfn.isWeather(atk.con, def.con)){
+                afn.HPchangeMagic(atk, def, cfn.fiveCut(atk.con.full_HP * 2732 / 4096), "+", move)
             } else {
-                HP_change(atk, five_cut(atk_full_HP / 2), "+")
+                afn.HPchangeMagic(atk, def, cfn.fiveCut(atk.con.full_HP / 2), "+", move)
             }
         } else if (move[0] == "フラワーヒール"){
-            if (atk_f_con.includes("グラスフィールド")){
-                HP_change(def, five_cut(def_full_HP * 2732 / 4096), "+")
+            if (atk.con.f_con.includes("グラスフィールド")){
+                afn.HPchangeMagic(def, atk, cfn.fiveCut(atk.con.full_HP * 2732 / 4096), "+", move)
             } else {
-                HP_change(def, five_cut(def_full_HP / 2), "+")
+                afn.HPchangeMagic(def, atk, cfn.fiveCut(atk.con.full_HP / 2), "+", move)
             }
         } else if (move[0] == "じょうか"){
-            txt = def + "チームの　" + def_poke + "は　" + def_abnormal + "が　なおった！" + CR
-            document.battle_log.battle_log.value += txt
-            document.getElementById(def + "_abnormal").textContent = ""
-                HP_change(atk, Math.floor(atk_full_HP / 2), "+")
+            cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　" + def.con.abnormal + "が　なおった！" + "\n")
+            def.con.abnormal = ""
+            afn.HPchangeMagic(atk, def, cfn.fiveCut(atk.con.full_HP / 2), "+", move)
         } else if (move[0] == "ちからをすいとる"){
             let recover = 0
-            if (new get(def).A_rank > 0){
-                recover = Math.floor(new get(def).A_AV * (new get(def).A_rank + 2) / 2)
+            if (def.con.A_rank > 0){
+                recover = Math.floor(def.con.A_AV * (def.con.A_rank + 2) / 2)
             } else {
-                recover = Math.floor(new get(def).A_AV * 2 / (2 - new get(def).A_rank))
+                recover = Math.floor(def.con.A_AV * 2 / (2 - def.con.A_rank))
             }
-            if (new get(def).ability == "ミラーアーマー"){
-                txt = def + "チームの　" + def_poke + "　の　ミラーアーマーが　発動した！" + CR
-                document.battle_log.battle_log.value += txt
-                rank_change(atk, "A", -1)
-                white_herb(atk)
+            if (def.con.ability == "ミラーアーマー"){
+                cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　ミラーアーマーが　発動した！" + "\n")
+                afn.rankChange(atk, def, "A", -1, 100, move)
+                bfn.whiteHerb(atk, def)
             } else {
-                rank_change(def, "A", -1)
-                white_herb(def)
+                afn.rankChange(def, atk, "A", -1, 100, move)
+                bfn.whiteHerb(def, atk)
             }
-            if (new get(def).ability == "ヘドロえき"){
-                HP_change(atk, recover, "-")
+            if (def.con.ability == "ヘドロえき"){
+                afn.HPchangeMagic(atk, def, recover, "-", move)
             } else {
-                HP_change(atk, recover, "+")
+                afn.HPchangeMagic(atk, def, recover, "+", move)
             }
         } else if (move[0] == "のみこむ"){
-            let recover = atk_full_HP
+            let recover = atk.con.full_HP
             let num = 0
-            if (atk_p_con.includes("たくわえる　1回目")){
-                recover = five_cut(recover / 4)
+            if (atk.con.p_con.includes("たくわえる　1回目")){
+                recover = cfn.fiveCut(recover / 4)
                 num = -1
-            } else if (atk_p_con.includes("たくわえる　2回目")){
-                recover = five_cut(recover / 2)
+            } else if (atk.con.p_con.includes("たくわえる　2回目")){
+                recover = cfn.fiveCut(recover / 2)
                 num = -2
-            } else if (atk_p_con.includes("たくわえる　3回目")){
-                recover = five_cut(recover)
+            } else if (atk.con.p_con.includes("たくわえる　3回目")){
+                recover = cfn.fiveCut(recover)
                 num = -3
             }
-            HP_change(atk, recover, "+")
-            rank_change(atk, "B", num)
-            rank_change(atk, "D", num)
-            txt = atk + "チームの　" + atk_poke + "は　たくわえが　なくなった！" + CR
-            document.battle_log.battle_log.value += txt
-            document.battle[atk + "_poke_condition"].value = ""
-            for (let i = 0; i < atk_p_con.split("\n").length - 1; i++){
-                if (!atk_p_con.split("\n")[i].includes("たくわえる")){
-                    document.battle[atk + "_poke_condition"].value += atk_p_con.split("\n")[i] + CR
+            afn.HPchangeMagic(atk, def, recover, "+", move)
+            afn.rankChange(atk, def, "B", num, 100, move)
+            afn.rankChange(atk, def, "D", num, 100, move)
+            cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　たくわえが　なくなった！" + "\n")
+            cfn.conditionRemove(atk.con, "poke", "たくわえる")
+        } else if (move[0] == "ねむる"){
+            atk.con.abnormal = "ねむり"
+            atk.con.p_con += "ねむる　2/2" + "\n"
+            afn.HPchangeMagic(atk, def, atk.con.full_HP, "+", move)
+            cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　眠って元気になった！" + "\n")
+        } else if (move[0] == "ねがいごと"){
+            atk.con.f_con += "ねがいごと　" + Math.floor(atk.con.full_HP / 2) + "回復：ねがいごと宣言ターン" + "\n"
+            cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　願い事をした！" + "\n")
+        } else if (move[0] == "いやしのすず"){
+            cfn.logWrite(atk, def, "鈴の音が響き渡った！" + "\n")
+            for (let i = 0; i < 3; i++){
+                if (atk["poke" + i].abnormal == "やけど" || atk["poke" + i].abnormal.includes("どく") || atk["poke" + i].abnormal == "まひ"){
+                    atk["poke" + i].abnormal = ""
                 }
             }
-        } else if (move[0] == "ねむる"){
-            document.getElementById(atk + "_abnormal").textContent = "ねむり"
-            document.battle[atk + "_poke_condition"].value += "ねむる　2/2" + CR
-            HP_change(atk, atk_full_HP, "+")
-            txt = atk + "チームの　" + atk_poke + "は　眠って元気になった！" + CR
-            document.battle_log.battle_log.value += txt
-        } else if (move[0] == "ねがいごと"){
-            document.battle[atk + "_field_condition"].value += "ねがいごと　" + Math.floor(atk_full_HP / 2) + "回復：ねがいごと宣言ターン" + CR
-            txt = atk + "チームの　" + atk_poke + "は　願い事をした！" + CR
-            document.battle_log.battle_log.value += txt
-        } else if (move[0] == "いやしのすず"){
-            if (atk_abnormal == "やけど" || atk_abnormal.includes("どく") || atk_abnormal == "まひ"){
-                document.getElementById(atk + "_abnormal").textContent = ""
-                document.battle_log.battle_log.value += "鈴の音が響き渡った！" + CR
-                txt = atk + "チームの　" + atk_poke + "は　" + atk_abnormal + "が　治った！" + CR
-                document.battle_log.battle_log.value += txt
+            if (atk.con.abnormal == "やけど" || atk.con.abnormal.includes("どく") || atk.con.abnormal == "まひ"){
+                atk.con.abnormal = ""
             }
         } else if (move[0] == "アロマセラピー" || move[0] == "リフレッシュ"){
-            if (atk_abnormal != ""){
-                document.getElementById(atk + "_abnormal").textContent = ""
-                document.battle_log.battle_log.value += "心地よい香りが広がった！" + CR
-                txt = atk + "チームの　" + atk_poke + "は　" + atk_abnormal + "が　治った！" + CR
-                document.battle_log.battle_log.value += txt
+            cfn.logWrite(atk, def, "心地よい香りが広がった！" + "\n")
+            for (let i = 0; i < 3; i++){
+                atk["poke" + i].abnormal = ""
             }
+            atk.con.abnormal = ""
         } else if (move[0] == "いやしのねがい"){
-            document.battle[atk + "_field_condition"].value += "いやしのねがい" + CR
-            HP_change(atk, atk_HP_last, "-")
+            atk.con.f_con += "いやしのねがい" + "\n"
+            atk.con.last_HP = 0
+            bfn.fainted(atk, def)
         } else if (move[0] == "みかづきのまい"){
-            document.battle[atk + "_field_condition"].value += "みかづきのまい" + CR
-            document.getElementById(atk + "_HP_last").textContent = 0
-            fainted_process(atk)
+            atk.con.f_con += "みかづきのまい" + "\n"
+            atk.con.last_HP = 0
+            bfn.fainted(atk, def)
         } else if (move[0] == "いのちのしずく"){
-            HP_change(atk, Math.round(atk_full_HP / 4), "+")
+            afn.HPchangeMagic(atk, def, Math.round(atk.con.full_HP / 4), "+", move)
         } else if (move[0] == "いやしのはどう"){
-            if (atk_ability == "メガランチャー"){
-                HP_change(def, Math.ceil(def_full_HP * 3 / 4), "+")
+            if (atk.con.ability == "メガランチャー"){
+                afn.HPchangeMagic(def, atk, Math.ceil(def.con.full_HP * 3 / 4), "+", move)
             } else {
-                HP_change(def, Math.ceil(def_full_HP / 2), "+")
+                afn.HPchangeMagic(def, atk, Math.ceil(def.con.full_HP / 2), "+", move)
             }
         } else if (move[0] == "ジャングルヒール"){
-            if (atk_HP_last < atk_full_HP){
-                HP_change(atk, Math.floor(atk_full_HP / 4), "+")
+            if (atk.con.last_HP < atk.con.full_HP){
+                afn.HPchangeMagic(atk, def, Math.floor(atk.con.full_HP / 4), "+", move)
             }
-            if (atk_abnormal != ""){
-                document.getElementById(atk + "_abnormal").textContent = ""
-                txt = atk + "チームの　" + atk_poke + "は　" + atk_abnormal + "が　治った！" + CR
-                document.battle_log.battle_log.value += txt
+            if (atk.con.abnormal != ""){
+                atk.con.abnormal = ""
+                cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　" + atk.con.abnormal + "が　治った！" + "\n")
             }
         }
     }
 }
 
 // その他の技
-function other_status_move(atk, def, move){
-    const atk_poke = document.getElementById(atk + "_poke").textContent
-    const def_poke = document.getElementById(def + "_poke").textContent
-    const def_item = document.getElementById(def + "_item").textContent
-    const atk_abnormal = document.getElementById(atk + "_abnormal").textContent
-    const atk_ability = document.getElementById(atk + "_ability").textContent
-    const def_ability = document.getElementById(def + "_ability").textContent
-    const atk_full_HP = Number(document.getElementById(atk + "_HP").textContent)
-    const def_full_HP = Number(document.getElementById(def + "_HP").textContent)
-    const atk_HP_last = Number(document.getElementById(atk + "_HP_last").textContent)
-    const def_HP_last = Number(document.getElementById(def + "_HP_last").textContent)
-    const def_used_move = document.battle[def + "_used_move"].value
-    const atk_p_con = document.battle[atk + "_poke_condition"].value
-    const def_p_con = document.battle[def + "_poke_condition"].value
-    const atk_f_con = document.battle[atk + "_field_condition"].value
-    const def_f_con = document.battle[def + "_field_condition"].value
-
+function otherStatusMove(atk, def, move){
     if (move[0] == "いたみわけ"){
-        document.battle_log.battle_log.value += "お互いのHPを　分け合った！" + CR
-        document.getElementById(atk + "_HP_last").textContent = Math.min(Math.floor((atk_HP_last + def_HP_last) / 2), atk_full_HP)
-        document.getElementById(def + "_HP_last").textContent = Math.min(Math.floor((atk_HP_last + def_HP_last) / 2), def_full_HP)
+        cfn.logWrite(atk, def, "お互いのHPを　分け合った！" + "\n")
+        const atk_HP = atk.con.last_HP
+        const def_HP = def.con.last_HP
+        atk.con.last_HP = Math.min(Math.floor((atk_HP + def_HP) / 2), atk.con.full_HP)
+        def.con.last_HP = Math.min(Math.floor((atk_HP + def_HP) / 2), def.con.full_HP)
     } else if (move[0] == "うらみ") {
         for (let i = 0; i < 4; i++){
-            if (def_used_move == document.getElementById(def + "_move_" + i).textContent){
-                const PP_now = Number(document.getElementById(def + "_move_" + i + "_last").textContent)
-                document.getElementById(def + "_move_" + i + "_last").textContent = Math.max(PP_now - 4, 0)
-                document.battle_log.battle_log.value += "最後に使った技の　PPを減らした！" + CR
+            if (def.con.used == def.con["move_" + i]){
+                def.con["last_" + i]= Math.max(def.con["last_" + i] - 4, 0)
+                cfn.logWrite(atk, def, "最後に使った技の　PPを減らした！" + "\n")
             }
         }
     } else if (move[0] == "おいわい"){
-        document.battle_log.battle_log.value += "おめでとう！" + CR
+        cfn.logWrite(atk, def, "おめでとう！" + "\n")
     } else if (move[0] == "おきみやげ"){
         document.getElementById(atk + "_HP_last").textContent = 0
         fainted_process(atk)
     } else if (move[0] == "おちゃかい"){
-        for (const team of ["A", "B"]){
-            if (berry_item_list.includes(new get(team).item)){
-                eating_berry_effect(team, new get(team).item)
-                set_belch(team)
-                set_recycle_item(team)
-                if (new get(team).ability == "かるわざ"){
-                    document.battle[team + "_poke_condition"].value += "かるわざ" + CR
+        for (const team of [[atk, def], [def, atk]]){
+            if (itemEff.berryList().includes(team[0].con.item)){
+                bfn.eatingBerry(team[0], team[1], team[0].con.item)
+                cfn.setRecycle(team[0])
+                cfn.setBelch(team[0])
+                if (team[0].con.ability == "かるわざ"){
+                    team[0].con.p_con += "かるわざ" + "\n"
                 }
             }
         }
     } else if (move[0] == "ガードシェア"){
-        document.battle_log.battle_log.value += "お互いの　防御と　特防を　共有した！" + CR
-        document.getElementById(atk + "_B_AV").textContent = Math.floor((new get(atk).B_AV + new get(def).B_AV) / 2)
-        document.getElementById(def + "_B_AV").textContent = Math.floor((new get(atk).B_AV + new get(def).B_AV) / 2)
-        document.getElementById(atk + "_D_AV").textContent = Math.floor((new get(atk).D_AV + new get(def).D_AV) / 2)
-        document.getElementById(def + "_D_AV").textContent = Math.floor((new get(atk).D_AV + new get(def).D_AV) / 2)
+        cfn.logWrite(atk, def, "お互いの　防御と　特防を　共有した！" + "\n")
+        const atk_B = atk.con.B_AV
+        const atk_D = atk.con.D_AV
+        const def_B = def.con.B_AV
+        const def_D = def.con.D_AV
+        atk.con.B_AV = Math.floor((atk_B + def_B) / 2)
+        def.con.B_AV = Math.floor((atk_B + def_B) / 2)
+        atk.con.D_AV = Math.floor((atk_D + def_D) / 2)
+        def.con.D_AV = Math.floor((atk_D + def_D) / 2)
     } else if (move[0] == "ガードスワップ"){
-        document.battle_log.battle_log.value += "お互いの　防御ランクと　特防ランクを　入れ替えた！" + CR
-        const atk_B = new get(atk).B_rank
-        const atk_D = new get(atk).D_rank
-        const def_B = new get(def).B_rank
-        const def_D = new get(def).D_rank
-        document.getElementById(atk + "_rank_B").textContent = def_B
-        document.getElementById(atk + "_rank_D").textContent = def_D
-        document.getElementById(def + "_rank_B").textContent = atk_B
-        document.getElementById(def + "_rank_D").textContent = atk_D
+        cfn.logWrite(atk, def, "お互いの　防御ランクと　特防ランクを　入れ替えた！" + "\n")
+        const atk_B = atk.con.B_rank
+        const atk_D = atk.con.D_rank
+        const def_B = def.con.B_rank
+        const def_D = def.con.D_rank
+        atk.con.B_rank = def_B
+        atk.con.D_rank = def_D
+        def.con.B_rank = atk_B
+        def.con.D_rank = atk_D
     } else if (move[0] == "きりばらい"){
-        let check = 0
-        if (!def_p_con.includes("みがわり")){
-            if (new get(def).ability == "ミラーアーマー"){
-                txt = def + "チームの　" + def_poke + "　の　ミラーアーマーが　発動した！" + CR
-                document.battle_log.battle_log.value += txt
-                rank_change(atk, "evasiveness", -1)
-                white_herb(atk)
-                check += 1
+        if (!def.con.p_con.includes("みがわり") || atk.con.ability == "すりぬけ"){
+            if (def.con.ability == "ミラーアーマー"){
+                cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　ミラーアーマーが　発動した！" + "\n")
+                afn.rankChange(atk, def, "Y", -1, 100, move)
+                bfn.whiteHerb(atk, def)
             } else {
-                rank_change(def, "evasiveness", -1)
-                white_herb(def)
-                check += 1
+                afn.rankChange(def, atk, "Y", -1, 100, move)
+                bfn.whiteHerb(def, atk)
             }
         }
-        document.battle[def + "_field_condition"].value = ""
-        for (let i = 0; i < def_f_con.split("\n").length - 1; i++){
-            if (!(def_f_con.split("\n")[i].includes("しろいきり") 
-            || def_f_con.split("\n")[i].includes("ひかりのかべ") 
-            || def_f_con.split("\n")[i].includes("リフレクター") 
-            || def_f_con.split("\n")[i].includes("しんぴのまもり") 
-            || def_f_con.split("\n")[i].includes("オーロラベール") 
-            || def_f_con.split("\n")[i].includes("まきびし") 
-            || def_f_con.split("\n")[i].includes("どくびし") 
-            || def_f_con.split("\n")[i].includes("ステルスロック") 
-            || def_f_con.split("\n")[i].includes("ねばねばネット") 
-            || def_f_con.split("\n")[i].includes("キョダイコウジン") 
-            || def_f_con.split("\n")[i].includes("エレキフィールド") 
-            || def_f_con.split("\n")[i].includes("グラスフィールド") 
-            || def_f_con.split("\n")[i].includes("サイコフィールド") 
-            || def_f_con.split("\n")[i].includes("ミストフィールド"))){
-                document.battle[def + "_field_condition"].value += def_f_con.split("\n")[i] + CR
-            } else {
-                txt = def_f_con.split("\n")[i].slice(0, def_f_con.split("\n")[i].indexOf("　")) + "が　なくなった" + CR
-                document.battle_log.battle_log.value += txt
-                check += 1
-            }
+        for (const team of [[atk.con, def.con], [def.con, atk.con]]){
+            cfn.conditionRemove(team[0], "field", "しろいきり")
+            cfn.conditionRemove(team[0], "field", "ひかりのかべ")
+            cfn.conditionRemove(team[0], "field", "リフレクター")
+            cfn.conditionRemove(team[0], "field", "しんぴのまもり")
+            cfn.conditionRemove(team[0], "field", "オーロラベール")
+            cfn.conditionRemove(team[0], "field", "まきびし")
+            cfn.conditionRemove(team[0], "field", "どくびし")
+            cfn.conditionRemove(team[0], "field", "ステルスロック")
+            cfn.conditionRemove(team[0], "field", "ねばねばネット")
+            cfn.conditionRemove(team[0], "field", "キョダイコウジン")
+            cfn.conditionRemove(team[0], "field", "フィールド")
         }
-        document.battle[atk + "_field_condition"].value = ""
-        for (let i = 0; i < atk_f_con.split("\n").length - 1; i++){
-            if (!(atk_f_con.split("\n")[i].includes("まきびし") 
-            || atk_f_con.split("\n")[i].includes("どくびし") 
-            || atk_f_con.split("\n")[i].includes("ステルスロック") 
-            || atk_f_con.split("\n")[i].includes("ねばねばネット") 
-            || atk_f_con.split("\n")[i].includes("キョダイコウジン") 
-            || atk_f_con.split("\n")[i].includes("エレキフィールド") 
-            || atk_f_con.split("\n")[i].includes("グラスフィールド") 
-            || atk_f_con.split("\n")[i].includes("サイコフィールド") 
-            || atk_f_con.split("\n")[i].includes("ミストフィールド"))){
-                document.battle[atk + "_field_condition"].value += atk_f_con.split("\n")[i] + CR
-            } else {
-                txt = atk_f_con.split("\n")[i].slice(0, atk_f_con.split("\n")[i].indexOf("　")) + "が　なくなった" + CR
-                document.battle_log.battle_log.value += txt
-                check += 1
-            }
-        }
-        if (check == 0){
-            document.battle_log.battle_log.value += "しかし　うまく決まらなかった・・・" + CR
-        }
+        cfn.logWrite(atk, def, "周りのものを消し去った")
     } else if (move[0] == "ギフトパス"){
-        document.battle_log.battle_log.value += "持ち物を　プレゼントした" + CR
-        document.getElementById(def + "_item").textContent = new get(atk).item
-        document.getElementById(atk + "_item").textContent = ""
+        cfn.logWrite(atk, def, "持ち物を　プレゼントした" + "\n")
+        def.con.item = atk.con.item
+        atk.con.item = ""
     } else if (move[0] == "くろいきり"){
-        document.battle_log.battle_log.value += "くろいきりに　包まれた" + CR
-        for (const team of ["A", "B"]){
-            for (const parameter of ["A", "B", "C", "D", "S", "accuracy", "evasiveness"]){
-                document.getElementById(team + "_rank_" + parameter).textContent = 0
+        cfn.logWrite(atk, def, "くろいきりに　包まれた" + "\n")
+        for (const team of [atk, def]){
+            for (const parameter of ["A", "B", "C", "D", "S", "X", "Y"]){
+                team.con[parameter + "_rank"] = 0
             }
         }
     } else if (move[0] == "コートチェンジ"){
-        const atk_f_con = document.battle[atk + "_field_condition"].value
-        const def_f_con = document.battle[def + "_field_condition"].value
+        const list = moveEff.courtChange()
         let atk_list = []
         let def_list = []
-        document.battle[atk + "_field_condition"].value = ""
-        document.battle[def + "_field_condition"].value = ""
-        for (let i = 0; i < atk_f_con.split("\n").length - 1; i++){
+        const atk_f = atk.con.p_con.split("\n")
+        const def_f = def.con.p_con.split("\n")
+        atk.con.f_con = ""
+        def.con.f_con = ""
+        for (let i = 0; i < atk_f.length - 1; i++){
             let check = 0
-            for (let j = 0; j < court_change_list.length; j++){
-                if (atk_f_con.split("\n")[i].includes(court_change_list[j])){
-                    atk_list.push(atk_f_con.split("\n")[i])
+            for (let j = 0; j < list.length; j++){
+                if (atk_f[i].includes(list[j])){
+                    atk_list.push(atk_f[i])
                     check += 1
                 }
             }
             if (check == 0){
-                document.battle[atk + "_field_condition"].value += atk_f_con.split("\n")[i] + CR
+                atk.con.f_con += atk_f[i] + "\n"
             }
         }
-        for (let i = 0; i < def_f_con.split("\n").length - 1; i++){
+        for (let i = 0; i < def_f.length - 1; i++){
             let check = 0
-            for (let j = 0; j < court_change_list.length; j++){
-                if (def_f_con.split("\n")[i].includes(court_change_list[j])){
-                    def_list.push(def_f_con.split("\n")[i])
+            for (let j = 0; j < list.length; j++){
+                if (def_f[i].includes(list[j])){
+                    def_list.push(def_f[i])
                     check += 1
                 }
             }
             if (check == 0){
-                document.battle[def + "_field_condition"].value += def_f_con.split("\n")[i] + CR
+                def.con.f_con += def_f[i] + "\n"
             }
         }
         for (let i = 0; i < def_list.length; i++){
-            document.battle[atk + "_field_condition"].value += def_list[i] + CR
+            atk.con.f_con += def_list[i] + "\n"
         }
         for (let i = 0; i < atk_list.length; i++){
-            document.battle[def + "_field_condition"].value += atk_list[i] + CR
+            def.con.f_con += atk_list[i] + "\n"
         }
     } else if (move[0] == "サイコシフト"){
-        document.getElementById(def + "_abnormal").textContent = atk_abnormal
-        document.getElementById(atk + "_abnormal").textContent = ""
-        document.battle_log.battle_log.value += atk_abnormal + "を　移した" + CR
+        cfn.logWrite(atk, def, atk.con.abnormal + "を　移した" + "\n")
+        def.con.abnormal = atk.con.abnormal
+        atk.con.abnormal = ""
     } else if (move[0] == "さしおさえ"){
-        document.battle[def + "_poke_condition"].value += "さしおさえ　5/5：" + def_item + CR
-        document.getElementById(def + "_item").textContent = ""
-        document.battle_log.battle_log.value += def + "チームの　" + def_poke + "は　道具を差し押さえられた" + CR
+        def.con.p_con += "さしおさえ　5/5：" + def.con.item + "\n"
+        def.con.item = ""
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　道具を差し押さえられた" + "\n")
     } else if (move[0] == "シンプルビーム"){
-        change_ability(def, atk, 3, "たんじゅん")
+        afn.changeAbility(def, atk, 3, "たんじゅん")
     } else if (move[0] == "じこあんじ"){
-        for (const parameter of ["A", "B", "C", "D", "S", "accuracy", "evasiveness"]){
-            document.getElementById(atk + "_rank_" + parameter).textContent = new get(def)[parameter + "_rank"]
+        for (const parameter of ["A", "B", "C", "D", "S", "X", "Y"]){
+            atk.con[parameter + "_rank"] = def.con[parameter + "_rank"]
         }
-        document.battle_log.battle_log.value += def + "チームの　" + def_poke + "の　能力変化を　コピーした" + CR
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　能力変化を　コピーした" + "\n")
     } else if (move[0] == "スキルスワップ"){
-        change_ability(atk, def, 2, "NA")
+        afn.changeAbility(atk, def, 2, "NA")
     } else if (move[0] == "スケッチ"){
-        const move_list = move_search_by_name(def_used_move)
-        const num = String(document.getElementById("battle")[atk + "_move"].value)
-        document.getElementById(atk + "_move_" + num).textContent = move_list[0]
-        document.getElementById(atk + "_move_" + num + "_PP").textContent = move_list[5]
-        document.getElementById(atk + "_move_" + num + "_last").textContent = move_list[5]
-        document.battle_log.battle_log.value += def + "チームの　" + def_poke + "の　" + def_used_move + "を　スケッチした" + CR
+        atk.con["move_" + atk.data.command] = cfn.moveSearchByName(def.con.used)[0]
+        atk.con["PP_" + atk.data.command] = cfn.moveSearchByName(def.con.used)[5]
+        atk.con["last_" + atk.data.command] = cfn.moveSearchByName(def.con.used)[5]
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　" + def.con.used + "　を　スケッチした" + "\n")
     } else if (move[0] == "スピードスワップ"){
-        const atk_S = document.getElementById(atk + "_S_AV").textContent
-        const def_S = document.getElementById(def + "_S_AV").textContent
-        document.getElementById(atk + "_S_AV").textContent = def_S
-        document.getElementById(def + "_S_AV").textContent = atk_S
-        txt = "お互いの　素早さを入れ替えた！" + CR
-        document.battle_log.battle_log.value += txt
+        const atk_S = atk.con.S_AV
+        atk.con.S_AV = def.con.S_AV
+        def.con.S_AV = atk_S
+        cfn.logWrite(atk, def, "お互いの　素早さを入れ替えた！" + "\n")
     } else if (move[0] == "すりかえ" || move[0] == "トリック"){
-        const atk_item = document.getElementById(atk + "_item").textContent
-        const def_item = document.getElementById(def + "_item").textContent
-        document.getElementById(atk + "_item").textContent = def_item
-        document.getElementById(def + "_item").textContent = atk_item
-        txt = "お互いの　持ち物を入れ替えた！" + CR
-        document.battle_log.battle_log.value += txt
-        if (new get(atk).ability == "かるわざ" && new get(atk).item == ""){
-            document.battle[atk + "_poke_condition"].value += "かるわざ" + CR
+        const atk_item = atk.con.item
+        atk.con.item = def.con.item
+        def.con.item = atk_item
+        cfn.logWrite(atk, def, "お互いの　持ち物を入れ替えた！" + "\n")
+        if (atk.con.ability == "かるわざ" && atk.con.item == ""){
+            atk.con.p_con += "かるわざ" + "\n"
         }
-        if (new get(def).ability == "かるわざ" && new get(def).item == ""){
-            document.battle[def + "_poke_condition"].value += "かるわざ" + CR
+        if (def.con.ability == "かるわざ" && def.con.item == ""){
+            def.con.p_con += "かるわざ" + "\n"
         }
     } else if (move[0] == "テクスチャー"){
-        const move_0 = document.getElementById(atk + "_move_0").textContent
-        let move_0_type = move_search_by_name(move_0)[1]
-        if (move_0 == "のろい" && !new get(atk).type.includes("ゴースト")){
+        let move_0_type = cfn.moveSearchByName(atk.con.move_0)[1]
+        if (atk.con.move_0 == "のろい" && !atk.con.type.includes("ゴースト")){
             move_0_type = "ノーマル"
         }
-        document.getElementById(atk + "_type").textContent = move_0_type
-        txt = atk + "チームの　" + atk_poke + "は　" + move_0_type + "タイプに　なった！" + CR
-        document.battle_log.battle_log.value += txt
+        atk.con.type = move_0_type
+        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　" + move_0_type + "タイプに　なった！" + "\n")
     } else if (move[0] == "テクスチャー2"){
-        const move_type = move_search_by_name(def_used_move)[1]
+        const move_type = cfn.moveSearchByName(def.con.used)[1]
+        const list = com.compatibility()
         let check = []
         for (let i = 0; i < 18; i++){
-            if (compatibility[0][i] == move_type){
+            if (list[0][i] == move_type){
                 for (let j = 0; j < 18; j++){
-                    if (compatibility[i+1][j] < 1){
-                        check.push(compatibility[0][j])
+                    if (list[i+1][j] < 1){
+                        check.push(list[0][j])
                     }
                 }
             }
@@ -786,187 +665,156 @@ function other_status_move(atk, def, move){
                 change_type = check[i]
             }
         }
-        document.getElementById(atk + "_type").textContent = change_type
-        txt = atk + "チームの　" + atk_poke + "は　" + change_type + "タイプに　なった！" + CR
-        document.battle_log.battle_log.value += txt
+        atk.con.type = change_type
+        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　" + change_type + "タイプに　なった！" + "\n")
     } else if (move[0] == "てをつなぐ"){
-        txt = atk + "チームの　" + atk_poke + "と　" + def + "チームの　" + def_poke + "は　手を繋いだ！" + CR
-        document.battle_log.battle_log.value += txt
+        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　と　" + def.con.TN + "　の　" + def.con.name + "　は　手を繋いだ！" + "\n")
     } else if (move[0] == "なかまづくり"){
-        change_ability(atk, def, 1, "NA")
+        afn.changeAbility(atk, def, 1, "NA")
     } else if (move[0] == "なやみのタネ"){
-        change_ability(def, atk, 3, "ふみん")
+        afn.changeAbility(def, atk, 3, "ふみん")
     } else if (move[0] == "なりきり"){
-        change_ability(def, atk, 1, "NA")
+        afn.changeAbility(def, atk, 1, "NA")
     } else if (move[0] == "ハートスワップ"){
-        for (const parameter of ["A", "B", "C", "D", "S", "accuracy", "evasiveness"]){
-            let A_rank = new get("A")[parameter + "_rank"]
-            let B_rank = new get("B")[parameter + "_rank"]
-            document.getElementById("A_rank_" + parameter).textContent = B_rank
-            document.getElementById("B_rank_" + parameter).textContent = A_rank
-            txt = "お互いの　能力変化を入れ替えた！" + CR
-            document.battle_log.battle_log.value += txt
+        for (const parameter of ["A", "B", "C", "D", "S", "X", "Y"]){
+            let atk_rank = atk.con[parameter + "_rank"]
+            atk.con[parameter + "_rank"] = def.con[parameter + "_rank"]
+            def.con[parameter + "_rank"] = atk_rank
         }
+        cfn.logWrite(atk, def, "お互いの　能力変化を入れ替えた！" + "\n")
     } else if (move[0] == "ハッピータイム"){
-        txt = "あたりが幸せに包まれた！" + CR
-        document.battle_log.battle_log.value += txt
+        cfn.logWrite(atk, def, "あたりが幸せに包まれた！" + "\n")
     } else if (move[0] == "ハロウィン"){
-        if (new get(def).type = ""){
-            document.getElementById(def + "_type").textContent += "ゴースト"
+        if (def.con.type = ""){
+            def.con.type += "ゴースト"
         } else {
-            document.getElementById(def + "_type").textContent += "、ゴースト"
+            def.con.type += "、ゴースト"
         }
-        document.battle[def + "_poke_condition"].value += "ハロウィン" + CR
-        txt = def + "チームの　" + def_poke + "の　タイプにゴーストが追加された！" + CR
-        document.battle_log.battle_log.value += txt
+        def.con.p_con += "ハロウィン" + "\n"
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　タイプにゴーストが追加された！" + "\n")
     } else if (move[0] == "パワーシェア"){
-        const A_A = new get("A").A_AV
-        const B_A = new get("B").A_AV
-        const A_C = new get("A").C_AV
-        const B_C = new get("B").C_AV
-        document.getElementById("A_A_AV").textContent = Math.floor((A_A + B_A) / 2)
-        document.getElementById("B_A_AV").textContent = Math.floor((A_A + B_A) / 2)
-        document.getElementById("A_C_AV").textContent = Math.floor((A_C + B_C) / 2)
-        document.getElementById("B_C_AV").textContent = Math.floor((A_C + B_C) / 2)
-        txt = "お互いの　攻撃と特攻を分け合った！" + CR
-        document.battle_log.battle_log.value += txt
+        const A_A = atk.con.A_AV
+        const B_A = def.con.A_AV
+        const A_C = atk.con.C_AV
+        const B_C = def.con.C_AV
+        atk.con.A_AV = Math.floor((A_A + B_A) / 2)
+        def.con.A_AV = Math.floor((A_A + B_A) / 2)
+        atk.con.C_AV = Math.floor((A_C + B_C) / 2)
+        def.con.C_AV = Math.floor((A_C + B_C) / 2)
+        cfn.logWrite(atk, def, "お互いの　攻撃と特攻を分け合った！" + "\n")
     } else if (move[0] == "パワースワップ"){
-        const A_A = new get("A").A_rank
-        const B_A = new get("B").A_rank
-        const A_C = new get("A").C_rank
-        const B_C = new get("B").C_rank
-        document.getElementById("A_rank_A").textContent = B_A
-        document.getElementById("B_rank_A").textContent = A_A
-        document.getElementById("A_rank_C").textContent = B_C
-        document.getElementById("B_rank_C").textContent = A_C
-        txt = "お互いの　攻撃ランクを特攻ランクを入れ替えた！" + CR
-        document.battle_log.battle_log.value += txt
+        const A_A = atk.con.A_rank
+        const B_A = def.con.A_rank
+        const A_C = atk.con.C_rank
+        const B_C = def.con.C_rank
+        atk.con.A_rank = B_A
+        def.con.A_rank = A_A
+        atk.con.C_rank = B_C
+        def.con.C_rank = A_C
+        cfn.logWrite(atk, def, "お互いの　攻撃ランクを特攻ランクを入れ替えた！" + "\n")
     } else if (move[0] == "ひっくりかえす"){
-        for (const parameter of ["A", "B", "C", "D", "S", "accuracy", "evasiveness"]){
-            document.getElementById(def + "_rank_" + parameter).textContent = -new get(def)[parameter + "_rank"]
+        for (const parameter of ["A", "B", "C", "D", "S", "X", "Y"]){
+            def.con[parameter + "_rank"] = -def.con[parameter + "_rank"]
         }
-        txt = def + "チームの　" + def_poke + "の　能力ランクをひっくり返した！" + CR
-        document.battle_log.battle_log.value += txt
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　能力ランクをひっくり返した！" + "\n")
     } else if (move[0] == "ふしょくガス"){
-        txt = def + "チームの　" + def_poke + "の　" + new get(def).item +  "を溶かした！" + CR
-        document.battle_log.battle_log.value += txt
-        document.getElementById(def + "_item").textContent = ""
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　" + def.con.item +  "を溶かした！" + "\n")
+        def.con.item = ""
     } else if (move[0] == "ほごしょく"){
-        if (atk_f_con.includes("グラスフィールド")){
-            document.getElementById(atk + "_type").textContent = "くさ"
-            txt = atk + "チームの　" + atk_poke + "の　タイプが　くさになった！" + CR
-            document.battle_log.battle_log.value += txt
-        } else if (atk_f_con.includes("エレキフィールド")){
-            document.getElementById(atk + "_type").textContent = "でんき"
-            txt = atk + "チームの　" + atk_poke + "の　タイプが　でんきになった！" + CR
-            document.battle_log.battle_log.value += txt
-        } else if (atk_f_con.includes("ミストフィールド")){
-            document.getElementById(atk + "_type").textContent = "フェアリー"
-            txt = atk + "チームの　" + atk_poke + "の　タイプが　フェアリーになった！" + CR
-            document.battle_log.battle_log.value += txt
-        } else if (atk_f_con.includes("サイコフィールド")){
-            document.getElementById(atk + "_type").textContent = "エスパー"
-            txt = atk + "チームの　" + atk_poke + "の　タイプが　エスパーになった！" + CR
-            document.battle_log.battle_log.value += txt
+        if (atk.con.f_con.includes("グラスフィールド")){
+            atk.con.type = "くさ"
+            cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "の　タイプが　くさになった！" + "\n")
+        } else if (atk.con.f_con.includes("エレキフィールド")){
+            atk.con.type = "でんき"
+            cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "の　タイプが　でんきになった！" + "\n")
+        } else if (atk.con.f_con.includes("ミストフィールド")){
+            atk.con.type = "フェアリー"
+            cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "の　タイプが　フェアリーになった！" + "\n")
+        } else if (atk.con.f_con.includes("サイコフィールド")){
+            atk.con.type = "エスパー"
+            cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "の　タイプが　エスパーになった！" + "\n")
         } else {
-            document.getElementById(atk + "_type").textContent = "ノーマル"
-            txt = atk + "チームの　" + atk_poke + "の　タイプが　ノーマルになった！" + CR
-            document.battle_log.battle_log.value += txt
+            atk.con.type = "ノーマル"
+            cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "の　タイプが　ノーマルになった！" + "\n")
         }
     } else if (move[0] == "ふきとばし" || move[0] == "ほえる"){
-        txt = def + "チームの　" + new get(def).name + "は　手持ちに戻された！" + CR
-        document.battle_log.battle_log.value += txt
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + " は　手持ちに戻された！" + "\n")
         let hand = []
         for (let i = 0; i < 3; i++){
-            if (document.getElementById(def + "_" + i + "_existence").textContent == "控え"){
+            if (def["poke" + i].life == "控え"){
                 hand.push(i)
             }
         }
-        come_back_pokemon(def)
+        summon.comeBack(def, atk)
         let battle = hand[0]
         if (hand.length == 2 && Math.random() < 0.5){
             battle = hand[1]
         }
-        document.getElementById(def + "_" + battle + "_button").checked = true
-        pokemon_replace(def)
-        summon_pokemon(1, def)
-    } else if (move[0] == "へんしん" && !new get(def).p_con.includes("みがわり") && !new get(def).p_con.includes("へんしん")){
-        for (const i of ["_sex", "_type", "_nature", "_ability", 
-        "_A_AV", "_B_AV", "_C_AV", "_D_AV", "_S_AV", 
-        "_rank_A", "_rank_B", "_rank_C", "_rank_D", "_rank_S", "_rank_accuracy", "_rank_evasiveness", 
-        "_move_0", "_move_1", "_move_2", "_move_3"]){
-            document.getElementById(atk + i).textContent = document.getElementById(def + i).textContent
+        def.data.command = battle + 4
+        summon.pokeReplace(def, atk)
+        summon.activAbility(def, atk, 1)
+    } else if (move[0] == "へんしん" && !def.con.p_con.includes("みがわり") && !def.con.p_con.includes("へんしん")){
+        for (const parameter of ["sex", "type", "nature", "ability", 
+        "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
+        "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank", 
+        "move_0", "move_1", "move_2", "move_3"]){
+            atk.con[parameter] = def.con[parameter]
         }
         for (let i = 0; i < 4; i++){
-            document.getElementById(atk + "_move_" + i + "_PP").textContent = 5
-            document.getElementById(atk + "_move_" + i + "_last").textContent = 5
-        }
-        condition_remove(atk, "poke", "きゅうしょアップ")
-        condition_remove(atk, "poke", "とぎすます")
-        condition_remove(atk, "poke", "キョダイシンゲキ")
-        condition_remove(atk, "poke", "ボディパージ")
-        for (let i = 0; i < new get(def).p_len; i++){
-            if (new get(def).p_list[i].includes("きゅうしょアップ") || new get(def).p_list[i].includes("とぎすます") || new get(def).p_list[i].includes("キョダイシンゲキ") || new get(def).p_list[i].includes("ボディパージ")){
-                document.battle[atk + "_poke_condition"].value += new get(def).p_list[i] + CR
+            if (atk.con["move_" + i] != ""){
+                atk.com["PP_" + i] = 5
+                atk.con["last_" + i] = 5
             }
         }
-        // 画像の設定
-        for (let i = 0; i < pokemon.length; i++){
-            if (document.getElementById(def + "_poke").textContent == pokemon[i][1]){
-                document.getElementById(atk + "_image").src = "poke_figure/" + pokemon[i][0] + ".gif"
+        cfn.conditionRemove(atk.con, "poke", "きゅうしょアップ")
+        cfn.conditionRemove(atk.con, "poke", "とぎすます")
+        cfn.conditionRemove(atk.con, "poke", "キョダイシンゲキ")
+        cfn.conditionRemove(atk.con, "poke", "ボディパージ")
+        for (let i = 0; i < def.con.p_con.split("\n").length - 1; i++){
+            if (def.con.p_con.split("\n")[i].includes("きゅうしょアップ") || def.con.p_con.split("\n")[i].includes("とぎすます") || def.con.p_con.split("\n")[i].includes("キョダイシンゲキ") || def.con.p_con.split("\n")[i].includes("ボディパージ")){
+                atk.con.p_con += def.con.p_con.split("\n")[i] + "\n"
             }
         }
-        txt = atk + "チームの　" + new get(atk).name + "は　" + new get(def).name + "に　へんしんした" + CR
-        document.battle_log.battle_log.value += txt
-        document.battle[atk + "_poke_condition"].value += "へんしん" + CR
-        summon_pokemon(1, atk)
+        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　" + def.con.name + "　に　へんしんした" + "\n")
+        atk.con.p_con += "へんしん" + "\n"
+        summon.activAbility(atk, def, 1)
     } else if (move[0] == "ほろびのうた"){
-        if (!atk_p_con.includes("ほろびカウント")){
-            document.battle[atk + "_poke_condition"].value += "ほろびカウント　4" + CR
+        if (!atk.con.p_con.includes("ほろびカウント")){
+            atk.con.p_con += "ほろびカウント　4" + "\n"
         }
-        if (!def_p_con.includes("ほろびカウント")){
-            document.battle[def + "_poke_condition"].value += "ほろびカウント　4" + CR
+        if (!def.con.p_con.includes("ほろびカウント")){
+            def.con.p_con += "ほろびカウント　4" + "\n"
         }
-        txt = "ほろびのうたが響き渡った！" + CR
-        document.battle_log.battle_log.value += txt
+        cfn.logWrite(atk, def, "ほろびのうたが響き渡った！" + "\n")
     } else if (move[0] == "まほうのこな"){
-        document.getElementById(def + "_type").textContent = "エスパー"
-        txt = def + "チームの　" + def_poke + "は　エスパータイプになった！" + CR
-        document.battle_log.battle_log.value += txt
+        def.con.type = "エスパー"
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　エスパータイプになった！" + "\n")
     } else if (move[0] == "みずびたし"){
-        document.getElementById(def + "_type").textContent = "みず"
-        txt = def + "チームの　" + def_poke + "は　みずタイプになった！" + CR
-        document.battle_log.battle_log.value += txt
+        def.con.type = "みず"
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　みずタイプになった！" + "\n")
     } else if (move[0] == "ミラータイプ"){
-        document.getElementById(atk + "_type").textContent = new get(def).type
-        txt = atk + "チームの　" + atk_poke + "の　タイプが変わった！" + CR
-        document.battle_log.battle_log.value += txt
+        atk.con.type = def.con.type
+        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　の　タイプが変わった！" + "\n")
     } else if (move[0] == "ものまね") {
-        num = String(document.getElementById("battle")[atk + "_move"].value)
-        document.getElementById(atk + "_move_" + num).textContent = def_used_move
-        document.getElementById(atk + "_move_" + num + "_PP").textContent = move_search_by_name(def_used_move)[5]
-        document.getElementById(atk + "_move_" + num + "_last").textContent = move_search_by_name(def_used_move)[5]
-        txt = def + "チームの　" + new get(def).name + "の　" + def_used_move +"を　コピーした" + CR
+        atk.con["move_" + atk.data.command] = def.con.used
+        atk.con["PP_" + atk.data.command] = cfn.moveSearchByName(def.con.used)[5]
+        atk.con["last_" + atk.data.command] = cfn.moveSearchByName(def.con.used)[5]
+        txt = def.con.TN + "　の　" + def.con.name + "の　" + def.con.used +"を　コピーした" + "\n"
         document.battle_log.battle_log.value += txt
     } else if (move[0] == "もりののろい"){
-        if (new get(def).type = ""){
-            document.getElementById(def + "_type").textContent += "くさ"
+        if (def.con.type = ""){
+            def.con.type += "くさ"
         } else {
-            document.getElementById(def + "_type").textContent += "、くさ"
+            def.con.type += "、くさ"
         }
-        document.battle[def + "_poke_condition"].value += "もりののろい" + CR
-        txt = def + "チームの　" + def_poke + "の　タイプにくさが追加された！" + CR
-        document.battle_log.battle_log.value += txt
+        def.con.p_con += "もりののろい" + "\n"
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　タイプにくさが追加された！" + "\n")
     } else if (move[0] == "リサイクル"){
-        for (let i = 0; i < 3; i++){
-            if (document.getElementById(atk + "_" + i + "_existence").textContent == "戦闘中"){
-                document.getElementById(atk + "_item").textContent = document.getElementById(atk + "_" + i + "_recycle").textContent
-                document.getElementById(atk + "_" + i + "_recycle").textContent = ""
-            }
-        }
-        txt = atk + "チームの　" + new get(atk).name + "　は　" + new get(atk).item + "を　拾ってきた" + CR
-        document.battle_log.battle_log.value += txt
-        berry_in_pinch(atk)
+        atk.con.item = atk["poke" + cfn.battleNum(atk)].recycle
+        atk["poke" + cfn.battleNum(atk)].recycle = ""
+        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　" + atk.con.item + "を　拾ってきた" + "\n")
+        bfn.berryPinch(atk, def)
+        bfn.berryAbnormal(atk, def)
     }
 }
 
