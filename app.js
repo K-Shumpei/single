@@ -56,18 +56,18 @@ io.on("connection", function(socket){
                 roomCount -= 1
             } else {
                 if (data[room].user1.data.id == socket.id){ // 部屋の一人目が抜けた時
-                    data[room].user1 = ""
-                    if (data[room].user2 != ""){
+                    data[room].user1.data.command = "emit"
+                    if (data[room].user2.data.command != "emit"){
                         socket.to(data[room].user2.data.id).emit("disconnection", {})
                     }
                 } else { // 部屋の二人目が抜けた時
-                    data[room].user2 == ""
-                    if (data[room].user1 != ""){
+                    data[room].user2.data.command == "emit"
+                    if (data[room].user1.data.command != "emit"){
                         socket.to(data[room].user1.data.id).emit("disconnection", {})
                     }
                 }
                 // 部屋の両方の接続が切れた時、部屋情報を削除
-                if (data[room].user1 == "" && data[room].user2 == ""){
+                if (data[room].user1.data.command == "emit" && data[room].user2.data.command == "emit"){
                     let check = []
                     for (let i = 0; i < IdAndRoom.length; i++){
                         if (IdAndRoom[i][1] == room){

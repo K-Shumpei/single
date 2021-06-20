@@ -250,14 +250,15 @@ $(function () {
         if (!data["user" + you].con.f_con.includes("ひんし") && !data["user" + you].con.f_con.includes("選択中")){
             document.getElementById("battle_button").disabled = false
         }
+        // スクロールバーを一番下に移動
+        let obj = document.getElementById("A_log")
+        obj.scrollTop = obj.scrollHeight
     })
 
     // 相手の接続が切れた時
     socketio.on("disconnection", function() {
         document.getElementById("headline").textContent = "相手の接続が切れました"
-        document.battle_log.battle_log.value += "相手の接続が切れました。"
-        document.battle.battle_button.disabled = true
-        document.battle.battle_start_button.disabled = true
-        stop_action_timer()
+        document.battle.battle_log.value += "相手の接続が切れました。"
+        document.getElementById("battle_button").disabled = true
     })
 })
