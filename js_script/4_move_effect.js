@@ -295,7 +295,7 @@ function additionalEffectEtc(atk, def, move, order, damage){
         afn.rankChange(def, atk, "A", 1, 100, "いかり")
     }
     // 5.防御側のナゾのみ
-    if (def.con.item == "ナゾのみ" && compatibility_check(atk, def, move) > 1 && (!damage.substitute || moveEff.music().includes(move[0]) || atk.con.ability == "すりぬけ" || def.con.last_HP > 0)){
+    if (def.con.item == "ナゾのみ" && cfn.compatibilityCheck(atk, def, move) > 1 && (!damage.substitute || moveEff.music().includes(move[0]) || atk.con.ability == "すりぬけ" || def.con.last_HP > 0)){
         if (def.con.ability == "じゅくせい"){
             afn.HPchangeMagic(def, atk, Math.floor(def.con.full_HP / 2), "+", "ナゾのみ")
         } else {
@@ -726,8 +726,8 @@ function moveEffect(atk, def, move, damage){
     && !(def.con.name == "シルヴァディ" && def.con.item.includes("メモリ"))
     && !(def.con.name.includes("ザシアン") && def.con.item　== "くちたけん") 
     && !(def.con.name.includes("ザマゼンタ") && def.con.item　== "くちたたて")){
-        def.con.item = ""
         cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　" + def.con.item + "　を　はたき落とされた！" + "\n")
+        def.con.item = ""
         if (def.con.ability == "かるわざ"){
             def.con.p_con += "かるわざ" + "\n"
         }
@@ -735,9 +735,9 @@ function moveEffect(atk, def, move, damage){
     && !(def.con.name == "シルヴァディ" && def.con.item.includes("メモリ")) 
     && !(def.con.name.includes("ザシアン") && def.con.item　== "くちたけん") 
     && !(def.con.name.includes("ザマゼンタ") && def.con.item　== "くちたたて")){
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　" + def.con.item + "　を　奪った！" + "\n")
         atk.con.item = def.con.item
         def.con.item = ""
-        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　" + def.con.item + "　を　奪った！" + "\n")
         if (def.con.ability == "かるわざ"){
             def.con.p_con += "かるわざ" + "\n"
         }
@@ -868,7 +868,7 @@ function moveEffect(atk, def, move, damage){
     if (move[0] == "ぶきみなじゅもん" &&  def.con.used != "" && !def.con.f_con.includes("ひんし")){
         for (let i = 0; i < 4; i++){
             if (def.con["move_" + i] == def.con.used && def.con["last_" + i] > 0){
-                cfn.logWrite(atk, def, def.con.TN + "　の　" + def_poke + "の　" + def.con.used + "　の　PPが減った" + "\n")
+                cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "の　" + def.con.used + "　の　PPが減った" + "\n")
                 def.con["last_" + i] = Math.max(def.con["last_" + i] - 3, 0)
             }
         }
@@ -1125,13 +1125,10 @@ function otherItemEffect(atk, def, move){
 function returnBattle(atk, def){
     if (atk.con.f_con.includes("選択中") && def.con.f_con.includes("選択中")){
         // 2匹同時交換　ききかいひとだっしゅつボタンが同時発動した時
-    } else {
-        for (const team of [atk, def]){// 片方だけが交換
-            if (team.con.f_con.includes("選択中")){
-                cfn.logWrite(atk, def, team.con.TN + "　は　戦闘に出すポケモンを選んでください" + "\n")
-                return true
-            }
-        }
+    } else if (atk.con.f_con.includes("選択中")){
+        summon.comeBack(atk, def)
+        cfn.logWrite(atk, def, atk.con.TN + "　は　戦闘に出すポケモンを選んでください" + "\n")
+        return true
     }
 }
 

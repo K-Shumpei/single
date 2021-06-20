@@ -36,6 +36,8 @@ function room_search(socketID){
 
 // jsファイルの読み込み
 const main = require("./js_script/main_process")
+const summon = require("./js_script/1_summon")
+const end = require("./js_script/5_end_process")
 
 // 接続時の処理
 io.on("connection", function(socket){
@@ -50,19 +52,18 @@ io.on("connection", function(socket){
         if (room != undefined){
             if (data[room].user2 == ""){ // 対戦相手がまだ見つかっていない時
                 data.splice(room, 1)
-                rec.splice(room, 1)
                 playerCount -= 1
                 roomCount -= 1
             } else {
-                if (data[room].user1.id == socket.id){ // 部屋の一人目が抜けた時
-                    data[room].user1 == ""
+                if (data[room].user1.data.id == socket.id){ // 部屋の一人目が抜けた時
+                    data[room].user1 = ""
                     if (data[room].user2 != ""){
-                        socket.to(data[room].user2.id).emit("disconnection", {})
+                        socket.to(data[room].user2.data.id).emit("disconnection", {})
                     }
                 } else { // 部屋の二人目が抜けた時
                     data[room].user2 == ""
                     if (data[room].user1 != ""){
-                        socket.to(data[room].user1.id).emit("disconnection", {})
+                        socket.to(data[room].user1.data.id).emit("disconnection", {})
                     }
                 }
                 // 部屋の両方の接続が切れた時、部屋情報を削除
@@ -79,7 +80,6 @@ io.on("connection", function(socket){
                     IdAndRoom.splice(check[0], 1)
                     IdAndRoom.splice(check[1], 1)
                     data.splice(room, 1)
-                    rec.splice(room, 1)
                     // プレイヤー人数をふたり減らす
                     playerCount -= 2
                     // 部屋数を一つ減らす
@@ -94,8 +94,6 @@ io.on("connection", function(socket){
     socket.on('team_data',function(name, team_data){
         
         console.log('name: ' + name);
-        //全員に配信
-        io.emit('message', name);
 
         playerCount += 1
         if (playerCount % 2 == 1){
@@ -105,37 +103,19 @@ io.on("connection", function(socket){
         IdAndRoom.push([socket.id, roomCount])
 
         if (playerCount % 2 == 1){
-            let room = {user1: "", team1: "", user2: "", team2: ""}
-            room.user1 = {name: name, id: socket.id, command: "yet"}
-            room.team1 = team_data
-            data.push(room)
-            let type = {user1: "", user2: ""}
-            type.user1 = {poke0: "", poke1: "", poke2: "", data: "", con: ""}
-            type.user2 = {poke0: "", poke1: "", poke2: "", data: "", con: ""}
-            type.user1.con = {
-                TN: "", name: "", sex: "", level: "", type: "", nature: "", ability: "", item: "", abnormal: "", last_HP: "", full_HP: "", 
-                move_0: "", PP_0: "", last_0: "", move_1: "", PP_1: "", last_1: "", move_2: "", PP_2: "", last_2: "", move_3: "", PP_3: "", last_3: "", 
-                A_AV: "", B_AV: "", C_AV: "", D_AV: "", S_AV: "", A_rank: "", B_rank: "", C_rank: "", D_rank: "", S_rank: "", X_rank: "", Y_rank: "", 
-                p_con: "", f_con: "", used: "", log: ""
-            }
-            type.user2.con = {
-                TN: "", name: "", sex: "", level: "", type: "", nature: "", ability: "", item: "", abnormal: "", last_HP: "", full_HP: "", 
-                move_0: "", PP_0: "", last_0: "", move_1: "", PP_1: "", last_1: "", move_2: "", PP_2: "", last_2: "", move_3: "", PP_3: "", last_3: "", 
-                A_AV: "", B_AV: "", C_AV: "", D_AV: "", S_AV: "", A_rank: "", B_rank: "", C_rank: "", D_rank: "", S_rank: "", X_rank: "", Y_rank: "", 
-                p_con: "", f_con: "", used: "", log: ""
-            }
-            type.user1.data = {name: name, command: "", radio_0: false, radio_1: false, radio_2: false, radio_3: false, radio_4: false, radio_5: false, radio_6: false, mega: "", Z: "", dina: ""}
-            type.user1.con.TN = name
-            rec.push(type)
+            let info = {user1: "", user2: ""}
+            info.user1 = {team: team_data, poke0: "", poke1: "", poke2: "", data: "", con: ""}
+            info.user2 = {team: "", poke0: "", poke1: "", poke2: "", data: "", con: ""}
+            info.user1.data = {id: socket.id, command: ""}
+            info.user1.con = {TN: name, p_con: "", f_con: "", used: "", log: ""}
+            data.push(info)
             io.to(socket.id).emit("find enemy", {})
         } else {
-            data[room_search(socket.id)].user2 = {name: name, id: socket.id, command: "yet"}
-            data[room_search(socket.id)].team2 = team_data
-            rec[room_search(socket.id)].user2.con.TN = name
-            rec[room_search(socket.id)].user2.data = {name: name, command: "", radio_0: false, radio_1: false, radio_2: false, radio_3: false, radio_4: false, radio_5: false, radio_6: false, mega: "", Z: "", dina: ""}
-            // ポケモンの選出
-            io.to(data[room_search(socket.id)].user1.id).emit("select pokemon", data[room_search(socket.id)], 1, 2)
-            io.to(data[room_search(socket.id)].user2.id).emit("select pokemon", data[room_search(socket.id)], 2, 1)
+            data[room_search(socket.id)].user2.data = {id: socket.id, command: ""}
+            data[room_search(socket.id)].user2.con = {TN: name, p_con: "", f_con: "", used: "", log: ""}
+            data[room_search(socket.id)].user2.team = team_data
+            io.to(data[room_search(socket.id)].user1.data.id).emit("select pokemon", data[room_search(socket.id)], 1, 2)
+            io.to(data[room_search(socket.id)].user2.data.id).emit("select pokemon", data[room_search(socket.id)], 2, 1)
         }
 
     })
@@ -143,26 +123,25 @@ io.on("connection", function(socket){
     // 選出ポケモンを選んだ
     socket.on("get ready", function(select) {
         const room = room_search(socket.id)
-        for (let i = 1; i < 3; i++){
-            if (data[room]["user" + i].id == socket.id){
-                data[room]["user" + i].select = select
-                rec[room]["user" + i].poke0 = data[room]["team" + i][select[0]]
-                rec[room]["user" + i].poke1 = data[room]["team" + i][select[1]]
-                rec[room]["user" + i].poke2 = data[room]["team" + i][select[2]]
-                rec[room]["user" + i].data.command = 4
+
+        for (const team of [[1, 2], [2, 1]]){
+            if (data[room]["user" + team[0]].data.id == socket.id){
+                data[room]["user" + team[0]].poke0 = data[room]["user" + team[0]].team[select[0]]
+                data[room]["user" + team[0]].poke1 = data[room]["user" + team[0]].team[select[1]]
+                data[room]["user" + team[0]].poke2 = data[room]["user" + team[0]].team[select[2]]
+                delete data[room]["user" + team[0]].team
+                data[room]["user" + team[0]].data.command = 4
                 // 相手がまだの時
-                if (data[room]["user" + (i % 2 + 1)].command == "yet"){
-                    data[room]["user" + i].command = true
-                    io.to(data[room]["user" + i].id).emit("waiting me", {})
-                    io.to(data[room]["user" + (i % 2 + 1)].id).emit("waiting you", {})
+                if (data[room]["user" + team[1]].data.command == ""){
+                    io.to(data[room]["user" + team[0]].data.id).emit("waiting me", {})
+                    io.to(data[room]["user" + team[1]].data.id).emit("waiting you", {})
                 } else {
                     // 相手が選んでいる時
-                    ret = main.battleStart(rec[room])
-                    io.to(data[room]["user" + i].id).emit("battle start", ret, i, (i % 2 + 1))
-                    io.to(data[room]["user" + (i % 2 + 1)].id).emit("battle start", ret, (i % 2 + 1), i)
-                    data[room]["user" + (i % 2 + 1)].command = "yet"
-                    rec[room].user1.data.command = ""
-                    rec[room].user2.data.command = ""
+                    main.battleStart(data[room])
+                    io.to(data[room].user1.data.id).emit("battle start", data[room], 1, 2)
+                    io.to(data[room].user2.data.id).emit("battle start", data[room], 2, 1)
+                    data[room].user1.data.command = ""
+                    data[room].user2.data.command = ""
 
                     //action_timer = setInterval(function() {
                       //  console.log("passed 1 second")
@@ -170,23 +149,72 @@ io.on("connection", function(socket){
                 }
             }
         }
+
+
+       
     })
 
     // 各ターンの行動
-    socket.on("action decide", function(signal) {
-        console.log(signal)
+    socket.on("action decide", function(val) {
         const room = room_search(socket.id)
-        for (const i of [1, 2]){
+        for (const team of [[1, 2], [2, 1]]){
             // コマンドを記録
-            if (data[room]["user" + i].id == socket.id){
-                rec[room]["user" + i] = signal
+            if (data[room]["user" + team[0]].data.id == socket.id){
+                data[room]["user" + team[0]].data.command = val
+                // ボルチェンなどで交換する時
+                if (data[room]["user" + team[0]].con.f_con == "選択中"){
+                    summon.pokeReplace(rec[room]["user" + team[0]], data[room]["user" + team[1]])
+                    summon.activAbility(rec[room]["user" + team[0]], data[room]["user" + team[1]], 1)
+
+                    // 交代の後の残りの処理
+                    // 24.きょうせい
+                    // 25.おどりこ
+                    // 26.次のポケモンの行動
+
+                    // 相手が行動済の時
+                    if (data[room]["user" + team[1]].data.command == ""){
+                        // ターン終了前の処理
+                        end.endProcess(rec[room]["user" + team[0]], rec[room]["user" + team[1]])
+                        return
+                    }
+                    // 相手がまだ交代していない時
+                    let atk = rec[room]["user" + team[1]]
+                    let def = rec[room]["user" + team[0]]
+                    let order = [atk, def]
+                    let move = success.moveSuccessJudge(atk, def, order)
+                    if (move == false){
+                        processAtFailure(atk)
+                    } else {
+                        if (move[9] == "反射"){
+                            let save = atk
+                            atk = def
+                            def = save
+                        }
+                        if (process.moveProcess(atk, def, move, order) == "stop"){
+                            atk.data.command = ""
+                            return
+                        }
+                    }
+                    atk.data.command = ""
+                    end.endProcess(atk, def)
+                    io.to(data[room].user1.data.id).emit("run battle", data[room], 1, 2)
+                    io.to(data[room].user2.data.id).emit("run battle", data[room], 2, 1)
+                    return
+                }
+                // ひんしのポケモンを交換する時
+                if (data[room]["user" + team[0]].con.f_con.includes("ひんし")){
+                    summon.pokeReplace(data[room]["user" + team[0]], data[room]["user" + team[1]])
+                    summon.activAbility(data[room]["user" + team[0]], data[room]["user" + team[1]], 1)
+                    io.to(data[room].user1.data.id).emit("run battle", data[room], 1, 2)
+                    io.to(data[room].user2.data.id).emit("run battle", data[room], 2, 1)
+                    return
+                }
                 // 相手が選択している時
-                if (rec[room]["user" + (i % 2 + 1)].data.command != ""){
-                    ret = main.runBattle(rec[room])
-                    io.to(data[room]["user" + i].id).emit("run battle", ret, i, (i % 2 + 1))
-                    io.to(data[room]["user" + (i % 2 + 1)].id).emit("run battle", ret, (i % 2 + 1), i)
-                    rec[room]["user" + i].data.command = ""
-                    rec[room]["user" + (i % 2 + 1)].data.command = ""
+                if (data[room]["user" + team[1]].data.command != ""){
+                    main.runBattle(data[room])
+                    io.to(data[room].user1.data.id).emit("run battle", data[room], 1, 2)
+                    io.to(data[room].user2.data.id).emit("run battle", data[room], 2, 1)
+                    return
                 }
             }
         }

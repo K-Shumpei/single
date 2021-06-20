@@ -21,7 +21,7 @@ exports.battleStart = function(rec){
 
     summon.activAbility(rec.user1, rec.user2, "both")
 
-    return rec
+    return
 
     // 特性による交換ボタンの無効化
     for (const team of [["1", "2"], ["2", "1"]]){
@@ -40,12 +40,11 @@ exports.battleStart = function(rec){
 
 // ターンの処理
 exports.runBattle = function(rec){
-
     // 素早さ判定
     let order = afn.speedCheck(rec.user1.con, rec.user2.con)
     if (order[0] > order[1] || (order[0] == order[1] && Math.random() < 0.5)){
         order = [rec.user1, rec.user2]
-    } else if (order[0] < order[1]){
+    } else {
         order = [rec.user2, rec.user1]
     }
     if (rec.user1.con.f_con.includes("トリックルーム")){
@@ -98,6 +97,7 @@ exports.runBattle = function(rec){
             summon.comeBack(user, enemy)
             summon.pokeReplace(user, enemy)
             summon.activAbility(user, enemy, 1)
+            user.data.command = ""
         }
     }
         // 交換順は、交代前のポケモンのすばやさ順。出てきたポケモンが(1)における行動を全て終えてから次のポケモンが交換される。
@@ -117,7 +117,7 @@ exports.runBattle = function(rec){
         if (user == rec.user1){
             enemy = rec.user2
         }
-        if (user.data.command < 4){
+        if (user.data.command < 4 && user.data.command != undefined && user.data.command != ""){
             let move = cfn.moveSearch(user)
             if (move[0] == "きあいパンチ"){
                 user.con.p_con += "きあいパンチ" + "\n"
@@ -135,34 +135,21 @@ exports.runBattle = function(rec){
         
     // すばやさ順に行われる処理はトリックルームの影響を受ける。
 
-    // ポケモンの技
-    const turn_number = (rec.user1.con.log.match( /ターン目/g ) || []).length
-    const turn = "---------- " + turn_number + "ターン目 ----------"
-    const log_list = rec.user1.con.log.split("\n")
-    let A_check = "未行動"
-    let B_check = "未行動"
-    if (log_list.slice(log_list.lastIndexOf(turn)).includes("(" + rec.user1.con.TN + "の行動)" + "\n")){
-        A_check = "行動済"
-    }
-    if (log_list.slice(log_list.lastIndexOf(turn)).includes("(" + rec.user2.con.TN + "の行動)" + "\n")){
-        B_check = "行動済"
-    }
-
     // 両方が交代する時
-    if (A_check == "行動済" && B_check == "行動済"){
+    if (rec.user1.data.command == "" && rec.user2.data.command == ""){
         end.endProcess(rec.user1, rec.user2)
-        return rec
+        return
     }
     
     // 片方が交代、片方が攻撃する時
-    if ((A_check == "行動済" && B_check == "未行動") || (A_check == "未行動" && B_check == "行動済")){
+    if ((rec.user1.data.command == "" && rec.user2.data.command != "") || (rec.user1.data.command != "" && rec.user2.data.command == "")){
         let atk = rec.user1
         let def = rec.user2
-        if (A_check == "行動済" && B_check == "未行動"){
+        if (rec.user1.data.command == "" && rec.user2.data.command != ""){
             atk = rec.user2
             def = rec.user1
         }
-        let move = move_success_judge(atk, def, order)
+        let move = success.moveSuccessJudge(atk, def, order)
         if (move == false){
             processAtFailure(atk)
         } else {
@@ -171,25 +158,21 @@ exports.runBattle = function(rec){
                 atk = def
                 def = save
             }
-            const stop_check = move_process(atk, def, move, order)
-            if (stop_check == "stop"){
+            if (process.moveProcess(atk, def, move, order) == "stop"){
+                team[0].data.command = ""
                 return
             }
         }
         end.endProcess(rec.user1, rec.user2)
-        return rec
+        atk.data.command = ""
+        return
     }
 
     // 両方が攻撃する時
-    if (A_check == "未行動" && B_check == "未行動"){
-        order = actOrder.actionOrder(rec.user1, rec.user2)
-        let reverse = [rec.user2, rec.user1]
-        if (order[0] == 1){
-            order = [rec.user1, rec.user2]
-        } else if (order[0] == 2){
-            order = [rec.user2, rec.user1]
-            reverse = [rec.user1, rec.user2]
-        }
+    if (rec.user1.data.command != "" && rec.user2.data.command != ""){
+        let num = actOrder.actionOrder(rec.user1, rec.user2)
+        let order = [rec["user" + num[0]], rec["user" + num[1]]]
+        let reverse = [rec["user" + num[1]], rec["user" + num[0]]]
         for (const team of [order, reverse]){
             let atk = team[0]
             let def = team[1]
@@ -204,30 +187,17 @@ exports.runBattle = function(rec){
                         atk = def
                         def = save
                     }
-                    let stopCheck = process.moveProcess(atk, def, move, order)
-                    if (stopCheck == "stop"){
+                    if (process.moveProcess(atk, def, move, order) == "stop"){
+                        team[0].data.command = ""
                         return
                     }
                 }
             }
+            team[0].data.command = ""
         }
         end.endProcess(rec.user1, rec.user2)
-        return rec
     }
 }
-
-
-function move_search(team){
-    const num = String(document.getElementById("battle")[team + "_move"].value)
-    const move = document.getElementById(team + "_move_" + num).textContent
-    for (let i = 0; i < move_list.length; i++){
-        if (move == move_list[i][0]){
-            return move_list[i]
-        }
-    }
-}
-
-
 
 function processAtFailure(team){
     cfn.conditionRemove(team.con, "poke", "アイスボール")
@@ -262,7 +232,7 @@ function buttonValidation(order){
         }
         // ほおばる：きのみを持っていない場合、使用不能に
         for (let i = 0; i < 4; i++){
-            if (team.con["move_" + i] == "ほおばる" && !item.berryList.includes(team.con.item)){
+            if (team.con["move_" + i] == "ほおばる" && !item.berryList().includes(team.con.item)){
                 team.data["radio_" + i] = true
             }
         }

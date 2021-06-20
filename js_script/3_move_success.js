@@ -1262,24 +1262,15 @@ function moveSpecificationsFailure(atk, def, move, order){
     }
     // まもる/こらえる系: ターンの最後の行動/連続使用による失敗判定
     if (moveEff.protect().includes(move[0])){
-        if (atk == order[1]){
-            cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
-            cfn.conditionRemove(con, "poke", "守る")
-            return true
-        }
-        if (Math.random() < 1 / Math.pow(3, turn)){
-            if (!con.p_con.includes("守る")){
-                con.p_con += "守る　1回成功" + "\n"
-            } else {
-                let p_list = con.p_con.split("\n")
-                for (let i = 0; i < p_list.length; i++){
-                    if (p_list[i].includes("守る")){
-                        const turn = Number(p_list[i].slice(3, 4)) + 1
-                        p_list[i] = "まもる　" + turn + "回成功" + "\n"
-                    }
-                }
-                con.p_con = p_list.join("\n")
+        let turn = 0
+        for (let i = 0; i < con.p_con.split("\n").length - 1; i++){
+            if (con.p_con.split("\n")[i].includes("守る")){
+                turn = Number(con.p_con.split("\n")[i].slice(3, 4))
             }
+        }
+        if (Math.random() < 1 / Math.pow(3, turn) && atk == order[0]){
+            cfn.conditionRemove(con, "poke", "守る")
+            con.p_con += "守る　" + (turn + 1) + "回成功" + "\n"
         } else {
             cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
             cfn.conditionRemove(con, "poke", "守る")

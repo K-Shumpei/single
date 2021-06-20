@@ -533,29 +533,13 @@ function stop_action_timer(){
 
 // AチームとBチームの6択のポケモンセット
 function setAll(){
-    if (Number(document.getElementById("EV_last").textContent) < 0){
-        alert("努力値振りすぎやで")
-        return
-    }
-    if (document.poke_name.poke_name.value == ""){
-        alert("ポケモン選択されてへんで")
-        return
-    }
-    let move_check = 0
-    for (let i = 0; i < 4; i++){
-        if (document.four_moves["move" + String(i)].value == ""){
-            move_check += 1
-        }
-    }
-    if (move_check == 4){
-        alert("技覚えてへんで")
-        return
-    }
-    const parameter = ["H", "A", "B", "C", "D", "S"]
-    const ability = document.poke_ID.ability
-    const num = ability.selectedIndex
+    for (let j = 0; j < 6; j++){
+        set_random()
+        let parameter = ["H", "A", "B", "C", "D", "S"]
+        let ability = document.poke_ID.ability
+        let num = ability.selectedIndex
 
-    for (let team of [0, 1, 2, 3, 4, 5]){
+        team = j
 
         document.getElementById(team + "_name").textContent = document.poke_name.poke_name.value
         document.getElementById(team + "_sex").textContent = " " + document.getElementById("poke_name_id").sex.value + " "
@@ -579,8 +563,6 @@ function setAll(){
             document.getElementById(team + "_last_" + i).textContent = document.getElementById("PP" + String(i)).textContent
         }
     
-        CR = String.fromCharCode(13)
-    
         // アルセウス：プレートによるタイプ変更
         if (document.getElementById(team + "_ability").textContent == "マルチタイプ"){
             for (let i = 0; i < judgement_plate.length; i++){
@@ -598,17 +580,16 @@ function setAll(){
                 }
             }
         }
-    }
 
-
-    let check = 0
-    for (let i = 0; i < 6; i++){
-        if (document.getElementById(i + "_name").textContent){
-            check += 1
+        let check = 0
+        for (let i = 0; i < 6; i++){
+            if (document.getElementById(i + "_name").textContent){
+                check += 1
+            }
         }
-    }
-    if (check == 6){
-        document.getElementById("trainer_name").style.display = "block"
+        if (check == 6){
+            document.getElementById("trainer_name").style.display = "block"
+        }
     }
 }
 

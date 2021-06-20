@@ -384,7 +384,7 @@ exports.formChenge = function(team, enemy, name){
     // 実数値の書き換え
     const parameter = ["A", "B", "C", "D", "S"]
     for (let i = 0; i < 5; i++){
-        let BS = Number(poke[k + 3])
+        let BS = Number(poke[i + 3])
         let IV = team["poke" + num][parameter[i] + "_IV"]
         let EV = team["poke" + num][parameter[i] + "_EV"]
         let AV = parseInt((parseInt(((BS*2 + IV + parseInt(EV/4)) * con.level)/100) + 5) * rate[i])

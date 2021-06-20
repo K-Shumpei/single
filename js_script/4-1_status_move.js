@@ -686,9 +686,9 @@ function otherStatusMove(atk, def, move){
         cfn.logWrite(atk, def, "あたりが幸せに包まれた！" + "\n")
     } else if (move[0] == "ハロウィン"){
         if (def.con.type = ""){
-            def.con.type += "ゴースト"
+            def.con.type = "ゴースト"
         } else {
-            def.con.type += "、ゴースト"
+            def.con.type = def.con.type + "、ゴースト"
         }
         def.con.p_con += "ハロウィン" + "\n"
         cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　タイプにゴーストが追加された！" + "\n")

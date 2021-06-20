@@ -29,17 +29,17 @@ exports.damageCalculationProcess = function(atk, def, move, order){
 // ダメージ固定技
 function fixedDamageMove(atk, def, move){
     if (move[0] == "ソニックブーム"){
-        return [20, 1, false]
+        return {damage: 20, compatibility: 1, critical: false}
     } else if (move[0] == "りゅうのいかり"){
-        return [40, 1, false]
+        return {damage: 40, compatibility: 1, critical: false}
     } else if (move[0] == "ちきゅうなげ" || move[0] == "ナイトヘッド"){
-        return [atk.con.level, 1, false]
+        return {damage: atk.con.level, compatibility: 1, critical: false}
     } else if (move[0] == "サイコウェーブ"){
-        return [Math.floor(atk.con.level * (Math.floor(Math.random() * 101) * 0.01 + 0.5)), 1, false]
+        return {damage: Math.floor(atk.con.level * (Math.floor(Math.random() * 101) * 0.01 + 0.5)), compatibility :1, critical: false}
     } else if (move[0] == "いかりのまえば" || move[0] == "しぜんのいかり"){
-        return [Math.floor(def.con.last_HP / 2), 1, false]
+        return {damage: Math.floor(def.con.last_HP / 2), compatibility: 1, critical: false}
     } else if (move[0] == "がむしゃら"){
-        return [def.con.last_HP - atk.con.last_HP, 1, false]
+        return {damage: def.con.last_HP - atk.con.last_HP, compatibility: 1, critical: false}
     } else if (move[0] == "カウンター"){
         let damage = 0
         for (let i = 0; i < atk.con.p_con.split("\n").length - 1; i++){
@@ -48,7 +48,7 @@ function fixedDamageMove(atk, def, move){
             }
         }
         cfn.conditionRemove(atk.con, "poke", "物理ダメージ")
-        return [damage * 2, 1, false]
+        return {damage: damage * 2, compatibility: 1, critical: false}
     } else if (move[0] == "ミラーコート"){
         let damage = 0
         for (let i = 0; i < atk.con.p_con.split("\n").length - 1; i++){
@@ -57,9 +57,9 @@ function fixedDamageMove(atk, def, move){
             }
         }
         cfn.conditionRemove(atk.con, "poke", "特殊ダメージ")
-        return [damage * 2, 1, false]
+        return {damage: damage * 2, compatibility: 1, critical: false}
     } else if (move[0] == "がまん"){
-        return [move[3] * 2, 1, false]
+        return {damage: move[3] * 2, compatibility: 1, critical: false}
     } else if (move[0] == "メタルバースト"){
         let damage = 0
         for (let i = 0; i < atk.con.p_con.split("\n").length - 1; i++){
@@ -68,14 +68,14 @@ function fixedDamageMove(atk, def, move){
             }
         }
         cfn.conditionRemove(atk.con, "poke", "ダメージ")
-        return [Math.floor(damage * 1.5), 1, false]
+        return {damage: Math.floor(damage * 1.5), compatibility: 1, critical: false}
     } else if (move[0] == "いのちがけ"){
-        return [atk.con.last_HP, 1, false]
+        return {damage: atk.con.last_HP, compatibility: 1, critical: false}
     } else if (moveEff.oneShot().includes(move[0])){
         cfn.logWrite(atk, def, "一撃必殺！" + "\n")
-        return [def.con.last_HP, 1, false]
+        return {damage: def.con.last_HP, compatibility: 1, critical: false}
     } else if (move[0] == "ガーディアン・デ・アローラ"){
-        return [Math.floor(def.con.last_HP * 0.75), 1, false]
+        return {damage: Math.floor(def.con.last_HP * 0.75), compatibility: 1, critical: false}
     }
 }
 
@@ -789,7 +789,7 @@ function damageCalculation(atk, def, move, power, critical, attack, defense){
     }
     // 半減きのみ補正
     for (let i = 0; i < itemEff.halfBerry().length; i++){
-        if (def.con.item == itemEff.halfBerry()[i][0] && move[1] == itemEff.halfBerry()[i][1] && (move[1] == "ノーマル" || cfn.compatibilityCheck(atk, def, move) > 1)){
+        if (def.con.item == itemEff.halfBerry()[i][0] && move[1] == itemEff.halfBerry()[i][1] && (move[1] == "ノーマル" || compatibility_rate > 1)){
             if (def.con.ability == "じゅくせい"){
                 damage = Math.round(damage * 1024 / 4096)
             } else {

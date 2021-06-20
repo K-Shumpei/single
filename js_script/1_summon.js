@@ -16,12 +16,17 @@ exports.comeBack = function(user, enemy){
     } else if (user.con.name == "メテノ(コア)"){
         afn.formChenge(user, enemy, "メテノ(りゅうせいのすがた)")
     }
-    // 名前・タイプ・特性・実数値・残りHP・残りPPは既に正しい表記になっている
-    // 持ち物、状態異常の移動
-    user["poke" + cfn.battleNum(user)].item = user.con.item
-    user["poke" + cfn.battleNum(user)].abnormal = user.con.abnormal
-    // 総HPの移動
-    user["poke" + cfn.battleNum(user)].full_HP = user.con.full_HP
+    // パラメーターの移動
+    for (const parameter of [
+        "name", "sex", "level", "type", "nature", "ability", "item", "abnormal", 
+        "last_HP", "full_HP", 
+        "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
+        "move_0", "PP_0", "last_0", 
+        "move_1", "PP_1", "last_1", 
+        "move_2", "PP_2", "last_2", 
+        "move_3", "PP_3", "last_3"]){
+        user["poke" + cfn.battleNum(user)][parameter] = user.con[parameter]
+    }
 
     // ポケモンの状態の削除
     user.con.p_con= ""
@@ -88,6 +93,8 @@ exports.comeBack = function(user, enemy){
 
 // ポケモンを戦闘に出す
 exports.pokeReplace = function(team, enemy){
+    cfn.conditionRemove(team.con, "field", "ひんし")
+    cfn.conditionRemove(team.con, "field", "選択中")
     const num = team.data.command - 4
     // 各パラメータを記述
     for (const parameter of ["name", "sex", "level", "type", "ability", "item", "abnormal", "nature", "full_HP", "last_HP", "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
@@ -209,7 +216,7 @@ exports.activAbility = function(user1, user2, team){
         let order = afn.speedCheck(user1.con, user2.con)
         if (order[0] > order[1] || (order[0] == order[1] && Math.random() < 0.5)){
             order = [user1, user2]
-        } else if (order[0] < order[1]){
+        } else {
             order = [user2, user1]
         }
         if (user1.con.f_con.includes("トリックルーム")){

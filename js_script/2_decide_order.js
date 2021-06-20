@@ -25,7 +25,7 @@ exports.actionOrder = function(user1, user2){
                 order = afn.speedCheck(user1.con, user2.con)
                 if (order[0] > order[1] || (order[0] == order[1] && Math.random() < 0.5)){
                     order = [1, 2]
-                } else if (order[0] < order[1]){
+                } else {
                     order = [2, 1]
                 }
                 return trickRoom(order, user1.con.f_con)

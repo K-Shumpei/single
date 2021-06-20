@@ -26,7 +26,7 @@ exports.endProcess = function(user1, user2){
     let order = afn.speedCheck(user1.con, user2.con)
     if (order[0] > order[1] || (order[0] == order[1] && Math.random() < 0.5)){
         order = [user1, user2]
-    } else if (order[0] < order[1]){
+    } else {
         order = [user2, user1]
     }
     if (user1.con.f_con.includes("トリックルーム")){
@@ -103,12 +103,10 @@ exports.endProcess = function(user1, user2){
 
     cfn.logWrite(order[0], order[1], "---------- ターン終了 ----------" + "\n")
 
-    return
-
     // C.ひんしのポケモンがいる時、交換する
-    return_fainted_pokemon(order)
+    returnFaintedPokemon(order, reverse)
     // D.次ターンの、選択ボタンの無効化
-    cannot_choose_action(order, reverse)
+    cannotChooseAction(order, reverse)
 }
 
 // A.その他の終了
@@ -132,21 +130,21 @@ function otherEnd(order, reverse){
         // じゅうでんのテキスト変更
         if (team[0].con.p_con.includes("じゅうでん　開始")){
             cfn.conditionRemove(team[0].con, "poke", "じゅうでん　開始")
-            team[0].con.p_con += "じゅうでん"
+            team[0].con.p_con += "じゅうでん" + CR
         } else {
             cfn.conditionRemove(team[0].con, "poke", "じゅうでん")
         }
         // とぎすますのテキスト変更
         if (team[0].con.p_con.includes("とぎすます　開始")){
             cfn.conditionRemove(team[0].con, "poke", "とぎすます　開始")
-            team[0].con.p_con += "とぎすます"
+            team[0].con.p_con += "とぎすます" + CR
         } else {
             cfn.conditionRemove(team[0].con, "poke", "とぎすます")
         }
         // フェアリーロックのテキスト変更
         if (team[0].con.p_con.includes("逃げられない：フェアリーロック　開始")){
             cfn.conditionRemove(team[0].con, "poke", "逃げられない：フェアリーロック　開始")
-            team[0].con.p_con += "逃げられない：フェアリーロック"
+            team[0].con.p_con += "逃げられない：フェアリーロック" + CR
         } else {
             cfn.conditionRemove(team[0].con, "poke", "逃げられない：フェアリーロック")
         }
@@ -206,111 +204,88 @@ function otherProcess(order, reverse){
 }
 
 // C.ひんしのポケモンがいる時、交換する
-function return_fainted_pokemon(order){
-    let check = 0
-    for (const team of order){
-        if (team.con.f_con.includes("ひんし")){
-            document.battle_log.battle_log.value += team + "チームは　戦闘に出すポケモンを選んでください" + "\n"
-            check += 1
+function returnFaintedPokemon(order, reverse){
+    for (const team of [order, reverse]){
+        if (team[0].con.f_con.includes("ひんし")){
+            cfn.logWrite(team[0], team[1], team[0].con.TN + "　は　戦闘に出すポケモンを選んでください" + "\n")
         }
-    }
-    if (check > 0){
-        document.battle.battle_button.disabled = true
     }
 }
 
 // D.次ターンの、選択ボタンの無効化
-function cannot_choose_action(order, reverse){
+function cannotChooseAction(order, reverse){
     for (const team of [order, reverse]){
-        // 全ての選択ボタンのチェックを外す
-        for (let i = 0; i < 3; i++){
-            document.getElementById(team[0] + "_" + i + "_button").checked = false
-        }
-        for (let i = 0; i < 4; i++){
-            document.getElementById(team[0] + "_radio_" + i).checked = false
-        }
         // ほおばる：きのみを持っている場合、技選択が可能になる
         for (let i = 0; i < 4; i++){
-            if (document.getElementById(team[0] + "_move_" + i).textContent == "ほおばる"){
-                if (berry_item_list.includes(new get(team[0]).item)){
-                    document.getElementById(team[0] + "_radio_" + i).disabled = false
+            if (team[0].con["move_" + i] == "ほおばる"){
+                if (itemEff.berryList().includes((team[0]).con.item)){
+                    team[0].data["radio_" + i] = false
                 } else {
-                    document.getElementById(team[0] + "_radio_" + i).disabled = true
+                    team[0].data["radio_" + i] = true
                 }
             }
         }
         // ゲップ：備考欄に「ゲップ」の文字があれば使用可能になる
         for (let i = 0; i < 4; i++){
-            if (document.getElementById(team[0] + "_move_" + i).textContent == "ゲップ"){
-                for (let j = 0; j < 3; j++){
-                    if (document.getElementById(team[0] + "_" + j + "_existence").textContent == "戦闘中" && document.getElementById(team[0] + "_" + j + "_belch").textContent == "ゲップ"){
-                        document.getElementById(team[0] + "_radio_" + i).disabled = false
-                    }
-                }
+            if (team[0].con["move_" + i] == "ゲップ" && team[0]["poke" + cfn.battleNum(team[0])].belch == "ゲップ"){
+                team[0].data["radio_" + i] = false
             }
         }
         // いちゃもん
-        if (new get(team[0]).p_con.includes("いちゃもん")){
+        if (team[0].con.p_con.includes("いちゃもん")){
             for (let i = 0; i < 4; i++){
-                if (document.getElementById(team[0] + "_move_" + i).textContent == document.battle[team[0] + "_used_move"].value){
-                    document.getElementById(team[0] + "_radio_" + i).disabled = true
-                    document.getElementById(team[0] + "_radio_" + i).checked = false
+                if (team[0].con["move_" + i] == team[0].con.used){
+                    team[0].data["radio_" + i] = true
                 }
             }
         }
         // こだわりロック
-        if (!new get(team[0]).item.includes("こだわり")){
-            condition_remove(team[0], "poke", "こだわりロック")
+        if (!team[0].con.item.includes("こだわり") && team[0].con.ability != "ごりむちゅう"){
+            cfn.conditionRemove(team[0].con, "poke", "こだわりロック")
         }
-        for (let i = 0; i < new get(team[0]).p_len; i++){
-            if (new get(team[0]).p_list[i].includes("こだわりロック")){
+        for (let i = 0; i < team[0].con.p_con.split("\n").length - 1; i++){
+            if (team[0].con.p_con.split("\n")[i].includes("こだわりロック")){
                 for (let j = 0; j < 4; j++){
-                    if (document.getElementById(team[0] + "_move_" + j).textContent != new get(team[0]).p_list[i].slice(8)){
-                        document.getElementById(team[0] + "_radio_" + j).disabled = true
+                    if (team[0].con["move_" + j] != team[0].con.p_con.split("\n")[i].slice(8)){
+                        team[0].data["radio_" + j] = true
                     }
                 }
             }
         }
         // とつげきチョッキ
-        if (new get(team[0]).item == "とつげきチョッキ"){
+        if (team[0].con.item == "とつげきチョッキ"){
             for (let i = 0; i < 4; i++){
-                if (document.getElementById(team[0] + "_move_" + i).textContent != ""){
-                    if (move_search_by_name(document.getElementById(team[0] + "_move_" + i).textContent)[2] == "変化"){
-                        document.getElementById(team[0] + "_radio_" + i).disabled = true
-                    }
+                if (cfn.moveSearchByName(team[0].con["move_" + i])[2] == "変化"){
+                    team[0].con["radio_" + i] = true
                 }
             }
         }
         // 逃げられない状態、バインド状態による交換ボタンの無効化
-        if (new get(team[0]).p_con.includes("逃げられない") || new get(team[0]).p_con.includes("バインド") || new get(team[0]).p_con.includes("ねをはる") || new get(team[0]).f_con.includes("フェアリーロック") 
-        || (new get(team[1]).ability == "ありじごく" && grounded_check(team[0])) 
-        || (new get(team[1]).ability == "かげふみ" && new get(team[0]).ability != "かげふみ") 
-        || (new get(team[1]).ability == "じりょく" && new get(team[0]).type.includes("はがね"))){
-            if (new get(team[0]).item != "きれいなぬけがら" && !new get(team[0]).type.includes("ゴースト")){
+        if (team[0].con.p_con.includes("逃げられない") || team[0].con.p_con.includes("バインド") || team[0].con.p_con.includes("ねをはる") || team[0].con.f_con.includes("フェアリーロック") 
+        || (team[1].con.ability == "ありじごく" && cfn.groundedCheck(team[0].con)) 
+        || (team[1].con.ability == "かげふみ" && team[0].con.ability != "かげふみ") 
+        || (team[1].con.ability == "じりょく" && team[0].con.type.includes("はがね"))){
+            if (team[0].con.item != "きれいなぬけがら" && !team[0].con.type.includes("ゴースト")){
                 for (let i = 0; i < 3; i++){
-                    document.getElementById(team[0] + "_" + i + "_button").disabled = true
-                    document.getElementById(team[0] + "_" + i + "_button").checked = false
+                    team[0].data["radio_" + String(i + 4)] = true
                 }
             }
         }
         // 反動で動けなくなる技の反動ターン
         // 溜め技の攻撃ターン
         // 数ターン行動する技の使用中
-        if (new get(team[0]).p_con.includes("反動で動けない") || new get(team[0]).p_con.includes("溜め技") || new get(team[0]).p_con.includes("あばれる") 
-        || new get(team[0]).p_con.includes("アイスボール") || new get(team[0]).p_con.includes("ころがる") || new get(team[0]).p_con.includes("がまん")){
+        if (team[0].con.p_con.includes("反動で動けない") || team[0].con.p_con.includes("溜め技") || team[0].con.p_con.includes("あばれる") 
+        || team[0].con.p_con.includes("アイスボール") || team[0].con.p_con.includes("ころがる") || team[0].con.p_con.includes("がまん")){
             for (let i = 0; i < 3; i++){
-                document.getElementById(team[0] + "_" + i + "_button").disabled = true
-                document.getElementById(team[0] + "_" + i + "_button").checked = false
+                team[0].data["radio_" + i] = true
             }
             for (let i = 0; i < 4; i++){
-                document.getElementById(team[0] + "_radio_" + i).disabled = true
-                document.getElementById(team[0] + "_radio_" + i).checked = false
+                team[0].data["radio_" + i] = true
             }
         }
-        if (new get(team[0]).p_con.includes("姿を隠す：フリーフォール（防御）")){
+        if (team[0].con.p_con.includes("姿を隠す：フリーフォール（防御）")){
             for (let i = 0; i < 3; i++){
-                document.getElementById(team[0] + "_" + i + "_button").disabled = true
-                document.getElementById(team[0] + "_" + i + "_button").checked = false
+                team[0].data["radio_" + i] = true
             }
         }
     }
@@ -332,9 +307,9 @@ function weatherEffect(order, reverse){
     for (const team of [order, reverse]){
         if (team[0].con.last_HP > 0 && team[0].con.ability != "ぼうじん" && team[0].con.item != "ぼうじんゴーグル" && cfn.isWeather(order[0].con, order[1].con)){
             if (team[0].con.f_con.includes("すなあらし") && !(team[0].con.type.includes("いわ") || team[0].con.type.includes("じめん") || team[0].con.type.includes("はがね") || team[0].con.ability == "すながくれ" || team[0].con.ability == "すなかき" || team[0].con.ability == "すなのちから")){
-                cfn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "-", "すなあらし")
+                afn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "-", "すなあらし")
             } else if (team[0].con.f_con.includes("あられ") && !(team[0].con.type.includes("こおり") || team[0].con.ability == "アイスボディ" || team[0].con.ability == "ゆきかき" || team[0].con.ability == "ゆきがくれ")){
-                cfn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "-", "あられ")
+                afn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "-", "あられ")
             }
         }
     }
@@ -512,7 +487,7 @@ function acidCheck(order, reverse){
 // 9 やけど
 function burnCheck(order, reverse){
     for (const team of [order, reverse]){
-        if (team[0].con.abnormal == "やけど" && team.con.last_HP > 0){
+        if (team[0].con.abnormal == "やけど" && team[0].con.last_HP > 0){
             if (team[0].con.ability == "たいねつ"){
                 afn.HPchangeMagic(team[0], team[1], Math.floor(team.con.full_HP / 32), "-", "やけど")
             } else {
@@ -801,7 +776,7 @@ function otherConditionAbilityItem(order, reverse){
         let list = team[0].con.p_con.split("\n")
         for (let i = 0; i < list.length; i++){
             if (list[i].includes("さわぐ")){
-                const turn = Number(lisst[i].slice(4, 5)) + 1
+                const turn = Number(list[i].slice(4, 5)) + 1
                 if (turn < 4){
                     list[i] = "さわぐ　" + turn + "ターン目"
                     cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　騒いでいる" + "\n")

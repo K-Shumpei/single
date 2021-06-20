@@ -9,7 +9,7 @@ $(function () {
             for (const parameter of [
                 "name", "sex", "type", "nature", "ability", "item", "abnormal", 
                 "move_0", "move_1", "move_2", "move_3", 
-                "recycle", "belch", "form", "life"]){
+                "recycle", "belch", "form", "life", "belch", "recycle", "form"]){
                 each[parameter] = document.getElementById(i + "_" + parameter).textContent
             }
             for (const parameter of [
@@ -44,12 +44,16 @@ $(function () {
         document.getElementById("select").style.display = "block"
         document.getElementById("trainer_name").style.display = "none"
         // 名前の設定
-        document.getElementById("myName").textContent = data["user" + me].name
-        document.getElementById("yourName").textContent = data["user" + you].name
+        document.getElementById("myName").textContent = data["user" + me].con.TN
+        document.getElementById("yourName").textContent = data["user" + you].con.TN
+        document.getElementById("MyName").textContent = data["user" + me].con.TN
+        document.getElementById("My_Name").textContent = data["user" + me].con.TN
+        document.getElementById("YourName").textContent = data["user" + you].con.TN
+        document.getElementById("Your_Name").textContent = data["user" + you].con.TN
         // 画像の設定
         for (let i = 0; i < 6; i++) {
             for (let j = 0; j < pokemon.length; j++){
-                if (data["team" + me][i].name == pokemon[j][1]){
+                if (data["user" + me].team[i].name == pokemon[j][1]){
                     document.getElementById("player_" + i).src = "poke_figure/" + pokemon[j][0] + ".gif"
                     document.getElementById("me_" + i).src = "poke_figure/" + pokemon[j][0] + ".gif"
                 }
@@ -57,12 +61,13 @@ $(function () {
         }
         for (let i = 0; i < 6; i++) {
             for (let j = 0; j < pokemon.length; j++){
-                if (data["team" + you][i].name == pokemon[j][1]){
+                if (data["user" + you].team[i].name == pokemon[j][1]){
                     document.getElementById("enemy_" + i).src = "poke_figure/" + pokemon[j][0] + ".gif"
                     document.getElementById("you_" + i).src = "poke_figure/" + pokemon[j][0] + ".gif"
                 }
             }
         }
+
     })
 
     // 選出するポケモンのデータを送信　[1匹目、2匹目、3匹目]の番号リストを送信
@@ -83,7 +88,7 @@ $(function () {
     })
 
     // お互いの選出が完了した
-    socketio.on("battle start", function(rec, me, you) {
+    socketio.on("battle start", function(data, me, you) {
         document.getElementById("headline").textContent = "対戦が始まりました"
         document.getElementById("select").style.display = "none"
         document.getElementById("both_team").style.display = "block"
@@ -91,11 +96,6 @@ $(function () {
         document.getElementById("3_team").style.display = "none"
         document.getElementById("4_team").style.display = "none"
         document.getElementById("5_team").style.display = "none"
-        // 名前の設定
-        document.getElementById("MyName").textContent = rec["user" + me].data.name
-        document.getElementById("My_Name").textContent = rec["user" + me].data.name
-        document.getElementById("YourName").textContent = rec["user" + you].data.name
-        document.getElementById("Your_Name").textContent = rec["user" + you].data.name
 
         // 選出した3匹のポケモンの情報を記入
         for (let i = 0; i < 3; i++){
@@ -109,7 +109,7 @@ $(function () {
                 "move_3", "PP_3", "last_3", 
                 "H_IV", "A_IV", "B_IV", "C_IV", "D_IV", "S_IV", 
                 "H_EV", "A_EV", "B_EV", "C_EV", "D_EV", "S_EV", "life"]){
-                document.getElementById(i + "_" + parameter).textContent = rec["user" + me]["poke" + i][parameter]
+                document.getElementById(i + "_" + parameter).textContent = data["user" + me]["poke" + i][parameter]
             }
             if (document.getElementById(i + "_name").textContent == "ミミッキュ"){
                 document.getElementById(i + "_form").textContent = "ばけたすがた"
@@ -126,31 +126,31 @@ $(function () {
             "move_1", "PP_1", "last_1", 
             "move_2", "PP_2", "last_2", 
             "move_3", "PP_3", "last_3"]){
-            document.getElementById("A_" + parameter).textContent = rec["user" + me].con[parameter]
+            document.getElementById("A_" + parameter).textContent = data["user" + me].con[parameter]
         }
         for (const parameter of ["p_con", "f_con", "used", "log"]){
-            document.battle["A_" + parameter].value = rec["user" + me].con[parameter]
+            document.battle["A_" + parameter].value = data["user" + me].con[parameter]
         }
         for (let i = 0; i < pokemon.length; i++){
-            if (rec["user" + me].con.name == pokemon[i][1]){
+            if (data["user" + me].con.name == pokemon[i][1]){
                 document.getElementById("A_image").src = "poke_figure/" + pokemon[i][0] + ".gif"
             }
         }
         // 相手のポケモンの情報を記入
         for (const parameter of ["name", "sex", "level", "type", "abnormal", "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank"]){
-            document.getElementById("B_" + parameter).textContent = rec["user" + you].con[parameter]
+            document.getElementById("B_" + parameter).textContent = data["user" + you].con[parameter]
         }
         for (const parameter of ["p_con", "f_con", "used"]){
-            document.battle["B_" + parameter].value = rec["user" + you].con[parameter]
+            document.battle["B_" + parameter].value = data["user" + you].con[parameter]
         }
         for (let i = 0; i < pokemon.length; i++){
-            if (rec["user" + you].con.name == pokemon[i][1]){
+            if (data["user" + you].con.name == pokemon[i][1]){
                 document.getElementById("B_image").src = "poke_figure/" + pokemon[i][0] + ".gif"
             }
         }
         // ボタンの無効化
         for (let i = 0; i < 7; i++){
-            document.getElementById("radio_" + i).disabled = rec["user" + me].data["radio_" + i]
+            document.getElementById("radio_" + i).disabled = data["user" + me].data["radio_" + i]
             document.getElementById("radio_" + i).checked = false
         }
         
@@ -159,55 +159,38 @@ $(function () {
 
     // コマンドの送信
     $("#battle").submit(function() {
-        let ret = {poke0: {}, poke1: {}, poke2: {}, data: "", con: {}}
-        ret.con.TN = document.getElementById("MyName").textContent
-        // 選出した3匹のポケモンの情報を記入
-        for (let i = 0; i < 3; i++){
-            for (const parameter of [
-                "name", "sex", "type", "nature", "ability", "item", 
-                "move_0", "move_1", "move_2", "move_3", 
-                "life", "recycle", "belch", "form"]){
-                ret["poke" + i][parameter] = document.getElementById(i + "_" + parameter).textContent
-            }
+        let val = document.battle.radio.value
+        if (document.battle.A_p_con.value.includes("反動で動けない") 
+        || document.battle.A_p_con.value.includes("溜め技") 
+        || document.battle.A_p_con.value.includes("あばれる") 
+        || document.battle.A_p_con.value.includes("アイスボール") 
+        || document.battle.A_p_con.value.includes("ころがる") 
+        || document.battle.A_p_con.value.includes("がまん")){
+            val = undefined
         }
-        for (let i = 0; i < 3; i++){
-            for (const parameter of [
-                "level", "last_HP", "full_HP", 
-                "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
-                "PP_0", "last_0", "PP_1", "last_1", "PP_2", "last_2", "PP_3", "last_3", 
-                "H_IV", "A_IV", "B_IV", "C_IV", "D_IV", "S_IV", 
-                "H_EV", "A_EV", "B_EV", "C_EV", "D_EV", "S_EV"]){
-                ret["poke" + i][parameter] = Number(document.getElementById(i + "_" + parameter).textContent)
-            }
-        }
-        // 戦闘に出したポケモンの情報を記入
-        for (const parameter of [
-            "name", "sex", "type", "nature", "ability", "item", "abnormal", 
-            "move_0", "move_1", "move_2", "move_3"]){
-            ret.con[parameter] = document.getElementById("A_" + parameter).textContent
-        }
-        for (const parameter of [
-            "level", "last_HP", "full_HP", 
-            "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
-            "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank", 
-            "PP_0", "last_0", "PP_1", "last_1", "PP_2", "last_2", "PP_3", "last_3"]){
-            ret.con[parameter] = Number(document.getElementById("A_" + parameter).textContent)
-        }
-        for (const parameter of ["p_con", "f_con", "used", "log"]){
-            ret.con[parameter] = document.battle["A_" + parameter].value
-        }
-        // ボタンの情報などを記入
-        ret.data = {command: document.battle.radio.value, mega: "", Z: "", dina: ""}
-        for (let i = 0; i < 7; i ++){
-            ret.data["radio_" + i] = document.getElementById("radio_" + i).disabled
-        }
-        socketio.emit("action decide", ret)
+        socketio.emit("action decide", val)
         document.getElementById("battle_button").disabled = true
         return false
     })
 
     // 対戦の記録を受信
-    socketio.on("run battle", function(rec, me, you) {
+    socketio.on("run battle", function(data, me, you) {
+        // 選出した3匹のポケモンの情報を記入
+        for (let i = 0; i < 3; i++){
+            for (const parameter of [
+                "name", "sex", "level", "type", "nature", "ability", "item", 
+                "last_HP", "full_HP", 
+                "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
+                "move_0", "PP_0", "last_0", 
+                "move_1", "PP_1", "last_1", 
+                "move_2", "PP_2", "last_2", 
+                "move_3", "PP_3", "last_3", 
+                "H_IV", "A_IV", "B_IV", "C_IV", "D_IV", "S_IV", 
+                "H_EV", "A_EV", "B_EV", "C_EV", "D_EV", "S_EV", 
+                "form", "recycle", "belch", "life"]){
+                document.getElementById(i + "_" + parameter).textContent = data["user" + me]["poke" + i][parameter]
+            }
+        }
         // 戦闘に出したポケモンの情報を記入
         for (const parameter of [
             "name", "sex", "level", "type", "nature", "ability", "item", "abnormal", 
@@ -218,40 +201,55 @@ $(function () {
             "move_1", "PP_1", "last_1", 
             "move_2", "PP_2", "last_2", 
             "move_3", "PP_3", "last_3"]){
-            document.getElementById("A_" + parameter).textContent = rec["user" + me].con[parameter]
+            document.getElementById("A_" + parameter).textContent = data["user" + me].con[parameter]
         }
         for (const parameter of ["p_con", "f_con", "used", "log"]){
-            document.battle["A_" + parameter].value = rec["user" + me].con[parameter]
+            document.battle["A_" + parameter].value = data["user" + me].con[parameter]
         }
         for (let i = 0; i < pokemon.length; i++){
-            if (rec["user" + me].con.name == pokemon[i][1]){
+            if (data["user" + me].con.name == pokemon[i][1]){
                 document.getElementById("A_image").src = "poke_figure/" + pokemon[i][0] + ".gif"
             }
         }
+        if (data["user" + me].con.name == ""){
+            document.getElementById("A_image").src = ""
+        }
         // 相手のポケモンの情報を記入
         for (const parameter of ["name", "sex", "level", "type", "abnormal", "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank"]){
-            document.getElementById("B_" + parameter).textContent = rec["user" + you].con[parameter]
+            document.getElementById("B_" + parameter).textContent = data["user" + you].con[parameter]
         }
         for (const parameter of ["p_con", "f_con", "used"]){
-            document.battle["B_" + parameter].value = rec["user" + you].con[parameter]
+            document.battle["B_" + parameter].value = data["user" + you].con[parameter]
         }
         for (let i = 0; i < pokemon.length; i++){
-            if (rec["user" + you].con.name == pokemon[i][1]){
+            if (data["user" + you].con.name == pokemon[i][1]){
                 document.getElementById("B_image").src = "poke_figure/" + pokemon[i][0] + ".gif"
             }
         }
         // HPバーの表示
-        document.getElementById("A_HP_bar").value = rec["user" + me].con.last_HP / rec["user" + me].con.full_HP
-        document.getElementById("B_HP_bar").value = rec["user" + you].con.last_HP / rec["user" + you].con.full_HP
-        document.getElementById("A_percent").textContent = Math.ceil(rec["user" + me].con.last_HP * 100 / rec["user" + me].con.full_HP)
-        document.getElementById("B_percent").textContent = Math.ceil(rec["user" + you].con.last_HP * 100 / rec["user" + you].con.full_HP)
+        if (data["user" + me].con.f_con.includes("ひんし")){
+            document.getElementById("A_HP_bar").value = 0
+            document.getElementById("A_percent").textContent = 0
+        } else {
+            document.getElementById("A_HP_bar").value = data["user" + me].con.last_HP / data["user" + me].con.full_HP
+            document.getElementById("A_percent").textContent = Math.ceil(data["user" + me].con.last_HP * 100 / data["user" + me].con.full_HP)
+        }
+        if (data["user" + you].con.f_con.includes("ひんし")){
+            document.getElementById("B_HP_bar").value = 0
+            document.getElementById("B_percent").textContent = 0
+        } else {
+            document.getElementById("B_HP_bar").value = data["user" + you].con.last_HP / data["user" + you].con.full_HP
+            document.getElementById("B_percent").textContent = Math.ceil(data["user" + you].con.last_HP * 100 / data["user" + you].con.full_HP)
+        }
         // ボタンの無効化
         for (let i = 0; i < 7; i++){
-            document.getElementById("radio_" + i).disabled = rec["user" + me].data["radio_" + i]
+            document.getElementById("radio_" + i).disabled = data["user" + me].data["radio_" + i]
             document.getElementById("radio_" + i).checked = false
         }
         // 決定ボタンの有効化
-        document.getElementById("battle_button").disabled = false
+        if (!data["user" + you].con.f_con.includes("ひんし") && !data["user" + you].con.f_con.includes("選択中")){
+            document.getElementById("battle_button").disabled = false
+        }
     })
 
     // 相手の接続が切れた時
