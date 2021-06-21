@@ -148,6 +148,7 @@ exports.runBattle = function(rec){
             def = rec.user1
         }
         let move = success.moveSuccessJudge(atk, def, order)
+        let team = atk
         if (move == false){
             processAtFailure(atk)
         } else {
@@ -157,7 +158,7 @@ exports.runBattle = function(rec){
                 def = save
             }
             if (process.moveProcess(atk, def, move, order) == "stop"){
-                team[0].data.command = ""
+                team.data.command = ""
                 return
             }
         }

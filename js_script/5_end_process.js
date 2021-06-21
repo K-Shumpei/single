@@ -281,7 +281,7 @@ function cannotChooseAction(order, reverse){
             }
         }
         if (team[0].con.p_con.includes("姿を隠す：フリーフォール（防御）")){
-            for (let i = 0; i < 3; i++){
+            for (let i = 4; i < 7; i++){
                 team[0].data["radio_" + i] = true
             }
         }
