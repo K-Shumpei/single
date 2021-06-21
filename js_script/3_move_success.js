@@ -1289,7 +1289,7 @@ function moveSpecificationsFailure(atk, def, move, order){
         }
     }
     // みらいよち/はめつのねがい: 対象の場がすでにみらいにこうげき状態になっている
-    if ((move[0] == "みらいよち" || move[0] == "はめつのねがい") && (defc.con.f_con.includes("みらいよち") || def.con.f_con.includes("はめつのねがい"))){
+    if ((move[0] == "みらいよち" || move[0] == "はめつのねがい") && (def.con.f_con.includes("みらいよち") || def.con.f_con.includes("はめつのねがい"))){
         cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
         return true
     }
