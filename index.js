@@ -172,6 +172,10 @@ $(function () {
         || document.battle.A_p_con.value.includes("がまん")){
             val = undefined
         }
+        if (val == ""){
+            alert("行動を選択してください")
+            return false
+        }
         socketio.emit("action decide", val)
         document.getElementById("battle_button").disabled = true
         return false
