@@ -255,7 +255,7 @@ $(function () {
             document.getElementById("radio_" + i).checked = false
         }
         // 決定ボタンの有効化
-        if (!data["user" + you].con.f_con.includes("ひんし") && !data["user" + you].con.f_con.includes("選択中")){
+        if (!data["user" + you].con.f_con.includes("ひんし") && !data["user" + you].con.f_con.includes("選択中・・・")){
             document.getElementById("battle_button").disabled = false
         }
         // スクロールバーを一番下に移動

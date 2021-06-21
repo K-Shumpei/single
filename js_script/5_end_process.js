@@ -200,6 +200,10 @@ function otherProcess(order, reverse){
             }
         }
         team[0].con.p_con = list.join("\n")
+        // 守る成功の削除
+        if (!moveEff.protect().includes(team[0].con.used)){
+            cfn.conditionRemove(team[0].con, "poke", "守る")
+        }
     }
 }
 
