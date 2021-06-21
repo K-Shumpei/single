@@ -85,7 +85,7 @@ exports.comeBack = function(user, enemy){
         "move_0", "PP_0", "last_0", 
         "move_1", "PP_1", "last_1", 
         "move_2", "PP_2", "last_2", 
-        "move_3", "PP_3", "last_3", "p_con", "user"]){
+        "move_3", "PP_3", "last_3", "p_con", "used"]){
         user.con[parameter] = ""
     }
     for (const parameter of ["A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank"]){
