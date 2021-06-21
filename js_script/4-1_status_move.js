@@ -762,7 +762,7 @@ function otherStatusMove(atk, def, move){
         }
         for (let i = 0; i < 4; i++){
             if (atk.con["move_" + i] != ""){
-                atk.com["PP_" + i] = 5
+                atk.con["PP_" + i] = 5
                 atk.con["last_" + i] = 5
             }
         }
