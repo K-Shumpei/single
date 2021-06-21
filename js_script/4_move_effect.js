@@ -254,7 +254,7 @@ function additionalEffectEtc(atk, def, move, order, damage){
     for (let i = 0; i < otherEff.length; i++){
         // 自分のランクが下がる技
         if (move[0] == otherEff[i][0] && otherEff[i][1] == "d" && move[0] != "スケイルショット"){
-            for (j = 2; j < otherEff[i].length + 1; j++){
+            for (j = 2; j < otherEff[i].length; j++){
                 afn.rankChange(atk, def, otherEff[i][j][0], otherEff[i][j][1], 100, move)
             }
         }
@@ -270,24 +270,24 @@ function additionalEffectEtc(atk, def, move, order, damage){
                 afn.HPchangeMagic(atk, def, change, "+", move)
             }
         }
-        // みがわりがあり、音技でもすりぬけでもない時や、ひんしの時は、追加効果はない
-        if ((damage.substitute && !moveEff.music().includes(move[0]) && atk.con.ability != "すりぬけ") || def.con.last_HP > 0){
-            break
-        }
-        // コアパニッシャーによる効果
-        if (move[0] == "コアパニッシャー" && atk == order[1] && !def.con.p_con.includes("特性なし") && !abiEff.gastro().includes(def.con.ability)){
-            if (def.con.ability != ""){
-                def.con.p_con += "特性なし：" + def.con.ability + "\n"
-                def.con.ability = ""
-            } else {
-                for (let i = 0; i < def.con.p_con.split("\n").length; i++){
-                    if (def.con.p_con.split("\n")[i].includes("かがくへんかガス")){
-                        def.con.p_con += "特性なし：" + def.con.p_con.split("\n")[i].slice(9) + "\n"
-                    }
+    }
+    // みがわりがあり、音技でもすりぬけでもない時や、ひんしの時は、追加効果はない
+    if ((damage.substitute && !moveEff.music().includes(move[0]) && atk.con.ability != "すりぬけ") || def.con.last_HP > 0){
+        return
+    }
+    // コアパニッシャーによる効果
+    if (move[0] == "コアパニッシャー" && atk == order[1] && !def.con.p_con.includes("特性なし") && !abiEff.gastro().includes(def.con.ability)){
+        if (def.con.ability != ""){
+            def.con.p_con += "特性なし：" + def.con.ability + "\n"
+            def.con.ability = ""
+        } else {
+            for (let i = 0; i < def.con.p_con.split("\n").length; i++){
+                if (def.con.p_con.split("\n")[i].includes("かがくへんかガス")){
+                    def.con.p_con += "特性なし：" + def.con.p_con.split("\n")[i].slice(9) + "\n"
                 }
             }
-            cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　特性が消された！" + "\n")
         }
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　特性が消された！" + "\n")
     }
     // 3.ダイマックスわざの効果
     // 4.防御側のいかり

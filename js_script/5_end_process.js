@@ -349,7 +349,7 @@ function futureAttack(order, reverse){
                             process.moveProcess(team[1], team[0], cfn.moveSearchByName(list[i].slice(0, -7)), team)
                         }
                     }
-                    list.slice(i, 1)
+                    list.splice(i, 1)
                 }
             }
             break
@@ -371,7 +371,7 @@ function wishRecover(order, reverse){
                     afn.HPchangeMagic(team[0], team[1], Number(list[i].replace(/[^0-9]/g, "")), "+", "ねがいごと")
                     cfn.conditionRemove(team[0].con, "field", "ねがいごと")
                 }
-                list.slice(i, 1)
+                list.splice(i, 1)
             }
             break
         }
@@ -527,7 +527,7 @@ function bindCheck(order, reverse){
                     afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "-", "バインド")
                 } else {
                     cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　バインドから　解放された！" + "\n")
-                    list.slice(i, 1)
+                    list.splice(i, 1)
                 }
                 break
             } else if (list[i].includes("バインド")){
@@ -541,7 +541,7 @@ function bindCheck(order, reverse){
                     }
                 } else {
                     cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　バインドから　解放された！" + "\n")
-                    list.slice(i, 1)
+                    list.splice(i, 1)
                 }
                 break
             }
@@ -572,7 +572,7 @@ function tauntEnd(order, reverse){
                     list[i] = "ちょうはつ　" + turn + "/3"
                 } else {
                     cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　の　ちょうはつが　とけた！" + "\n")
-                    list.slice(i, 1)
+                    list.splice(i, 1)
                 }
                 break
             }
@@ -588,7 +588,7 @@ function encoreEnd(order, reverse){
         for (let i = 0; i < list.length; i++){
             if (list[i].includes("アンコール　0/3")){
                 cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　の　アンコールが　とけた！" + "\n")
-                list.slice(i, 1)
+                list.splice(i, 1)
                 team[0].con.p_con = list.join("\n")
                 break
             } else if (list[i].includes("アンコール")){
@@ -609,7 +609,7 @@ function disableEnd(order, reverse){
         for (let i = 0; i < list.length; i++){
             if (list[i].includes("かなしばり　0/4")){
                 cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　の　かなしばりが　とけた！" + "\n")
-                list.slice(i, 1)
+                list.splice(i, 1)
                 team[0].con.p_con = list.join("\n")
                 break
             } else if (list[i].includes("かなしばり")){
@@ -674,7 +674,7 @@ function sleepCheck(order, reverse){
                 list[i] = "ねむけ"
                 break
             } else if (list[i].includes("ねむけ")){
-                list.slice(i, 1)
+                list.splice(i, 1)
                 afn.makeAbnormal(team[0], team[1], "ねむり", 100, "ねむけ")
                 break
             }
@@ -694,7 +694,7 @@ function perishSong(order, reverse){
                 if (turn > 0){
                     list[i] = "ほろびカウント　" + turn
                 } else {
-                    list.slice(i, 1)
+                    list.splice(i, 1)
                     team[0].con.last_HP = 0
                     bfn.fainted(team[0], team[1])
                 }
@@ -761,7 +761,7 @@ function roostEnd(order, reverse){
         for (let i = 0; i < list.length; i++){
             if (list[i].includes("はねやすめ")){
                 team[0].con.type += "、" + list[i].slice(6)
-                list.slice(i, 1)
+                list.splice(i, 1)
                 break
             }
         }
@@ -781,7 +781,7 @@ function otherConditionAbilityItem(order, reverse){
                     list[i] = "さわぐ　" + turn + "ターン目"
                     cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　騒いでいる" + "\n")
                 } else {
-                    list.slice(i, 1)
+                    list.splice(i, 1)
                     cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　おとなしくなった" + "\n")
                 }
                 break

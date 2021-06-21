@@ -563,7 +563,7 @@ function condition_ability_item_action(team, enemy){
         cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　ゆきふらし！" + "\n")
         bfn.allFieldStatus(team, enemy, cfn.moveSearchByName("あられ"))
     } else if (con.ability == "よちむ"){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　よちむ！" + CR)
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　よちむ！" + "\n")
         let power = []
         for (let i = 0; i < 4; i++){
             if (con["move_" + i] != ""){
