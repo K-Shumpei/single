@@ -365,7 +365,7 @@ function wishRecover(order, reverse){
                 if (!team[0].con.f_con.includes("ひんし")){
                     cfn.logWrite(team[0], team[1], "願いが叶った！" + "\n")
                     afn.HPchangeMagic(team[0], team[1], Number(list[i].replace(/[^0-9]/g, "")), "+", "ねがいごと")
-                    cfn.conditionRemove(team[0].con, "poke", "ねがいごと")
+                    cfn.conditionRemove(team[0].con, "field", "ねがいごと")
                 }
                 list.slice(i, 1)
             }

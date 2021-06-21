@@ -2321,11 +2321,11 @@ function moveSpecificationsInvalidation3(atk, def, move){
         // かふんだんご
         // プレゼント: 回復効果が選ばれた場合
         if (move[0] == "プレゼント" && move[3] == "-"){
-            if (atk.con.last_HP == atk.con.full_HP){
-                cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "は　HPが満タンだった" + "\n")
+            if (def.con.last_HP == def.con.full_HP){
+                cfn.logWrite(def, atk, def.con.TN + "　の　" + def.con.name + "は　HPが満タンだった" + "\n")
                 return true
             } else {
-                afn.HPchangeMagic(atk, def, Math.floor(atk.con.full_HP / 4), "+", move)
+                afn.HPchangeMagic(def, atk, Math.floor(def.con.full_HP / 4), "+", move)
                 return true
             }
         }

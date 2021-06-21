@@ -32,9 +32,8 @@ exports.comeBack = function(user, enemy){
     // 相手のメロメロの解除
     cfn.conditionRemove(enemy.con, "poke", "メロメロ")
     cfn.conditionRemove(enemy.con, "poke", "バインド")
-    if (!enemy.con.p_con.includes("はいすいのじん")){
-        cfn.conditionRemove(enemy.con, "poke", "逃げられない")
-    }
+    cfn.conditionRemove(enemy.con, "poke", "たこがため")
+    cfn.conditionRemove(enemy.con, "poke", "逃げられない")
 
     // 特性が「さいせいりょく」の時
     if (user.con.ability == "さいせいりょく"){
