@@ -56,6 +56,12 @@ exports.comeBack = function(user, enemy){
         cfn.conditionRemove(user.con, "field", "おおあめ")
         cfn.conditionRemove(enemy.con, "field", "おおあめ")
     }
+    // 特性が「デルタストリーム」だった時、天候が元に戻る
+    if (user.con.ability == "デルタスリトーム" && (enemy.con.ability != "デルタストリーム" || enemy.con.last_HP == 0)){
+        cfn.logWrite(user, enemy, "らんきりゅうが終わった" + "\n")
+        cfn.conditionRemove(user.con, "field", "らんきりゅう")
+        cfn.conditionRemove(enemy.con, "field", "らんきりゅう")
+    }
     // 特性が「かがくへんかガス」の時
     if (user.con.ability == "かがくへんかガス"){
         cfn.logWrite(user, enemy, "かがくへんかガスの効果が切れた" + "\n")

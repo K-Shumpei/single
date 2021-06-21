@@ -530,7 +530,7 @@ exports.accuracyFailure = function(atk, def, move, order){
         cfn.conditionRemove(atk.con, "poke", "ロックオン")
         return
     }
-    if (def.con.p_con.includes("ちいさくなる") && moveEff.minimize.includes(move[0])){
+    if (def.con.p_con.includes("ちいさくなる") && moveEff.minimize().includes(move[0])){
         return
     }
     if (def.con.p_con.includes("テレキネシス") && !moveEff.oneShot().includes(move[0])){
