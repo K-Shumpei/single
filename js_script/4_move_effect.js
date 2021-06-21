@@ -195,7 +195,7 @@ function additionalEffectEtc(atk, def, move, order, damage){
             afn.makeAbnormal(def, atk, addEff[i][3], addEff[i][2], move)
         }
         // 相手をひるみ状態にする技
-        if (move[0] == addEff[i][0] && addEff[i][1] == "f" && def.con.ability != "せいしんりょく" && Math.random() < addEff[i][2]){
+        if (move[0] == addEff[i][0] && addEff[i][1] == "f" && def.con.ability != "せいしんりょく" && Math.random() * 100 < addEff[i][2]){
             def.con.p_con += "ひるみ" + "\n"
         }
         // その他の追加効果
@@ -1126,7 +1126,6 @@ function returnBattle(atk, def){
     if (atk.con.f_con.includes("選択中") && def.con.f_con.includes("選択中")){
         // 2匹同時交換　ききかいひとだっしゅつボタンが同時発動した時
     } else if (atk.con.f_con.includes("選択中")){
-        summon.comeBack(atk, def)
         cfn.logWrite(atk, def, atk.con.TN + "　は　戦闘に出すポケモンを選んでください" + "\n")
         return true
     }

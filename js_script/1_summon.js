@@ -16,6 +16,7 @@ exports.comeBack = function(user, enemy){
     } else if (user.con.name == "メテノ(コア)"){
         afn.formChenge(user, enemy, "メテノ(りゅうせいのすがた)")
     }
+ 
     // パラメーターの移動
     for (const parameter of [
         "name", "sex", "level", "type", "nature", "ability", "item", "abnormal", 
@@ -28,10 +29,12 @@ exports.comeBack = function(user, enemy){
         user["poke" + cfn.battleNum(user)][parameter] = user.con[parameter]
     }
 
-    // ポケモンの状態の削除
-    user.con.p_con= ""
     // 相手のメロメロの解除
     cfn.conditionRemove(enemy.con, "poke", "メロメロ")
+    cfn.conditionRemove(enemy.con, "poke", "バインド")
+    if (!enemy.con.p_con.includes("はいすいのじん")){
+        cfn.conditionRemove(enemy.con, "poke", "逃げられない")
+    }
 
     // 特性が「さいせいりょく」の時
     if (user.con.ability == "さいせいりょく"){

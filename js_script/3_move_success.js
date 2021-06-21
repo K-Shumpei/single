@@ -175,11 +175,11 @@ function decideMove(atk, def){
             }
         }
     } else if (atk.con.p_con.includes("アイスボール")){
-        move = cfn.moveSearchByName("アイスボール")
+        move_org = cfn.moveSearchByName("アイスボール")
     } else if (atk.con.p_con.includes("ころがる")){
-        move = cfn.moveSearchByName("ころがる")
+        move_org = cfn.moveSearchByName("ころがる")
     } else if (atk.con.p_con.includes("がまん")){
-        move = cfn.moveSearchByName("がまん")
+        move_org = cfn.moveSearchByName("がまん")
     } else {
         const move_name = atk.con["move_" + atk.data.command]
         if (move_name.includes("Z")){
@@ -2530,13 +2530,10 @@ function moveSpecificationsInvalidation3(atk, def, move){
             if (def.con.used == "" || moveEff.mimic().includes(def.con.used)){
                 cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
                 return true
-            } else {
-                for (let i = 0; i < 4; i++){
-                    if (def.con.used == def.con["move_" + i]){
-                        cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
-                        return true
-                    }
-                }
+            }
+            if (def.con.used != def.con.move_0 && def.con.used != def.con.move_1 && def.con.used != def.con.move_2 && def.con.used != def.con.move_3){
+                cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
+                return true
             }
         }
         // スケッチ: 対象が技を使用していない/スケッチできない技

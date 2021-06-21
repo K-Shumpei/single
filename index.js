@@ -3,6 +3,10 @@ $(function () {
 
     // チームデータ送信
     $("#team_set").submit(function() {
+        if ($("#my_name").val() == ""){
+            alert("名前を入力してください")
+            return false
+        }
         let team_data = []
         for (let i = 0; i < 6; i++){
             let each = {}

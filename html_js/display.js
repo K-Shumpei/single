@@ -530,11 +530,88 @@ function stop_action_timer(){
     clearInterval(action_timer)
 }
 
+// AチームとBチームの6択のポケモンセット
+function set_pokemon(){
+    if (Number(document.getElementById("EV_last").textContent) < 0){
+        alert("努力値振りすぎやで")
+        return
+    }
+    if (document.poke_name.poke_name.value == ""){
+        alert("ポケモン選択されてへんで")
+        return
+    }
+    let move_check = 0
+    for (let i = 0; i < 4; i++){
+        if (document.four_moves["move" + String(i)].value == ""){
+            move_check += 1
+        }
+    }
+    if (move_check == 4){
+        alert("技覚えてへんで")
+        return
+    }
+    const parameter = ["H", "A", "B", "C", "D", "S"]
+    const ability = document.poke_ID.ability
+    const num = ability.selectedIndex
+    const team = document.getElementById("team").team.value
+
+    document.getElementById(team + "_name").textContent = document.poke_name.poke_name.value
+    document.getElementById(team + "_sex").textContent = " " + document.getElementById("poke_name_id").sex.value + " "
+    document.getElementById(team + "_level").textContent = document.poke_ID.poke_LV.value
+    document.getElementById(team + "_type").textContent = document.getElementById("poke_type").textContent
+    document.getElementById(team + "_ability").textContent = ability.options[num].value
+    document.getElementById(team + "_item").textContent = document.poke_ID.poke_item.value
+    document.getElementById(team + "_nature").textContent = document.getElementById("nature").textContent
+    document.getElementById(team + "_full_HP").textContent = document.input_value.H_AV.value
+    document.getElementById(team + "_last_HP").textContent = document.input_value.H_AV.value
+    for (let i = 1; i < 6; i++){
+        document.getElementById(team + "_" + parameter[i] + "_AV").textContent = document.input_value[parameter[i] + "_AV"].value
+    }
+    for (let i = 0; i < 6; i++){
+        document.getElementById(team + "_" + parameter[i] + "_IV").textContent = document.input_value[parameter[i] + "_IV"].value
+        document.getElementById(team + "_" + parameter[i] + "_EV").textContent = document.input_value[parameter[i] + "_EV"].value
+    }
+    for (let i = 0; i < 4; i++){
+        document.getElementById(team + "_move_" + i).textContent = document.four_moves["move" + String(i)].value
+        document.getElementById(team + "_PP_" + i).textContent = document.getElementById("PP" + String(i)).textContent
+        document.getElementById(team + "_last_" + i).textContent = document.getElementById("PP" + String(i)).textContent
+    }
+
+    // アルセウス：プレートによるタイプ変更
+    if (document.getElementById(team + "_ability").textContent == "マルチタイプ"){
+        for (let i = 0; i < judgement_plate.length; i++){
+            if (document.getElementById(team + "_item").textContent == judgement_plate[i][0]){
+                document.getElementById(team + "_type").textContent = judgement_plate[i][1]
+            }
+        }
+    }
+
+    // シルヴァディ：メモリによるタイプ変更
+    if (document.getElementById(team + "_ability").textContent == "ARシステム"){
+        for (let i = 0; i < multi_attack_memory.length; i++){
+            if (document.getElementById(team + "_item").textContent == multi_attack_memory[i][0]){
+                document.getElementById(team + "_type").textContent = multi_attack_memory[i][1]
+            }
+        }
+    }
+
+    let check = 0
+        for (let i = 0; i < 6; i++){
+            if (document.getElementById(i + "_name").textContent){
+                check += 1
+            }
+        }
+        if (check == 6){
+            document.getElementById("trainer_name").style.display = "block"
+        }
+}
+
 
 // AチームとBチームの6択のポケモンセット
 function setAll(){
     for (let j = 0; j < 6; j++){
         set_random()
+        AV_calc()
         let parameter = ["H", "A", "B", "C", "D", "S"]
         let ability = document.poke_ID.ability
         let num = ability.selectedIndex

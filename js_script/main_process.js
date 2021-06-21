@@ -21,11 +21,9 @@ exports.battleStart = function(rec){
 
     summon.activAbility(rec.user1, rec.user2, "both")
 
-    return
-
     // 特性による交換ボタンの無効化
     for (const team of [["1", "2"], ["2", "1"]]){
-        if ((rec["user" + team[1]].con.ability == "ありじごく" && grounded_check(team[0])) 
+        if ((rec["user" + team[1]].con.ability == "ありじごく" && cfn.groundedCheck(team[0].con)) 
         || (rec["user" + team[1]].con.ability == "かげふみ" && rec["user" + team[0]].con.ability != "かげふみ") 
         || (rec["user" + team[1]].con.ability == "じりょく" && rec["user" + team[0]].con.type.includes("はがね"))){
             if (rec["user" + team[0]].con.item != "きれいなぬけがら" && !rec["user" + team[0]].con.type.includes("ゴースト")){

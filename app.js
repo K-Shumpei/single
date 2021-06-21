@@ -205,11 +205,12 @@ io.on("connection", function(socket){
                 if (data[room]["user" + team[0]].con.f_con.includes("ひんし")){
                     summon.pokeReplace(data[room]["user" + team[0]], data[room]["user" + team[1]])
                     summon.activAbility(data[room]["user" + team[0]], data[room]["user" + team[1]], 1)
+                    data[room]["user" + team[0]].data.command = ""
                     io.to(data[room].user1.data.id).emit("run battle", data[room], 1, 2)
                     io.to(data[room].user2.data.id).emit("run battle", data[room], 2, 1)
                     return
                 }
-                // 相手が選択している時
+                // お互いが行動する時に、相手が選択している時
                 if (data[room]["user" + team[1]].data.command != ""){
                     main.runBattle(data[room])
                     io.to(data[room].user1.data.id).emit("run battle", data[room], 1, 2)

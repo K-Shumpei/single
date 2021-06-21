@@ -439,6 +439,7 @@ exports.damageDeclaration = function(atk, def, damage, move){
                 } else {
                     cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　みがわりに　" + p_list[i].slice(5).split("/")[0] + "（" +  damage.damage + "）　のダメージ" + "\n")
                     cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　みがわりは　壊れてしまった" + "\n")
+                    cfn.conditionRemove(def.con, "poke", "みがわり")
                     damage.give = p_list[i].slice(5).split("/")[0]
                     p_list.slice(i, 1)
                     break

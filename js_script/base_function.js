@@ -198,7 +198,7 @@ exports.allFieldStatus = function(atk, def, move){
                 for (const team of [atk.con, def.con]){
                     cfn.conditionRemove(team, "field", "フィールド")
                     let turn = 5
-                    if (team.item == "グランドコート"){
+                    if (atk.con.item == "グランドコート"){
                         turn = 8
                     }
                     team.f_con += list[i][1] + "　" + turn + "/" + turn + "\n"

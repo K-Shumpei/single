@@ -275,11 +275,8 @@ function cannotChooseAction(order, reverse){
         // 溜め技の攻撃ターン
         // 数ターン行動する技の使用中
         if (team[0].con.p_con.includes("反動で動けない") || team[0].con.p_con.includes("溜め技") || team[0].con.p_con.includes("あばれる") 
-        || team[0].con.p_con.includes("アイスボール") || team[0].con.p_con.includes("ころがる") || team[0].con.p_con.includes("がまん")){
-            for (let i = 0; i < 3; i++){
-                team[0].data["radio_" + i] = true
-            }
-            for (let i = 0; i < 4; i++){
+        || team[0].con.p_con.includes("アイスボール") || team[0].con.p_con.includes("ころがる") || team[0].con.p_con.includes("がまん") || team[0].con.p_con.includes("さわぐ")){
+            for (let i = 0; i < 7; i++){
                 team[0].data["radio_" + i] = true
             }
         }
@@ -307,7 +304,7 @@ function weatherEffect(order, reverse){
     for (const team of [order, reverse]){
         if (team[0].con.last_HP > 0 && team[0].con.ability != "ぼうじん" && team[0].con.item != "ぼうじんゴーグル" && cfn.isWeather(order[0].con, order[1].con)){
             if (team[0].con.f_con.includes("すなあらし") && !(team[0].con.type.includes("いわ") || team[0].con.type.includes("じめん") || team[0].con.type.includes("はがね") || team[0].con.ability == "すながくれ" || team[0].con.ability == "すなかき" || team[0].con.ability == "すなのちから")){
-                afn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "-", "すなあらし")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "-", "すなあらし")
             } else if (team[0].con.f_con.includes("あられ") && !(team[0].con.type.includes("こおり") || team[0].con.ability == "アイスボディ" || team[0].con.ability == "ゆきかき" || team[0].con.ability == "ゆきがくれ")){
                 afn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "-", "あられ")
             }
@@ -368,6 +365,7 @@ function wishRecover(order, reverse){
                 if (!team[0].con.f_con.includes("ひんし")){
                     cfn.logWrite(team[0], team[1], "願いが叶った！" + "\n")
                     afn.HPchangeMagic(team[0], team[1], Number(list[i].replace(/[^0-9]/g, "")), "+", "ねがいごと")
+                    cfn.conditionRemove(team[0].con, "poke", "ねがいごと")
                 }
                 list.slice(i, 1)
             }
@@ -382,29 +380,27 @@ function fieldAbilityItemDamage(order, reverse){
     // a. ひのうみ/キョダイベンタツ/キョダイゴクエン/キョダイホウゲキ/キョダイフンセキ(ダメージ): 技が使用された順に発動。
     // b. グラスフィールド(回復)
     for (const team of [order, reverse]){
-        if (cfn.groundedCheck(team[0].con) && !team[0].con.f_con.includes("ひんし") && team[0].con.f_con.includes("グラスフィールド")){
+        if (cfn.groundedCheck(team[0].con) && team[0].con.f_con.includes("グラスフィールド")){
             afn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "+", "グラスフィールド")
         }
     }
     // c. うるおいボディ/だっぴ/いやしのこころ
     for (const team of [order, reverse]){
-        if (team[0].con.last_HP > 0){
-            if (team[0].con.ability == "うるおいボディ" && team[0].con.f_con.includes("あめ") && team[0].con.abnormal != "" && cfn.isWeather(order[0].con, order[1].con)){
-                cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　うるおいボディで状態異常が回復！" + "\n")
-                team[0].con.abnormal = ""
-                team[0]["poke" + cfn.battleNum(team[0])].abnormal = ""
-            } else if (team[0].con.ability == "だっぴ" && team[0].con.abnormal != "" && Math.random() < 0.3){
-                cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　だっぴで状態異常が回復！" + "\n")
-                team[0].con.abnormal = ""
-                team[0]["poke" + cfn.battleNum(team[0])].abnormal = ""
-            }
+        if (team[0].con.ability == "うるおいボディ" && team[0].con.f_con.includes("あめ") && team[0].con.abnormal != "" && cfn.isWeather(order[0].con, order[1].con)){
+            cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　うるおいボディで状態異常が回復！" + "\n")
+            team[0].con.abnormal = ""
+            team[0]["poke" + cfn.battleNum(team[0])].abnormal = ""
+        } else if (team[0].con.ability == "だっぴ" && team[0].con.abnormal != "" && Math.random() < 0.3){
+            cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　だっぴで状態異常が回復！" + "\n")
+            team[0].con.abnormal = ""
+            team[0]["poke" + cfn.battleNum(team[0])].abnormal = ""
         }
     }
     // b. たべのこし/くろいヘドロ
     for (const team of [order, reverse]){
-        if (team[0].con.item == "たべのこし" && team[0].con.last_HP > 0){
+        if (team[0].con.item == "たべのこし"){
             afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "+", "たべのこし")
-        } else if (team[0].con.item == "くろいヘドロ" && team[0].con.last_HP > 0){
+        } else if (team[0].con.item == "くろいヘドロ"){
             if (team[0].con.type.includes("どく")){
                 afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "+", "くろいヘドロ")
             } else {
@@ -443,7 +439,7 @@ function ingrain(order, reverse){
 // 7.やどりぎのタネ
 function leechSeed(order, reverse){
     for (const team of [order, reverse]){
-        if (team[0].con.p_con.includes("やどりぎのタネ") && !team[1].con.f_con.includes("ひんし")){
+        if (team[0].con.p_con.includes("やどりぎのタネ")){
             let change = Math.floor(team[0].con.full_HP / 8)
             afn.HPchangeMagic(team[0], team[1], change, "-", "やどりぎのタネ")
             if (team[1].con.item == "おおきなねっこ"){
@@ -461,7 +457,7 @@ function leechSeed(order, reverse){
 // 8 どく/もうどく/ポイズンヒール
 function acidCheck(order, reverse){
     for (const team of [order, reverse]){
-        if (team[0].con.abnormal == "どく" && team[0].con.last_HP > 0){
+        if (team[0].con.abnormal == "どく"){
             if (team[0].con.ability == "ポイズンヒール"){
                 afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "+", "ポイズンヒール")   
             } else {
@@ -487,11 +483,11 @@ function acidCheck(order, reverse){
 // 9 やけど
 function burnCheck(order, reverse){
     for (const team of [order, reverse]){
-        if (team[0].con.abnormal == "やけど" && team[0].con.last_HP > 0){
+        if (team[0].con.abnormal == "やけど"){
             if (team[0].con.ability == "たいねつ"){
-                afn.HPchangeMagic(team[0], team[1], Math.floor(team.con.full_HP / 32), "-", "やけど")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 32), "-", "やけど")
             } else {
-                afn.HPchangeMagic(team[0], team[1], Math.floor(team.con.full_HP / 16), "-", "やけど")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "-", "やけど")
             }
         }
     }
@@ -501,7 +497,7 @@ function burnCheck(order, reverse){
 function nightmare(order, reverse){
     for (const team of [order, reverse]){
         if (team[0].con.p_con.includes("あくむ")){
-            afn.HPchangeMagic(team[0], team[1], Math.floor(team.con.full_HP / 4), "-", "あくむ")
+            afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 4), "-", "あくむ")
         }
     }
 }
@@ -510,7 +506,7 @@ function nightmare(order, reverse){
 function curse(order, reverse){
     for (const team of [order, reverse]){
         if (team[0].con.p_con.includes("のろい")){
-            afn.HPchangeMagic(team[0], team[1], Math.floor(team.con.full_HP / 4), "-", "のろい")
+            afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 4), "-", "のろい")
         }
     }
 }
