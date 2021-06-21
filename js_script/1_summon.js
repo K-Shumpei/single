@@ -354,13 +354,13 @@ function condition_ability_item_action(team, enemy){
                     afn.makeAbnormal(team, enemy, "もうどく", 100, "どくびし")
                 }
             } else if (con.f_con.split("" + "\n")[i].includes("ステルスロック")){
-                let rate = cfn.compatibilityCheck(team, enemy, cfn.moveSearchByName("アクセルロック"))
+                let rate = cfn.compatibilityCheck(enemy, team, cfn.moveSearchByName("アクセルロック"))
                 let damage = Math.floor(con.full_HP * rate / 8)
                 afn.HPchangeMagic(team, enemy, damage, "-", "ステルスロック")
             } else if (con.f_con.split("" + "\n")[i].includes("ねばねばネット") && cfn.groundedCheck(con)){
                 afn.rankChange(team, enemy, "S", -1, 100, "ねばねばネット")
             } else if (con.f_con.split("" + "\n")[i].includes("キョダイコウジン")){
-                let rate = cfn.compatibilityCheck(team, enemy, cfn.moveSearchByName("バレットパンチ"))
+                let rate = cfn.compatibilityCheck(enemy, team, cfn.moveSearchByName("バレットパンチ"))
                 let damage = Math.floor(con.full_HP * rate / 8)
                 afn.HPchangeMagic(team, enemy, damage, "-", "キョダイコウジン")
             }

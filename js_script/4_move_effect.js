@@ -254,7 +254,7 @@ function additionalEffectEtc(atk, def, move, order, damage){
     for (let i = 0; i < otherEff.length; i++){
         // 自分のランクが下がる技
         if (move[0] == otherEff[i][0] && otherEff[i][1] == "d" && move[0] != "スケイルショット"){
-            for (j = 2; j < otherEff[i].length; j++){
+            for (j = 2; j < otherEff[i].length + 1; j++){
                 afn.rankChange(atk, def, otherEff[i][j][0], otherEff[i][j][1], 100, move)
             }
         }

@@ -893,7 +893,7 @@ function decreasePerTurn(team, enemy, content, PorF){
             if (turn > 0){
                 list[i] = content + "　" + turn + "/" + list[i].slice(-1)
             } else {
-                list.slice(i, 1)
+                list.splice(i, 1)
                 cfn.logWrite(team, enemy, team.con.TN + "　の　" + content + "は　終了した！" + "\n")
                 for (let side of [team, enemy]){
                     if (side.con.ability == "ぎたい" && content.includes("フィールド")){
