@@ -608,6 +608,10 @@ function ability_form_change(team, enemy){
         cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　リミットシールド！" + "\n")
         afn.formChenge(team, enemy, "メテノ(りゅうせいのすがた)")
     }
+    if (con.ability == "ぎょぐん" && con.last_HP > con.full_HP / 4 && con.level >= 20 && con.name == "ヨワシ(たんどくのすがた)"){
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　ぎょぐん！" + "\n")
+        afn.formChenge(team, enemy, "ヨワシ(むれたすがた)")
+    }
 }
 
 // 5.エレキシード/グラスシード/ミストシード/サイコシード/ルームサービス

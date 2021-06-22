@@ -93,6 +93,7 @@ exports.endProcess = function(user1, user2){
     // 29.スワームチェンジ
     powerConstruct(order, reverse)
     // 30.ぎょぐん
+    schooling(order, reverse)
     // 31.はらぺこスイッチ
     hungerSwitch(order, reverse)
 
@@ -872,6 +873,19 @@ function powerConstruct(order, reverse){
         if (team[0].con.ability == "スワームチェンジ" && team[0].con.last_HP <= team[0].con.full_HP / 2){
             cfn.logWrite(team[0], team[1], "たくさんの　気配を　感じる・・・！" + "\n")
             afn.formChenge(team[0], team[1], "ジガルデ(パーフェクトフォルム)")
+        }
+    }
+}
+
+// 30.ぎょぐん
+function schooling(order, reverse){
+    for (const team of [order, reverse]){
+        if (team[0].con.ability == "ぎょぐん" && team[0].con.last_HP <= team[0].con.full_HP / 4 && "ヨワシ(むれたすがた)"){
+            cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　の　ぎょぐん！" + "\n")
+            afn.formChenge(team[0], team[1], "ヨワシ(たんどくのすがた)")
+        } else if (team[0].con.ability == "ぎょぐん" && team[0].con.last_HP <= team[0].con.full_HP / 4 && "ヨワシ(たんどくのすがた)"){
+            cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　の　ぎょぐん！" + "\n")
+            afn.formChenge(team[0], team[1], "ヨワシ(むれたすがた)")
         }
     }
 }

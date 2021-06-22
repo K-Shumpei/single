@@ -2278,7 +2278,7 @@ function moveSpecificationsInvalidation3(atk, def, move){
             return true
         }
         // いえき: 対象がすでにとくせいなし状態である/とくせいなしにできない特性である
-        if (move[0] == "いえき" && def.con.p_con.includes("特性なし") || abiEff.gastro().includes(def.con.ability)){
+        if (move[0] == "いえき" && (def.con.p_con.includes("特性なし") || abiEff.gastro().includes(def.con.ability))){
             cfn.logWrite(atk, def, "しかし　効果がないようだ・・・" + "\n")
             return true
         }

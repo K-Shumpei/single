@@ -6,6 +6,7 @@
 
     <script src="html_js/poke_ability.js"></script>
     <script src="html_js/poke_data.js"></script>
+    <script src="html_js/basepoke_data.js"></script>
     <script src="html_js/poke_item.js"></script>
     <script src="html_js/poke_move_base.js"></script>
 
@@ -28,8 +29,8 @@
             なまえ：<input name="poke_name" type="text" list="poke_name" value="" size="30" autocomplete="off" onchange="set_ID(), AV_calc()">
             <datalist id="poke_name">
                 <script type="text/javascript">
-                for (i = 0; i < pokemon.length; i++){
-                    document.write("<option value='"+ pokemon[i][1] +"''>")
+                for (i = 0; i < basePokemon.length; i++){
+                    document.write("<option value='"+ basePokemon[i][1] +"''>")
                 }
                 </script>
             </datalist>
@@ -160,48 +161,31 @@
     <div id="select">
         <form id="battle_start" name="select" action="">
             <table align="center">
-                <tr><td colspan="4" align="center"><span id="myName">サトシ</span></td><td></td><td colspan="2" align="center"><span id="yourName">シゲル</span></td></tr>
                 <tr>
-                    <td><input type="radio" name="first" value="0" id="first0" checked onclick="selectPoke()">1<br>
-                        <input type="radio" name="second" value="0" id="second0" disabled onclick="selectPoke()">2<br>
-                        <input type="radio" name="third" value="0" id="third0" disabled onclick="selectPoke()">3
-                    </td>
+                    <td colspan="2" align="center"><span id="myName">サトシ</span></td>
+                    <td><button type="submit" id="battle_start_button">対戦開始</button></td>
+                    <td colspan="2" align="center"><span id="yourName">シゲル</span></td>
+                </tr>
+                <tr>
                     <td><img src="" id="player_0" style="transform: scale(-1, 1);"></td>
-                    <td><input type="radio" name="first" value="1" id="first1" disabled onclick="selectPoke()">1<br>
-                        <input type="radio" name="second" value="1" id="second1" checked onclick="selectPoke()">2<br>
-                        <input type="radio" name="third" value="1" id="third1" disabled onclick="selectPoke()">3
-                    </td>
                     <td><img src="" id="player_1" style="transform: scale(-1, 1);"></td>
                     <td></td>
-                    <td><img src="" id="enemy_0"></td><td><img src="" id="enemy_1"></td>
+                    <td><img src="" id="enemy_0"></td>
+                    <td><img src="" id="enemy_1"></td>
                 </tr>
                 <tr>
-                    <td><input type="radio" name="first" value="2" id="first2" disabled onclick="selectPoke()">1<br>
-                        <input type="radio" name="second" value="2" id="second2" disabled onclick="selectPoke()">2<br>
-                        <input type="radio" name="third" value="2" id="third2" checked onclick="selectPoke()">3
-                    </td>
                     <td><img src="" id="player_2" style="transform: scale(-1, 1);"></td>
-                    <td><input type="radio" name="first" value="3" id="first3" onclick="selectPoke()">1<br>
-                        <input type="radio" name="second" value="3" id="second3" onclick="selectPoke()">2<br>
-                        <input type="radio" name="third" value="3" id="third3" onclick="selectPoke()">3
-                    </td>
                     <td><img src="" id="player_3" style="transform: scale(-1, 1);"></td>
-                    <td><button type="submit" id="battle_start_button">対戦開始</button></td>
-                    <td><img src="" id="enemy_2"></td><td><img src="" id="enemy_3"></td>
+                    <td></td>
+                    <td><img src="" id="enemy_2"></td>
+                    <td><img src="" id="enemy_3"></td>
                 </tr>
                 <tr>
-                    <td><input type="radio" name="first" value="4" id="first4" onclick="selectPoke()">1<br>
-                        <input type="radio" name="second" value="4" id="second4" onclick="selectPoke()">2<br>
-                        <input type="radio" name="third" value="4" id="third4" onclick="selectPoke()">3
-                    </td>
                     <td><img src="" id="player_4" style="transform: scale(-1, 1);"></td>
-                    <td><input type="radio" name="first" value="5" id="first5" onclick="selectPoke()">1<br>
-                        <input type="radio" name="second" value="5" id="second5" onclick="selectPoke()">2<br>
-                        <input type="radio" name="third" value="5" id="third5" onclick="selectPoke()">3
-                    </td>
                     <td><img src="" id="player_5" style="transform: scale(-1, 1);"></td>
                     <td></td>
-                    <td><img src="" id="enemy_4"></td><td><img src="" id="enemy_5"></td>
+                    <td><img src="" id="enemy_4"></td>
+                    <td><img src="" id="enemy_5"></td>
                 </tr>
             </table>
         </form>
@@ -260,11 +244,10 @@
                             }
                             document.write("<br></span><span id='"+i+"_form'></span><span id='"+i+"_recycle'></span><span id='"+i+"_belch'></span>")
                             document.write("<br><span id='"+i+"_life'>控え</span></td></tr>")
-                            if (i == 0){
-                                document.write("<tr align='center'><td colspan='2'><input type='radio' name='radio' id='radio_"+ (Number(i) + 4) +"' value='"+ (Number(i) + 4) +"' checked></td></tr>")
-                            } else {
-                                document.write("<tr align='center'><td colspan='2'><input type='radio' name='radio' id='radio_"+ (Number(i) + 4) +"' value='"+ (Number(i) + 4) +"'></td></tr>")
-                            }
+                            document.write("<tr align='center'><td colspan='2'><div id='teamPoke"+i+"'><input type='radio' name='radio' id='radio_"+ (Number(i) + 4) +"' value='"+ (Number(i) + 4) +"'></div>")
+                            document.write("<div id='selectPoke"+i+"'><input type='radio' name='first' value='"+i+"' id='first"+i+"' onclick='selectPoke()'>1")
+                            document.write("<input type='radio' name='second' value='"+i+"' id='second"+i+"' onclick='selectPoke()'>2")
+                            document.write("<input type='radio' name='third' value='"+i+"' id='third"+i+"' onclick='selectPoke()'>3</div></td></tr>")
                             document.write("</table></div></td>")
                         }
                         document.write("</tr></table>")
@@ -426,6 +409,10 @@
     </div>
 
     <script>
+        for (let i = 0; i < 6; i++){
+            document.getElementById("teamPoke" + i).style.display = "none"
+            document.getElementById("selectPoke" + i).style.display = "none"
+        }
         document.getElementById("mainContent").style.display = "none"
         document.getElementById("trainer_name").style.display = "none"
         document.getElementById("select").style.display = "none"

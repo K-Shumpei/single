@@ -65,6 +65,14 @@ $(function () {
         document.getElementById("register").style.display = "none"
         document.getElementById("select").style.display = "block"
         document.getElementById("trainer_name").style.display = "none"
+        for (let i = 0; i < 6; i++){
+            document.getElementById("selectPoke" + i).style.display = "block"
+        }
+        document.getElementById("first0").checked = true
+        document.getElementById("second1").checked = true
+        document.getElementById("third2").checked = true
+        selectPoke()
+
         // 名前の設定
         document.getElementById("myName").textContent = data["user" + me].con.TN
         document.getElementById("yourName").textContent = data["user" + you].con.TN
@@ -94,7 +102,7 @@ $(function () {
 
     // 選出するポケモンのデータを送信　[1匹目、2匹目、3匹目]の番号リストを送信
     $("#battle_start").submit(function() {
-        let select = [document.select.first.value, document.select.second.value, document.select.third.value]
+        let select = [document.battle.first.value, document.battle.second.value, document.battle.third.value]
         socketio.emit("get ready", select)
         return false
     })
@@ -118,6 +126,10 @@ $(function () {
         document.getElementById("3_team").style.display = "none"
         document.getElementById("4_team").style.display = "none"
         document.getElementById("5_team").style.display = "none"
+        for (let i = 0; i < 6; i++){
+            document.getElementById("teamPoke" + i).style.display = "block"
+            document.getElementById("selectPoke" + i).style.display = "none"
+        }
 
         // 選出した3匹のポケモンの情報を記入
         for (let i = 0; i < 3; i++){
@@ -232,6 +244,7 @@ $(function () {
         for (const parameter of ["p_con", "f_con", "used", "log"]){
             document.battle["A_" + parameter].value = data["user" + me].con[parameter]
         }
+        // 画像の設定
         for (let i = 0; i < pokemon.length; i++){
             if (data["user" + me].con.name == pokemon[i][1]){
                 document.getElementById("A_image").src = "poke_figure/" + pokemon[i][0] + ".gif"
@@ -247,10 +260,14 @@ $(function () {
         for (const parameter of ["p_con", "f_con", "used"]){
             document.battle["B_" + parameter].value = data["user" + you].con[parameter]
         }
+        // 画像の設定
         for (let i = 0; i < pokemon.length; i++){
             if (data["user" + you].con.name == pokemon[i][1]){
                 document.getElementById("B_image").src = "poke_figure/" + pokemon[i][0] + ".gif"
             }
+        }
+        if (data["user" + you].con.name == ""){
+            document.getElementById("B_image").src = ""
         }
         // HPバーの表示
         if (data["user" + me].con.f_con.includes("ひんし") || data["user" + me].con.f_con.includes("選択中・・・")){

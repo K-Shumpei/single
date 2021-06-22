@@ -1,30 +1,30 @@
 function set_ID(){
     const poke_name = document.poke_name.poke_name.value
     const parameter_BS = ["H_BS", "A_BS", "B_BS", "C_BS", "D_BS", "S_BS"]
-    for (i = 0; i < pokemon.length; i++){
-        if (pokemon[i][1] == poke_name){
+    for (i = 0; i < basePokemon.length; i++){
+        if (basePokemon[i][1] == poke_name){
             // 種族値の設定
             for (j = 0; j < 6; j++){
-                document.getElementById(parameter_BS[j]).textContent = pokemon[i][j+2]
+                document.getElementById(parameter_BS[j]).textContent = basePokemon[i][j+2]
             }
             // タイプの設定
-            if (pokemon[i][10] == ""){
-                document.getElementById("poke_type").textContent = pokemon[i][9]
+            if (basePokemon[i][10] == ""){
+                document.getElementById("poke_type").textContent = basePokemon[i][9]
             } else {
-                document.getElementById("poke_type").textContent = pokemon[i][9] + "、" + pokemon[i][10]
+                document.getElementById("poke_type").textContent = basePokemon[i][9] + "、" + basePokemon[i][10]
             }
             // 性別の設定
-            if (pokemon[i][11] == "-"){
+            if (basePokemon[i][11] == "-"){
                 document.getElementById("male").disabled = true
                 document.getElementById("female").disabled = true
                 document.getElementById("not").checked = true
-            } else if (pokemon[i][12] == "-"){
-                if (pokemon[i][11] == "♂"){
+            } else if (basePokemon[i][12] == "-"){
+                if (basePokemon[i][11] == "♂"){
                     document.getElementById("male").checked = true
                     document.getElementById("female").disabled = true
                     document.getElementById("not").disabled = true
                 }
-                if (pokemon[i][11] == "♀"){
+                if (basePokemon[i][11] == "♀"){
                     document.getElementById("male").disabled = true
                     document.getElementById("female").checked = true
                     document.getElementById("not").disabled = true
@@ -35,15 +35,15 @@ function set_ID(){
             }
             // 特性の設定
             const ability = document.poke_ID.ability
-            if (pokemon[i][16] == ""){
-                ability.options[0] = new Option(pokemon[i][15])
-            } else if (pokemon[i][17] == ""){
-                ability.options[0] = new Option(pokemon[i][15])
-                ability.options[1] = new Option(pokemon[i][16])
+            if (basePokemon[i][16] == ""){
+                ability.options[0] = new Option(basePokemon[i][15])
+            } else if (basePokemon[i][17] == ""){
+                ability.options[0] = new Option(basePokemon[i][15])
+                ability.options[1] = new Option(basePokemon[i][16])
             } else {
-                ability.options[0] = new Option(pokemon[i][15])
-                ability.options[1] = new Option(pokemon[i][16])
-                ability.options[2] = new Option(pokemon[i][17])
+                ability.options[0] = new Option(basePokemon[i][15])
+                ability.options[1] = new Option(basePokemon[i][16])
+                ability.options[2] = new Option(basePokemon[i][17])
             }
         }
     }
@@ -52,9 +52,9 @@ function set_ID(){
 function set_random(){
     let poke = ""
     let random = Math.random()
-    for (let i = 0; i < pokemon.length; i++){
-        if (random > i / pokemon.length){
-            poke = pokemon[i]
+    for (let i = 0; i < basePokemon.length; i++){
+        if (random > i / basePokemon.length){
+            poke = basePokemon[i]
         }
     }
     // 性別の設定
@@ -222,9 +222,6 @@ function set_reset(){
         document.getElementById("PP" + String(i)).textContent = ""
         document.getElementById("discription" + String(i)).textContent = ""
     }
-    // チーム選択のリセット
-    document.getElementById("A_team").checked = true
-    document.getElementById("B_team").checked = false
 }
 
 function set_LV(value){
@@ -336,121 +333,6 @@ function move_search_by_name(name){
         }
     }
 }
-
-function poke_search(name){
-    for (let i = 0; i < pokemon.length; i++){
-        if (name == pokemon[i][1]){
-            return pokemon[i]
-        }
-    }
-}
-
-
-// 控えから戦闘に出す関数
-// 1.ボルトチェンジ、だっしゅつパックなど、ターンの途中で交換が行われる時
-    // 後攻ポケモンが交換する時、ターン終了の処理まで行う
-    // 先攻ポケモンが交換する時
-        // 後攻ポケモンが1に該当する技を選択していなければ、後攻の技の処理とターン終了の処理まで行う
-        // クイックターンなどを選択していた場合、また選択で中断し、その後、ターン終了の処理を行う
-// 2.戦闘不能になり、交換が行われる時
-    // タイミングは、ターン終了の処理の後で、次のターンが始まる前
-    // 1匹の場合と、2匹の場合がある
-// 3.ターンの途中でお互いが戦闘不能になり、両方の交換が行われる時
-    // タイミングは、ターン終了の処理の後で、次のターンが始まる前
-function choose_poke(){
-    let team = ""
-    let check = 0
-    if (new get("A").f_con.includes("選択中・・・") && new get("B").f_con.includes("選択中・・・")){
-        check += 2
-    } else if (new get("A").f_con.includes("選択中・・・")){
-        team = "A"
-        check += 1
-    } else if (new get("B").f_con.includes("選択中・・・")){
-        team = "B"
-        check += 1
-    }
-    if (new get("A").f_con.includes("ひんし") && new get("B").f_con.includes("ひんし")){
-        check -= 2
-    } else if (new get("A").f_con.includes("ひんし")){
-        team = "A"
-        check -= 1
-    } else if (new get("B").f_con.includes("ひんし")){
-        team = "B"
-        check -= 1
-    }
-
-    if (check == -1){
-        // 「ひんし」の削除
-        condition_remove(team, "field", "ひんし")
-        // 新しいポケモンを戦闘に出す
-        pokemon_replace(team)
-        // 出た時の特性の発動など
-        summon_pokemon(1, team)
-        document.battle.choose_pokemon.disabled = true
-        document.battle.battle_button.disabled = false
-    } else if (check == -2){
-        //「ひんし」の削除
-        condition_remove("A", "field", "ひんし")
-        condition_remove("B", "field", "ひんし")
-        // 新しいポケモンを戦闘に出す
-        pokemon_replace("A")
-        pokemon_replace("B")
-        // 出た時の特性の発動など
-        summon_pokemon(2, team)
-        document.battle.choose_pokemon.disabled = true
-        document.battle.battle_button.disabled = false
-    }
-    if (check == 1){
-        // 「選択中・・・」の削除
-        condition_remove(team, "field", "選択中・・・")
-        // 新しいポケモンを戦闘に出す
-        pokemon_replace(team)
-        // 出た時の特性の発動など
-        summon_pokemon(1, team)
-
-        // 交代の後の残りの処理
-        // 24.きょうせい
-        // 25.おどりこ
-        // 26.次のポケモンの行動
-
-        let other = "A"
-        if (team == "A"){
-            other = "B"
-        }
-
-        const current = document.battle_log.battle_log.value
-        const number = (current.match( /ターン目/g ) || []).length
-        const turn = "---------- " + number + "ターン目 ----------"
-        const log_list = document.battle_log.battle_log.value.split("\n")
-        if (log_list.slice(log_list.lastIndexOf(turn)).includes("(" + other + "行動)")){
-            // ターン終了前の処理
-            end_process()
-        } else {
-            if (new get(other).last_HP > 0){
-                let atk = other
-                let def = team
-                let order = [def, atk]
-                let move = move_success_judge(atk, def, order)
-                if (move == false){
-                    process_at_failure(atk)
-                } else {
-                    if (move[9] == "反射"){
-                        let save = atk
-                        atk = def
-                        def = atk
-                    }
-                    const stop_check = move_process(atk, def, move, order)
-                    if (stop_check == "stop"){
-                        return
-                    }
-                }
-            }
-            // ターン終了前の処理
-            end_process()
-        }
-    }
-}
-
 
 
 // Z技

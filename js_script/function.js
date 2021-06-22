@@ -380,6 +380,9 @@ exports.formChenge = function(team, enemy, name){
     cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　は　" + poke[1] + "　に　なった!" + "\n")
     const rate = cfn.natureCheck(con.nature)
     const num = cfn.battleNum(team)
+    console.log(con)
+    console.log(num)
+    console.log(team)
 
     // 実数値の書き換え
     const parameter = ["A", "B", "C", "D", "S"]
@@ -401,7 +404,7 @@ exports.formChenge = function(team, enemy, name){
     }
     // 名前の書き換え
     con.name = poke[1]
-    con["poke" + num].name = poke[1]
+    team["poke" + num].name = poke[1]
 
     // 特性の書き換え
     if (con.name.includes("ヒヒダルマ")){
