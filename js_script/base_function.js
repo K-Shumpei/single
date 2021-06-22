@@ -9,120 +9,121 @@ exports.berryPinch = function(team, enemy){
     let con = team.con
     const TN = team.con.TN
 
-    if (enemy.con.ability != "きんちょうかん"){
-        let berry_check = 0
-        if (con.last_HP > 0 && con.last_HP <= con.full_HP / 2){
-            if (con.item == "きのみジュース"){
+    if (enemy.con.ability == "きんちょうかん"){
+        return
+    }
+    let berry_check = 0
+    if (con.last_HP > 0 && con.last_HP <= con.full_HP / 2){
+        if (con.item == "きのみジュース"){
+            afn.HPchangeMagic(team, enemy, 20, "+", con.item)
+            berry_check += 2
+        } else if (con.item == "オレンのみ"){
+            berry_check += 1
+            if (con.ability == "じゅくせい"){
                 afn.HPchangeMagic(team, enemy, 20, "+", con.item)
-                berry_check += 2
-            } else if (con.item == "オレンのみ"){
-                berry_check += 1
-                if (con.ability == "じゅくせい"){
-                    afn.HPchangeMagic(team, enemy, 20, "+", con.item)
-                } else {
-                    afn.HPchangeMagic(team, enemy, 10, "+", con.item)
-                }
-            } else if (con.item == "オボンのみ"){
-                berry_check += 1
-                if (con.ability == "じゅくせい"){
-                    afn.HPchangeMagic(team, enemy, Math.floor(con.full_HP / 2), "+", con.item)
-                } else {
-                    afn.HPchangeMagic(team, enemy, Math.floor(con.full_HP / 4), "+", con.item)
-                }
+            } else {
+                afn.HPchangeMagic(team, enemy, 10, "+", con.item)
             }
-        } else if (con.last_HP > 0){
-            let HP_border = con.full_HP / 4
-            if (con.ability == "くいしんぼう"){
-                HP_border = con.full_HP / 2
-            }
-            if (con.last_HP <= HP_border){
-                if (con.item == "フィラのみ" || con.item == "ウイのみ" || con.item == "マゴのみ" || con.item == "バンジのみ" || con.item == "イアのみ"){
-                    berry_check += 1
-                    if (con.ability == "じゅくせい"){
-                        afn.HPchangeMagic(team, enemy, Math.floor(con.full_HP * 2 / 3), "+", con.item)
-                    } else {
-                        fan.HPchangeMagic(team, enemy, Math.floor(con.full_HP / 3), "+", con.item)
-                    }
-                    if ((con.item== "フィラのみ" && (con.nature == "ずぶとい" || con.nature == "ひかえめ" || con.nature == "おだやか" || con.nature == "おくびょう")) 
-                    || (con.item == "イアのみ" && (con.nature == "さみしがり" || con.nature == "おっとり" || con.nature == "おとなしい" || con.nature == "せっかち")) 
-                    || (con.item == "ウイのみ" && (con.nature == "いじっぱり" || con.nature == "わんぱく" || con.nature == "しんちょう" || con.nature == "ようき")) 
-                    || (con.item == "バンジのみ" && (con.nature == "やんちゃ" || con.nature == "のうてんき" || con.nature == "うっかりや" || con.nature == "むじゃき")) 
-                    || (con.item == "マゴのみ" && (con.nature == "ゆうかん" || con.nature == "のんき" || con.nature == "れいせい" || con.nature == "なまいき"))){
-                        if (!con.p_con.includes("こんらん")){
-                            afn.makeAbnormal(team, enemy, "こんらん", 100, con.item)
-                        }
-                    }
-                } else if (con.item == "チイラのみ"){
-                    berry_check += 1
-                    if (con.ability == "じゅくせい"){
-                        afn.rankChange(team, enemy, "A", 2, 100, con.item)
-                    } else {
-                        afn.rankChange(team, enemy, "A", 1, 100, con.item)
-                    }
-                } else if (con.item == "リュガのみ"){
-                    berry_check += 1
-                    if (con.ability == "じゅくせい"){
-                        afn.rankChange(team, enemy, "B", 2, 100, con.item)
-                    } else {
-                        afn.rankChange(team, enemy, "B", 1, 100, con.item)
-                    }
-                } else if (con.item == "ヤタピのみ"){
-                    berry_check += 1
-                    if (con.ability == "じゅくせい"){
-                        afn.rankChange(team, enemy, "C", 2, 100, con.item)
-                    } else {
-                        afn.rankChange(team, enemy, "C", 1, 100, con.item)
-                    }
-                } else if (con.item == "ズアのみ"){
-                    berry_check += 1
-                    if (con.ability == "じゅくせい"){
-                        afn.rankChange(team, enemy, "D", 2, 100, con.item)
-                    } else {
-                        afn.rankChange(team, enemy, "D", 1, 100, con.item)
-                    }
-                } else if (con.item == "カムラのみ"){
-                    berry_check += 1
-                    if (con.ability == "じゅくせい"){
-                        afn.rankChange(team, enemy, "S", 2, 100, con.item)
-                    } else {
-                        afn.rankChange(team, enemy, "S", 1, 100, con.item)
-                    }
-                } else if (con.item == "サンのみ" && !con.p_con.includes("きゅうしょアップ")){
-                    berry_check += 1
-                    con.p_con += "きゅうしょアップ" + "\n"
-                    cfn.logWrite(team, enemy, TN + "　の　" + con.name + "は　張り切り出した！" + "\n")
-                } else if (con.item == "スターのみ"){
-                    berry_check += 1
-                    const random = Math.random()
-                    let parameter = ""
-                    const convert = [[0, "A"], [0.2, "B"], [0.4, "C"], [0.6, "D"], [0.8, "S"]]
-                    for (let i = 0; i < 5; i++){
-                        if (random > convert[i][0]){
-                            parameter = convert[i][1]
-                        }
-                    }
-                    if (con.ability == "じゅくせい"){
-                        afn.rankChange(team, enemy, parameter, 4, 100, con.item)
-                    } else {
-                        afn.rankChange(team, enemy, parameter, 2, 100, con.item)
-                    }
-                } else if (con.item == "ミクルのみ"){
-                    berry_check += 1
-                    con.p_con += "ミクルのみ" + "\n"
-                    cfn.logWrite(team, enemy, TN + "　の　" + con.name + "は　命中率が上がった！" + "\n")
-                }
+        } else if (con.item == "オボンのみ"){
+            berry_check += 1
+            if (con.ability == "じゅくせい"){
+                afn.HPchangeMagic(team, enemy, Math.floor(con.full_HP / 2), "+", con.item)
+            } else {
+                afn.HPchangeMagic(team, enemy, Math.floor(con.full_HP / 4), "+", con.item)
             }
         }
+    } else if (con.last_HP > 0){
+        let HP_border = con.full_HP / 4
+        if (con.ability == "くいしんぼう"){
+            HP_border = con.full_HP / 2
+        }
+        if (con.last_HP <= HP_border){
+            if (con.item == "フィラのみ" || con.item == "ウイのみ" || con.item == "マゴのみ" || con.item == "バンジのみ" || con.item == "イアのみ"){
+                berry_check += 1
+                if (con.ability == "じゅくせい"){
+                    afn.HPchangeMagic(team, enemy, Math.floor(con.full_HP * 2 / 3), "+", con.item)
+                } else {
+                    afn.HPchangeMagic(team, enemy, Math.floor(con.full_HP / 3), "+", con.item)
+                }
+                if ((con.item== "フィラのみ" && (con.nature == "ずぶとい" || con.nature == "ひかえめ" || con.nature == "おだやか" || con.nature == "おくびょう")) 
+                || (con.item == "イアのみ" && (con.nature == "さみしがり" || con.nature == "おっとり" || con.nature == "おとなしい" || con.nature == "せっかち")) 
+                || (con.item == "ウイのみ" && (con.nature == "いじっぱり" || con.nature == "わんぱく" || con.nature == "しんちょう" || con.nature == "ようき")) 
+                || (con.item == "バンジのみ" && (con.nature == "やんちゃ" || con.nature == "のうてんき" || con.nature == "うっかりや" || con.nature == "むじゃき")) 
+                || (con.item == "マゴのみ" && (con.nature == "ゆうかん" || con.nature == "のんき" || con.nature == "れいせい" || con.nature == "なまいき"))){
+                    if (!con.p_con.includes("こんらん")){
+                        afn.makeAbnormal(team, enemy, "こんらん", 100, con.item)
+                    }
+                }
+            } else if (con.item == "チイラのみ"){
+                berry_check += 1
+                if (con.ability == "じゅくせい"){
+                    afn.rankChange(team, enemy, "A", 2, 100, con.item)
+                } else {
+                    afn.rankChange(team, enemy, "A", 1, 100, con.item)
+                }
+            } else if (con.item == "リュガのみ"){
+                berry_check += 1
+                if (con.ability == "じゅくせい"){
+                    afn.rankChange(team, enemy, "B", 2, 100, con.item)
+                } else {
+                    afn.rankChange(team, enemy, "B", 1, 100, con.item)
+                }
+            } else if (con.item == "ヤタピのみ"){
+                berry_check += 1
+                if (con.ability == "じゅくせい"){
+                    afn.rankChange(team, enemy, "C", 2, 100, con.item)
+                } else {
+                    afn.rankChange(team, enemy, "C", 1, 100, con.item)
+                }
+            } else if (con.item == "ズアのみ"){
+                berry_check += 1
+                if (con.ability == "じゅくせい"){
+                    afn.rankChange(team, enemy, "D", 2, 100, con.item)
+                } else {
+                    afn.rankChange(team, enemy, "D", 1, 100, con.item)
+                }
+            } else if (con.item == "カムラのみ"){
+                berry_check += 1
+                if (con.ability == "じゅくせい"){
+                    afn.rankChange(team, enemy, "S", 2, 100, con.item)
+                } else {
+                    afn.rankChange(team, enemy, "S", 1, 100, con.item)
+                }
+            } else if (con.item == "サンのみ" && !con.p_con.includes("きゅうしょアップ")){
+                berry_check += 1
+                con.p_con += "きゅうしょアップ" + "\n"
+                cfn.logWrite(team, enemy, TN + "　の　" + con.name + "は　張り切り出した！" + "\n")
+            } else if (con.item == "スターのみ"){
+                berry_check += 1
+                const random = Math.random()
+                let parameter = ""
+                const convert = [[0, "A"], [0.2, "B"], [0.4, "C"], [0.6, "D"], [0.8, "S"]]
+                for (let i = 0; i < 5; i++){
+                    if (random > convert[i][0]){
+                        parameter = convert[i][1]
+                    }
+                }
+                if (con.ability == "じゅくせい"){
+                    afn.rankChange(team, enemy, parameter, 4, 100, con.item)
+                } else {
+                    afn.rankChange(team, enemy, parameter, 2, 100, con.item)
+                }
+            } else if (con.item == "ミクルのみ"){
+                berry_check += 1
+                con.p_con += "ミクルのみ" + "\n"
+                cfn.logWrite(team, enemy, TN + "　の　" + con.name + "は　命中率が上がった！" + "\n")
+            }
+        }
+    }
 
-        if (berry_check == 1){
-            cfn.setBelch(team)
-            cfn.setRecycle(team)
-            if (con.ability == "ほおぶくろ"){
-                afn.HPchangeMagic(team, enemy, Math.floor(con.full_HP / 3), "+", "ほおぶくろ")
-            }
-        } else if (berry_check == 2){
-            setRecycle(team)
+    if (berry_check == 1){
+        cfn.setBelch(team)
+        cfn.setRecycle(team)
+        if (con.ability == "ほおぶくろ"){
+            afn.HPchangeMagic(team, enemy, Math.floor(con.full_HP / 3), "+", "ほおぶくろ")
         }
+    } else if (berry_check == 2){
+        setRecycle(team)
     }
 }
 
@@ -341,9 +342,6 @@ exports.fainted = function(user, enemy){
         "move_3", "PP_3", "last_3"]){
         user["poke" + cfn.battleNum(user)][parameter] = user.con[parameter]
     }
-
-    // ポケモンの状態の削除
-    user.con.p_con= ""
     // 相手のメロメロの解除
     cfn.conditionRemove(enemy.con, "poke", "メロメロ")
 
@@ -387,7 +385,7 @@ exports.fainted = function(user, enemy){
         "move_0", "PP_0", "last_0", 
         "move_1", "PP_1", "last_1", 
         "move_2", "PP_2", "last_2", 
-        "move_3", "PP_3", "last_3", "p_con", "user"]){
+        "move_3", "PP_3", "last_3", "p_con", "used"]){
         user.con[parameter] = ""
     }
     for (const parameter of ["A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank"]){

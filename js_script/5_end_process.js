@@ -204,6 +204,10 @@ function otherProcess(order, reverse){
         if (!moveEff.protect().includes(team[0].con.used)){
             cfn.conditionRemove(team[0].con, "poke", "守る")
         }
+        // ひんしであれば、ポケモンの状態を削除
+        if (team[0].con.f_con.includes("ひんし")){
+            team[0].con.p_con = ""
+        }
     }
 }
 

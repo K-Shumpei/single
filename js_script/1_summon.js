@@ -81,7 +81,12 @@ exports.comeBack = function(user, enemy){
 
     // 「戦闘中」を「控え」に変更
     user.data["radio_" + Number(cfn.battleNum(user) + 4)] = false
-    user["poke" + cfn.battleNum(user)].life = "控え"
+    if (user.con.f_con.includes("選択中・・・")){
+        user.data["radio_" + cfn.battleNum(user)] = true
+        user["poke" + cfn.battleNum(user)].life = "選択中"
+    } else {
+        user["poke" + cfn.battleNum(user)].life = "控え"
+    }
 
     for (const parameter of [
         "name", "sex", "level", "type", "nature", "ability", "item", "abnormal", 
@@ -120,6 +125,12 @@ exports.pokeReplace = function(team, enemy){
     }
     team["poke" + num].life = "戦闘中"
     team.data["radio_" + team.data.command] = true
+
+    for (let i = 0; i < 3; i++){
+        if (team["poke" + i].life == "選択中"){
+            team["poke" + i].life = "控え"
+        }
+    }
 
     // ミミッキュの姿
     if (team["poke" + num].form == "ばけたすがた"){

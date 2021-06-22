@@ -973,9 +973,11 @@ function lifeorbShellbell(atk, def, damage){
 
 // 15.オボンのみなど回復のきのみ/チイラのみ/リュガのみ/ヤタピのみ/ズアのみ/カムラのみ/サンのみ/スターのみ/ミクルのみ/きのみジュース
 function recoverBerry(atk, def){
+    if (!def.con.f_con.includes("ひんし")){
+        bfn.berryPinch(def, atk)
+    }
     // 攻撃ダメージによって発動する場合のみこの処理順になる
     // (反動やゴツゴツメット等の効果ダメージやだっしゅつボタンによるきんちょうかんの退場ではその直後に割り込んで発動する)
-    bfn.berryPinch(def, atk)
 }
 
 // 16.ききかいひ/にげごしによって手持ちに戻るまで

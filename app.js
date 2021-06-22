@@ -171,31 +171,27 @@ io.on("connection", function(socket){
                     // 25.おどりこ
                     // 26.次のポケモンの行動
 
-                    // 相手が行動済の時
-                    if (data[room]["user" + team[1]].data.command == ""){
-                        // ターン終了前の処理
-                        end.endProcess(rec[room]["user" + team[0]], rec[room]["user" + team[1]])
-                        return
-                    }
                     // 相手がまだ交代していない時
-                    let atk = rec[room]["user" + team[1]]
-                    let def = rec[room]["user" + team[0]]
-                    let order = [atk, def]
-                    let move = success.moveSuccessJudge(atk, def, order)
-                    if (move == false){
-                        processAtFailure(atk)
-                    } else {
-                        if (move[9] == "反射"){
-                            let save = atk
-                            atk = def
-                            def = save
+                    if (data[room]["user" + team[1]].data.command != ""){
+                        let atk = rec[room]["user" + team[1]]
+                        let def = rec[room]["user" + team[0]]
+                        let order = [atk, def]
+                        let move = success.moveSuccessJudge(atk, def, order)
+                        if (move == false){
+                            processAtFailure(atk)
+                        } else {
+                            if (move[9] == "反射"){
+                                let save = atk
+                                atk = def
+                                def = save
+                            }
+                            if (process.moveProcess(atk, def, move, order) == "stop"){
+                                atk.data.command = ""
+                                return
+                            }
                         }
-                        if (process.moveProcess(atk, def, move, order) == "stop"){
-                            atk.data.command = ""
-                            return
-                        }
+                        atk.data.command = ""
                     }
-                    atk.data.command = ""
                     end.endProcess(atk, def)
                     io.to(data[room].user1.data.id).emit("run battle", data[room], 1, 2)
                     io.to(data[room].user2.data.id).emit("run battle", data[room], 2, 1)

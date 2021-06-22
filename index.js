@@ -235,14 +235,14 @@ $(function () {
             }
         }
         // HPバーの表示
-        if (data["user" + me].con.f_con.includes("ひんし")){
+        if (data["user" + me].con.f_con.includes("ひんし") || data["user" + me].con.f_con.includes("選択中・・・")){
             document.getElementById("A_HP_bar").value = 0
             document.getElementById("A_percent").textContent = 0
         } else {
             document.getElementById("A_HP_bar").value = data["user" + me].con.last_HP / data["user" + me].con.full_HP
             document.getElementById("A_percent").textContent = Math.ceil(data["user" + me].con.last_HP * 100 / data["user" + me].con.full_HP)
         }
-        if (data["user" + you].con.f_con.includes("ひんし")){
+        if (data["user" + you].con.f_con.includes("ひんし") || data["user" + you].con.f_con.includes("選択中・・・")){
             document.getElementById("B_HP_bar").value = 0
             document.getElementById("B_percent").textContent = 0
         } else {
@@ -254,6 +254,10 @@ $(function () {
             document.getElementById("radio_" + i).disabled = data["user" + me].data["radio_" + i]
             document.getElementById("radio_" + i).checked = false
         }
+        console.log(data["user" + you].con)
+        console.log(data["user" + you].con.f_con)
+        console.log(data["user" + you].con.f_con.includes("選択中・・・"))
+
         // 決定ボタンの有効化
         if (!data["user" + you].con.f_con.includes("ひんし") && !data["user" + you].con.f_con.includes("選択中・・・")){
             document.getElementById("battle_button").disabled = false
