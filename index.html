@@ -13,8 +13,15 @@
   </head>
   
   <body>
-    <h1 id="headline">チームを登録しよう</h1>
+    <h1 id="headline">パスワードを入力してください</h1>
 
+    <div id="password">
+        <form id="emitPass" action="">
+            <input id="pass" autocomplete="off" type="password"><button>送信</button>
+        </form>
+    </div>
+
+    <div id="mainContent">
     <div id="register">
 
         <form name="poke_name" id="poke_name_id">
@@ -419,11 +426,15 @@
     </div>
 
     <script>
+        document.getElementById("mainContent").style.display = "none"
         document.getElementById("trainer_name").style.display = "none"
         document.getElementById("select").style.display = "none"
         document.getElementById("both_team").style.display = "none"
         document.getElementById("battle_table").style.display = "none"
     </script>
+    </div>
+
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="index.js"></script>

@@ -46,6 +46,15 @@ io.on("connection", function(socket){
     // コネションが確率されたら実行
     socket.emit("connected", {})
 
+    // パスワード受信
+    socket.on("password", function(txt){
+        if (txt == "11111"){
+            io.to(socket.id).emit("pass", {})
+        } else {
+            io.to(socket.id).emit("miss", {})
+        }
+    })
+
     // 切断時の処理
     socket.on("disconnect", () => {
         const room = room_search(socket.id)

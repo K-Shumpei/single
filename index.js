@@ -1,6 +1,24 @@
 $(function () {
     var socketio = io()
 
+    // パスワード送信
+    $("#emitPass").submit(function() {
+        console.log($("#pass").val())
+        socketio.emit("password", $("#pass").val())
+        $("#pass").val("")
+        return false
+    })
+    // パスワードの正誤
+    socketio.on("pass", function(){
+        document.getElementById("headline").textContent = "チームを登録してください"
+        document.getElementById("password").style.display = "none"
+        document.getElementById("mainContent").style.display = "block"
+    })
+    socketio.on("miss", function(){
+        console.log("miss")
+        alert("パスワードが違います")
+    })
+
     // チームデータ送信
     $("#team_set").submit(function() {
         if ($("#my_name").val() == ""){
