@@ -48,6 +48,7 @@ exports.runBattle = function(rec){
     if (rec.user1.con.f_con.includes("トリックルーム")){
         order = [order[1], order[0]]
     }
+    const reverse = [order[1], order[0]]
 
     // わるあがきをするかどうか
     if (rec.user1.data.radio_0 && rec.user1.data.radio_1 && rec.user1.data.radio_2 && rec.user1.data.radio_3 && !rec.user1.con.f_con.includes("溜め技") && rec.user1.data.command == ""){
@@ -84,18 +85,14 @@ exports.runBattle = function(rec){
     }
     
     // 2.交換・よびかける
-    for (const user of order){
-        if (user.data.command >= 4){
-            let enemy = rec.user1
-            if (user == rec.user1){
-                enemy = rec.user2
-            }
-            cfn.logWrite(rec.user1, rec.user2, "(" + user.con.TN + "の行動)" + "\n")
-            cfn.logWrite(rec.user1, rec.user2, user.con.TN + "　は　" + user.con.name + "を　引っ込めた！" + "\n")
-            summon.comeBack(user, enemy)
-            summon.pokeReplace(user, enemy)
-            summon.activAbility(user, enemy, 1)
-            user.data.command = ""
+    for (const user of [order, reverse]){
+        if (user[0].data.command >= 4){
+            cfn.logWrite(user[0], user[1], "(" + user[0].con.TN + "の行動)" + "\n")
+            cfn.logWrite(user[0], user[1], user[0].con.TN + "　は　" + user[1].con.name + "を　引っ込めた！" + "\n")
+            summon.comeBack(user[0], user[1])
+            summon.pokeReplace(user[0], user[1])
+            summon.activAbility(user[0], user[1], 1)
+            user[0].data.command = ""
         }
     }
         // 交換順は、交代前のポケモンのすばやさ順。出てきたポケモンが(1)における行動を全て終えてから次のポケモンが交換される。

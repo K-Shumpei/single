@@ -55,50 +55,6 @@ io.on("connection", function(socket){
         }
     })
 
-    // 切断時の処理
-    socket.on("disconnect", () => {
-        const room = room_search(socket.id)
-        if (room != undefined){
-            if (data[room].user2 == ""){ // 対戦相手がまだ見つかっていない時
-                data.splice(room, 1)
-                playerCount -= 1
-                roomCount -= 1
-            } else {
-                if (data[room].user1.data.id == socket.id){ // 部屋の一人目が抜けた時
-                    data[room].user1.data.command = "emit"
-                    if (data[room].user2.data.command != "emit"){
-                        socket.to(data[room].user2.data.id).emit("disconnection", {})
-                    }
-                } else { // 部屋の二人目が抜けた時
-                    data[room].user2.data.command == "emit"
-                    if (data[room].user1.data.command != "emit"){
-                        socket.to(data[room].user1.data.id).emit("disconnection", {})
-                    }
-                }
-                // 部屋の両方の接続が切れた時、部屋情報を削除
-                if (data[room].user1.data.command == "emit" && data[room].user2.data.command == "emit"){
-                    let check = []
-                    for (let i = 0; i < IdAndRoom.length; i++){
-                        if (IdAndRoom[i][1] == room){
-                            check.push(i)
-                        } else if (IdAndRoom[i][1] > room){ // 抜ける部屋より大きい部屋番号を1ずつ減らす
-                            IdAndRoom[i][1] -= 1
-                        }
-                    }
-                    // 部屋情報から削除
-                    IdAndRoom.splice(check[0], 1)
-                    IdAndRoom.splice(check[1], 1)
-                    data.splice(room, 1)
-                    // プレイヤー人数をふたり減らす
-                    playerCount -= 2
-                    // 部屋数を一つ減らす
-                    roomCount -= 1
-                }
-            }
-        }
-	    console.log("disconnect")
-    })
-
     // チームデータ受信
     socket.on('team_data',function(name, team_data){
         
@@ -172,8 +128,8 @@ io.on("connection", function(socket){
                 data[room]["user" + team[0]].data.command = val
                 // ボルチェンなどで交換する時
                 if (data[room]["user" + team[0]].con.f_con == "選択中"){
-                    summon.pokeReplace(rec[room]["user" + team[0]], data[room]["user" + team[1]])
-                    summon.activAbility(rec[room]["user" + team[0]], data[room]["user" + team[1]], 1)
+                    summon.pokeReplace(data[room]["user" + team[0]], data[room]["user" + team[1]])
+                    summon.activAbility(data[room]["user" + team[0]], data[room]["user" + team[1]], 1)
 
                     // 交代の後の残りの処理
                     // 24.きょうせい
@@ -206,11 +162,22 @@ io.on("connection", function(socket){
                     io.to(data[room].user2.data.id).emit("run battle", data[room], 2, 1)
                     return
                 }
-                // ひんしのポケモンを交換する時
-                if (data[room]["user" + team[0]].con.f_con.includes("ひんし")){
+                // 自分だけひんしのポケモンを交換する時
+                if (data[room]["user" + team[0]].con.f_con.includes("ひんし") && !data[room]["user" + team[1]].con.f_con.includes("ひんし")){
                     summon.pokeReplace(data[room]["user" + team[0]], data[room]["user" + team[1]])
                     summon.activAbility(data[room]["user" + team[0]], data[room]["user" + team[1]], 1)
                     data[room]["user" + team[0]].data.command = ""
+                    io.to(data[room].user1.data.id).emit("run battle", data[room], 1, 2)
+                    io.to(data[room].user2.data.id).emit("run battle", data[room], 2, 1)
+                    return
+                }
+                // お互いがひんしのポケモンを交換する時
+                if (data[room]["user" + team[0]].con.f_con.includes("ひんし") && data[room]["user" + team[1]].con.f_con.includes("ひんし") && data[room]["user" + team[1]].data.command != ""){
+                    summon.pokeReplace(data[room]["user" + team[0]], data[room]["user" + team[1]])
+                    summon.pokeReplace(data[room]["user" + team[1]], data[room]["user" + team[0]])
+                    summon.activAbility(data[room]["user" + team[0]], data[room]["user" + team[1]], "both")
+                    data[room]["user" + team[0]].data.command = ""
+                    data[room]["user" + team[1]].data.command = ""
                     io.to(data[room].user1.data.id).emit("run battle", data[room], 1, 2)
                     io.to(data[room].user2.data.id).emit("run battle", data[room], 2, 1)
                     return
@@ -226,36 +193,48 @@ io.on("connection", function(socket){
         }
     })
 
-    // 選択中・・・の時 val は yes か no
-    socket.on("thinking", function(val) {
+    // 切断時の処理
+    socket.on("disconnect", () => {
         const room = room_search(socket.id)
-        if (data[room].user1.id == socket.id){
-            data[room].user1.command = val
-        } else {
-            data[room].user2.command = val
-        }
-    })
-
-    // 選択中のユーザーから受信
-    socket.on("choose poke", function(val) {
-        const room = room_search(socket.id)
-        if (data[room].user1.id == socket.id){
-            data[room].user1.command = val
-            if (data[room].user2.command == "no" || data[room].user2.command != "yes"){
-                io.to(data[room].user1.id).emit("summon poke", data[room].user2.command)
-                io.to(data[room].user2.id).emit("summon poke", val)
-                data[room].user1.command = "yet"
-                data[room].user2.command = "yet"
+        if (room != undefined){
+            if (data[room].user2 == ""){ // 対戦相手がまだ見つかっていない時
+                data.splice(room, 1)
+                playerCount -= 1
+                roomCount -= 1
+            } else {
+                if (data[room].user1.data.id == socket.id){ // 部屋の一人目が抜けた時
+                    data[room].user1.data.command = "emit"
+                    if (data[room].user2.data.command != "emit"){
+                        socket.to(data[room].user2.data.id).emit("disconnection", {})
+                    }
+                } else { // 部屋の二人目が抜けた時
+                    data[room].user2.data.command == "emit"
+                    if (data[room].user1.data.command != "emit"){
+                        socket.to(data[room].user1.data.id).emit("disconnection", {})
+                    }
+                }
+                // 部屋の両方の接続が切れた時、部屋情報を削除
+                if (data[room].user1.data.command == "emit" && data[room].user2.data.command == "emit"){
+                    let check = []
+                    for (let i = 0; i < IdAndRoom.length; i++){
+                        if (IdAndRoom[i][1] == room){
+                            check.push(i)
+                        } else if (IdAndRoom[i][1] > room){ // 抜ける部屋より大きい部屋番号を1ずつ減らす
+                            IdAndRoom[i][1] -= 1
+                        }
+                    }
+                    // 部屋情報から削除
+                    IdAndRoom.splice(check[0], 1)
+                    IdAndRoom.splice(check[1], 1)
+                    data.splice(room, 1)
+                    // プレイヤー人数をふたり減らす
+                    playerCount -= 2
+                    // 部屋数を一つ減らす
+                    roomCount -= 1
+                }
             }
-        } else {
-            data[room].user2.command = val
-            if (data[room].user1.command == "no" || data[room].user1.command != "yes"){
-                io.to(data[room].user1.id).emit("summon poke", val)
-                io.to(data[room].user2.id).emit("summon poke", data[room].user1.command)
-                data[room].user1.command = "yet"
-                data[room].user2.command = "yet"
-            } 
         }
+	    console.log("disconnect")
     })
 })
 

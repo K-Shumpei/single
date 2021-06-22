@@ -391,6 +391,10 @@ exports.fainted = function(user, enemy){
     for (const parameter of ["A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank"]){
         user.con[parameter] = 0
     }
+    // コマンドの消去
+    if (user.con.f_con.includes("ひんし") || user.con.f_con.includes("選択中")){
+        user.data.command = ""
+    }
 }
 
 // きのみ即時食べ

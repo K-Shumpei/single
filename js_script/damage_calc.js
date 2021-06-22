@@ -196,7 +196,7 @@ function powerCalculation(atk, def, move, order){
         }
     } else if (move[0] == "なげつける"){
         cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　" + atk.con.item + "を　投げつけた！" + "\n")
-        if (berry_item_list.includes(atk.con.item) || atk.con.item.includes("おこう") || moveEff.fling10().includes(atk.con.item)){
+        if (itemEff.berryList().includes(atk.con.item) || atk.con.item.includes("おこう") || moveEff.fling10().includes(atk.con.item)){
             move[3] = 10
         } else if (moveEff.fling30().includes(atk.con.item)){
             move[3] = 30
