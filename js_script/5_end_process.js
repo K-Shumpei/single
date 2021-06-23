@@ -343,7 +343,7 @@ function futureAttack(order, reverse){
         let list = team[0].con.f_con.split("\n")
         for (let i = 0; i < list.length; i++){
             if (list[i].includes("みらいよち") || list[i].includes("はめつのねがい")){
-                const turn = Number(f_list[i].slice(-3, -2)) - 1
+                const turn = Number(list[i].slice(-3, -2)) - 1
                 list[i] = list[i].slice(0, -3) + turn + "/3"
                 if (turn == 0){
                     if (!team[0].con.f_con.includes("ひんし")){
