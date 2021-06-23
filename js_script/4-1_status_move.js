@@ -237,9 +237,9 @@ function selfStatusMove(atk, def, move){
                 afn.rankChange(atk, def, "D", 1, 100, move)
                 atk.con.p_con += "じゅうでん　開始" + "\n"
             } else  if (move[0] == "はいすいのじん"){
+                atk.con.p_con += "逃げられない：はいすいのじん" + "\n"
                 for (const parameter of ["A", "B", "C", "D", "S"]){
                     afn.rankChange(atk, def, parameter, 1, 100, move)
-                    atk.con.p_con += "逃げられない：はいすいのじん" + "\n"
                 }
             } else if (move[0] == "まるくなる"){
                 afn.rankChange(atk, def, "B", 1, 100, move)
@@ -493,8 +493,8 @@ function otherStatusMove(atk, def, move){
     } else if (move[0] == "おいわい"){
         cfn.logWrite(atk, def, "おめでとう！" + "\n")
     } else if (move[0] == "おきみやげ"){
-        document.getElementById(atk + "_HP_last").textContent = 0
-        fainted_process(atk)
+        atk.con.last_HP = 0
+        bfn.fainted(atk, def)
     } else if (move[0] == "おちゃかい"){
         for (const team of [[atk, def], [def, atk]]){
             if (itemEff.berryList().includes(team[0].con.item)){
