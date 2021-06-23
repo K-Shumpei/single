@@ -123,7 +123,7 @@ exports.berryPinch = function(team, enemy){
             afn.HPchangeMagic(team, enemy, Math.floor(con.full_HP / 3), "+", "ほおぶくろ")
         }
     } else if (berry_check == 2){
-        setRecycle(team)
+        cfn.setRecycle(team)
     }
 }
 
