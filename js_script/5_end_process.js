@@ -197,7 +197,9 @@ function otherProcess(order, reverse){
         let list = team[0].con.p_con.split("\n")
         for (let i = 0; i < list.length; i++){
             if (list[i].includes("エコーボイス") &&  Number(list[i].slice(8)) % 1 != 0){
-                list[i] = "エコーボイス　+" + Math.ceil(turn)
+                list[i] = "エコーボイス　+" + Math.ceil(Number(list[i].slice(8)))
+            } else if (list[i].includes("エコーボイス") &&  Number(list[i].slice(8)) % 1 == 0){
+                list.split(i, 1)
             }
         }
         team[0].con.p_con = list.join("\n")
