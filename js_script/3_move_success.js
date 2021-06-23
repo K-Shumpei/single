@@ -2201,7 +2201,7 @@ function spectralThief(atk, def, move){
 // 56.対応するタイプの攻撃技の場合ジュエルが消費される
 function useJuwel(atk, def, move){
     if (atk.con.item.includes("ジュエル") && move[2] != "変化" && !moveEff.oneShot().includes(move[0]) && atk.con.item.includes(move[1])){
-        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　ジュエルで威力を高めた！" + "\n")
+        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　" + atk.con.item + "　で威力を高めた！" + "\n")
         cfn.setRecycle(atk)
         atk.con.p_con += "ジュエル" + "\n"
     }

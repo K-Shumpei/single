@@ -271,10 +271,7 @@ function additionalEffectEtc(atk, def, move, order, damage){
             }
         }
     }
-    // みがわりがあり、音技でもすりぬけでもない時や、ひんしの時は、追加効果はない
-    if ((damage.substitute && !moveEff.music().includes(move[0]) && atk.con.ability != "すりぬけ") || def.con.last_HP > 0){
-        return
-    }
+
     // コアパニッシャーによる効果
     if (move[0] == "コアパニッシャー" && atk == order[1] && !def.con.p_con.includes("特性なし") && !abiEff.gastro().includes(def.con.ability)){
         if (def.con.ability != ""){
@@ -305,7 +302,8 @@ function additionalEffectEtc(atk, def, move, order, damage){
         cfn.setBelch(def)
     }
     // 6.防御側のくちばしキャノン
-    if (def.con.p_con.includes("くちばしキャノン") && move[6] == "直接" && atk.con.item != "ぼうごパット" && (!substitute || music_move_list.includes(move[0]) || atk.con.ability == "すりぬけ")){
+    console.log(def.con.p_con)
+    if (def.con.p_con.includes("くちばしキャノン") && move[6] == "直接" && atk.con.item != "ぼうごパット" && (!damage.substitute || music_move_list.includes(move[0]) || atk.con.ability == "すりぬけ")){
         afn.makeAbnormal(atk, def, "やけど", 100, "くちばしキャノン")
     }
     // 7.やきつくす/クリアスモッグの効果　こちこちフロストの効果（wikiにはなかった）
