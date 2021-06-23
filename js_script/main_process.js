@@ -88,7 +88,7 @@ exports.runBattle = function(rec){
     for (const user of [order, reverse]){
         if (user[0].data.command >= 4){
             cfn.logWrite(user[0], user[1], "(" + user[0].con.TN + "の行動)" + "\n")
-            cfn.logWrite(user[0], user[1], user[0].con.TN + "　は　" + user[1].con.name + "を　引っ込めた！" + "\n")
+            cfn.logWrite(user[0], user[1], user[0].con.TN + "　は　" + user[0].con.name + "を　引っ込めた！" + "\n")
             summon.comeBack(user[0], user[1])
             summon.pokeReplace(user[0], user[1])
             summon.activAbility(user[0], user[1], 1)
