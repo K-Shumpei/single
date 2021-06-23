@@ -176,78 +176,81 @@ function additionalEffectEtc(atk, def, move, order, damage){
             }
         }
         // みがわりがあり、音技でもすりぬけでもない時や、ひんしの時は、追加効果はない
-        if ((damage.substitute && !moveEff.music().includes(move[0]) && atk.con.ability != "すりぬけ") || def.con.last_HP == 0){
-            break
-        }
-        // 相手のランクを変化させる技
-        if (move[0] == addEff[i][0] && addEff[i][1] == "e"){
-            for (let j = 3; j < addEff[i].length; j++){
-                if (def.con.ability == "ミラーアーマー"){
-                    cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "の　ミラーアーマーが　発動した！" + "\n")
-                    afn.rankChange(atk, def, addEff[i][j][0], addEff[i][j][1], addEff[i][2], move)
-                } else {
-                    afn.rankChange(def, atk, addEff[i][j][0], addEff[i][j][1], addEff[i][2], move)
+        if (!((damage.substitute && !moveEff.music().includes(move[0]) && atk.con.ability != "すりぬけ") || def.con.last_HP == 0)){
+            // 相手のランクを変化させる技
+            if (move[0] == addEff[i][0] && addEff[i][1] == "e"){
+                for (let j = 3; j < addEff[i].length; j++){
+                    if (def.con.ability == "ミラーアーマー"){
+                        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "の　ミラーアーマーが　発動した！" + "\n")
+                        afn.rankChange(atk, def, addEff[i][j][0], addEff[i][j][1], addEff[i][2], move)
+                    } else {
+                        afn.rankChange(def, atk, addEff[i][j][0], addEff[i][j][1], addEff[i][2], move)
+                    }
                 }
             }
-        }
-        // 相手を状態異常にする技
-        if (move[0] == addEff[i][0] && addEff[i][1] == "a"){
-            afn.makeAbnormal(def, atk, addEff[i][3], addEff[i][2], move)
-        }
-        // 相手をひるみ状態にする技
-        if (move[0] == addEff[i][0] && addEff[i][1] == "f" && def.con.ability != "せいしんりょく" && Math.random() * 100 < addEff[i][2]){
-            def.con.p_con += "ひるみ" + "\n"
-        }
-        // その他の追加効果
-        if (move[0] == "うたかたのアリア" && def.con.abnormal == "やけど"){
-            cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　やけどがなおった　！" + "\n")
-            def.con.abnormal = ""
-        } else if ((move[0] == "かげぬい" || move[0] == "アンカーショット") && !def.con.p_con.includes("逃げられない") && !def.con.type.includes("ゴースト")){ 
-            cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　逃げられなくなった　！" + "\n")
-            def.con.p_con += "逃げられない" + "\n"
-        } else if (move[0] == "しっとのほのお" && def.con.p_con.includes("ランク上昇")){ 
-            afn.makeAbnormal(def, atk, "やけど", 100, move)
-        } else if (move[0] == "じごくづき" && !def.con.p_con.includes("じごくづき")){ 
-            cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　音技が出せなくなった　！" + "\n")
-            def.con.p_con += "じごくづき　2/2" + "\n"
-        } else if (move[0] == "トライアタック"){ 
-            if (Math.random() < 0.2){
-                const random = Math.random()
-                if (random < 1 / 3){
-                    afn.makeAbnormal(def, atk, "まひ", 100, move)
-                } else if (random < 2 / 3){
-                    afn.makeAbnormal(def, atk, "こおり", 100, move)
-                } else if (random < 1){
-                    afn.makeAbnormal(def, atk, "やけど", 100, move)
-                }
+            // 相手を状態異常にする技
+            if (move[0] == addEff[i][0] && addEff[i][1] == "a"){
+                afn.makeAbnormal(def, atk, addEff[i][3], addEff[i][2], move)
             }
-        } else if (move[0] == "なげつける"){
-            if (atk.con.item == "でんきだま"){
-                afn.makeAbnormal(def, atk, "まひ", 100, "でんきだま")
-            } else if (atk.con.item == "かえんだま"){
-                afn.makeAbnormal(def, atk, "やけど", 100, "かえんだま")
-            } else if (atk.con.item == "どくバリ"){
-                afn.makeAbnormal(def, atk, "どく", 100, "どくバリ")
-            } else if (atk.con.item == "どくどくだま"){
-                afn.makeAbnormal(def, atk, "どくどく", 100, "どくどくだま")
-            } else if ((atk.con.item == "おうじゃのしるし" || atk.con.item == "するどいキバ") && def.con.ability != "せいしんりょく"){
+            // 相手をひるみ状態にする技
+            if (move[0] == addEff[i][0] && addEff[i][1] == "f" && def.con.ability != "せいしんりょく" && Math.random() * 100 < addEff[i][2]){
                 def.con.p_con += "ひるみ" + "\n"
-            } else if (atk.con.item == "メンタルハーブ"){
-                cfn.conditionRemove(def.con, "poke", "アンコール")
-                cfn.conditionRemove(def.con, "poke", "いちゃもん")
-                cfn.conditionRemove(def.con, "poke", "かいふくふうじ")
-                cfn.conditionRemove(def.con, "poke", "かなしばり")
-                cfn.conditionRemove(def.con, "poke", "ちょうはつ")
-                cfn.conditionRemove(def.con, "poke", "メロメロ")
-            } else if (atk.con.item == "しろいハーブ"){
-                for (const parameter of ["A", "B", "C", "D", "S", "X", "Y"]){
-                    def.con[parameter + "_rank"] = Math.max(def.con[parameter + "_rank"], 0)
-                }
-            } else if (itemEff.berrylist().includes(atk.con.item)){
-                bfn.eatingBerry(def, atk, atk.con.item)
             }
-            cfn.setRecycle(atk)
+        }    
+    }
+    // みがわりがあり、音技でもすりぬけでもない時や、ひんしの時は、追加効果はない
+    if ((damage.substitute && !moveEff.music().includes(move[0]) && atk.con.ability != "すりぬけ") || def.con.last_HP == 0){
+        return
+    }
+    // その他の追加効果
+    if (move[0] == "うたかたのアリア" && def.con.abnormal == "やけど"){
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　やけどがなおった　！" + "\n")
+        def.con.abnormal = ""
+    } else if ((move[0] == "かげぬい" || move[0] == "アンカーショット") && !def.con.p_con.includes("逃げられない") && !def.con.type.includes("ゴースト")){ 
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　逃げられなくなった　！" + "\n")
+        def.con.p_con += "逃げられない" + "\n"
+    } else if (move[0] == "しっとのほのお" && def.con.p_con.includes("ランク上昇")){ 
+        afn.makeAbnormal(def, atk, "やけど", 100, move)
+    } else if (move[0] == "じごくづき" && !def.con.p_con.includes("じごくづき")){ 
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　音技が出せなくなった　！" + "\n")
+        def.con.p_con += "じごくづき　2/2" + "\n"
+    } else if (move[0] == "トライアタック"){ 
+        if (Math.random() < 0.2){
+            const random = Math.random()
+            if (random < 1 / 3){
+                afn.makeAbnormal(def, atk, "まひ", 100, move)
+            } else if (random < 2 / 3){
+                afn.makeAbnormal(def, atk, "こおり", 100, move)
+            } else if (random < 1){
+                afn.makeAbnormal(def, atk, "やけど", 100, move)
+            }
         }
+    } else if (move[0] == "なげつける"){
+        if (atk.con.item == "でんきだま"){
+            afn.makeAbnormal(def, atk, "まひ", 100, "でんきだま")
+        } else if (atk.con.item == "かえんだま"){
+            afn.makeAbnormal(def, atk, "やけど", 100, "かえんだま")
+        } else if (atk.con.item == "どくバリ"){
+            afn.makeAbnormal(def, atk, "どく", 100, "どくバリ")
+        } else if (atk.con.item == "どくどくだま"){
+            afn.makeAbnormal(def, atk, "どくどく", 100, "どくどくだま")
+        } else if ((atk.con.item == "おうじゃのしるし" || atk.con.item == "するどいキバ") && def.con.ability != "せいしんりょく"){
+            def.con.p_con += "ひるみ" + "\n"
+        } else if (atk.con.item == "メンタルハーブ"){
+            cfn.conditionRemove(def.con, "poke", "アンコール")
+            cfn.conditionRemove(def.con, "poke", "いちゃもん")
+            cfn.conditionRemove(def.con, "poke", "かいふくふうじ")
+            cfn.conditionRemove(def.con, "poke", "かなしばり")
+            cfn.conditionRemove(def.con, "poke", "ちょうはつ")
+            cfn.conditionRemove(def.con, "poke", "メロメロ")
+        } else if (atk.con.item == "しろいハーブ"){
+            for (const parameter of ["A", "B", "C", "D", "S", "X", "Y"]){
+                def.con[parameter + "_rank"] = Math.max(def.con[parameter + "_rank"], 0)
+            }
+        } else if (itemEff.berryList().includes(atk.con.item)){
+            bfn.eatingBerry(def, atk, atk.con.item)
+        }
+        cfn.setRecycle(atk)
     }
     // 2.自分のランクが下がる技の効果/HP吸収技の吸収効果/はじけるほのおによる火花のダメージ/コアパニッシャーによる効果
     const otherEff = moveEff.otherEffect()
@@ -302,7 +305,6 @@ function additionalEffectEtc(atk, def, move, order, damage){
         cfn.setBelch(def)
     }
     // 6.防御側のくちばしキャノン
-    console.log(def.con.p_con)
     if (def.con.p_con.includes("くちばしキャノン") && move[6] == "直接" && atk.con.item != "ぼうごパット" && (!damage.substitute || music_move_list.includes(move[0]) || atk.con.ability == "すりぬけ")){
         afn.makeAbnormal(atk, def, "やけど", 100, "くちばしキャノン")
     }
