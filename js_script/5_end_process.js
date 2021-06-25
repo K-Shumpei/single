@@ -250,6 +250,14 @@ function cannotChooseAction(order, reverse){
                 }
             }
         }
+        // ちょうはつ
+        if (team[0].con.p_con.includes("ちょうはつ")){
+            for (let i = 0; i < 4; i++){
+                if (cfn.moveSearchByName(team[0].con["move_" + i])[2] == "変化"){
+                    team[0].data["raddio_" + i] = true
+                }
+            }
+        }
         // こだわりロック
         if (!team[0].con.item.includes("こだわり") && team[0].con.ability != "ごりむちゅう"){
             cfn.conditionRemove(team[0].con, "poke", "こだわりロック")

@@ -430,7 +430,7 @@ function actionFailure(atk, def, move){
     }
     // 12.ちょうはつで変化技が出せない (Zワザを除く)
     if (con.p_con.includes("ちょうはつ") && move[2] == "変化"){
-        cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　挑発されて　技が出せなかった　!" + "\n")
+        cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　挑発されて　" + move[0] + 　"　が出せなかった　!" + "\n")
         return true
     }
     // 13.ふういんで技が出せない (Zワザ/ダイマックスポケモンを除く)
