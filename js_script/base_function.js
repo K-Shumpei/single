@@ -344,6 +344,10 @@ exports.fainted = function(user, enemy){
     }
     // 相手のメロメロの解除
     cfn.conditionRemove(enemy.con, "poke", "メロメロ")
+    cfn.conditionRemove(enemy.con, "poke", "バインド")
+    if (!enemy.con.p_con.includes("はいすいのじん")){
+        cfn.conditionRemove(enemy.con, "poke", "逃げられない")
+    }
 
     // 特性が「おわりのだいち」だった時、天候が元に戻る
     if (user.con.ability == "おわりのだいち" && (enemy.con.ability != "おわりのだいち" || enemy.con.last_HP == 0)){
