@@ -276,7 +276,7 @@ function cannotChooseAction(order, reverse){
         if (team[0].con.item == "とつげきチョッキ"){
             for (let i = 0; i < 4; i++){
                 if (cfn.moveSearchByName(team[0].con["move_" + i])[2] == "変化"){
-                    team[0].con["radio_" + i] = true
+                    team[0].data["radio_" + i] = true
                 }
             }
         }

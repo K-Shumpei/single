@@ -1235,6 +1235,10 @@ function moveSpecificationsFailure(atk, def, move, order){
             cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
             return true
         }
+        if (move[0] == "なげつける" && atk.con.item.includes("ジュエル")){
+            cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
+            return true
+        }
     }
     // ねこだまし/であいがしら/たたみがえし: すでに行動をした
     if (move[0] == "ねこだまし" || move[0] == "であいがしら" || move[0] == "たたみがえし"){

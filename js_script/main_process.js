@@ -34,8 +34,33 @@ exports.battleStart = function(rec){
                 }
             }
         }
+        // ほおばる：きのみを持っている場合、技選択が可能になる
+        for (let i = 0; i < 4; i++){
+            if (team[0].con["move_" + i] == "ほおばる"){
+                if (item.berryList().includes((team[0]).con.item)){
+                    team[0].data["radio_" + i] = false
+                } else {
+                    team[0].data["radio_" + i] = true
+                }
+            }
+        }
+        // ゲップ：備考欄に「ゲップ」の文字があれば使用可能になる
+        for (let i = 0; i < 4; i++){
+            if (team[0].con["move_" + i] == "ゲップ" && team[0]["poke" + cfn.battleNum(team[0])].belch == "ゲップ"){
+                team[0].data["radio_" + i] = false
+            }
+        }
+        // とつげきチョッキ
+        if (team[0].con.item == "とつげきチョッキ"){
+            for (let i = 0; i < 4; i++){
+                if (cfn.moveSearchByName(team[0].con["move_" + i])[2] == "変化"){
+                    team[0].con["radio_" + i] = true
+                }
+            }
+        }
     }
 
+    
 }
 
 // ターンの処理

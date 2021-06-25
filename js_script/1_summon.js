@@ -179,21 +179,7 @@ exports.pokeReplace = function(team, enemy){
 
     cfn.logWrite(team, enemy, team.con.TN + "　は　" + team.con.name + "　を　繰り出した　！" + "\n")
 
-    return 
-
-    // メガ進化ボタンの有効化・無効化
-    if (document.getElementById(team + "_mega_text").textContent == "メガ進化"){
-        for (let i = 0; i < mega_stone_item_list.length; i++){
-            if (new get(team).item == mega_stone_item_list[i][0] && new get(team).name == mega_stone_item_list[i][1]){
-                document.getElementById(team + "_mega").disabled = false
-            }
-        }
-    }
-
-    // Z技ボタンの有効化
-    if (document.getElementById(team + "_Z_text").textContent == "Z技" && new get(team).item.includes("Z")){
-        document.getElementById(team + "_Z_move").disabled = false
-    }
+    
 
 
     // バトンタッチの時、ランク変化を受け継ぐ
@@ -210,7 +196,21 @@ exports.pokeReplace = function(team, enemy){
         condition_remove(team, "poke", "バトンタッチ")
     }
 
+    return 
 
+    // メガ進化ボタンの有効化・無効化
+    if (document.getElementById(team + "_mega_text").textContent == "メガ進化"){
+        for (let i = 0; i < mega_stone_item_list.length; i++){
+            if (new get(team).item == mega_stone_item_list[i][0] && new get(team).name == mega_stone_item_list[i][1]){
+                document.getElementById(team + "_mega").disabled = false
+            }
+        }
+    }
+
+    // Z技ボタンの有効化
+    if (document.getElementById(team + "_Z_text").textContent == "Z技" && new get(team).item.includes("Z")){
+        document.getElementById(team + "_Z_move").disabled = false
+    }
 
     // ほおばる：きのみを持っていなければ選択できない
     for (let i = 0; i < 4; i++){
@@ -248,9 +248,6 @@ exports.pokeReplace = function(team, enemy){
     if (new get(team).f_con.includes("マジックルーム")){
         document.getElementById(team + "_item").textContent = ""
     }
-
-
-
 
     for (let i = 0; i < 3; i++){
         if (document.getElementById(team + "_" + i + "_existence").textContent == "ひんし"){
