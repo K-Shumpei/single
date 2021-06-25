@@ -4,7 +4,27 @@ const cfn = require("./law_function")
 const abiEff = require("./ability_effect")
 const moveEff = require("./move_effect")
 
-exports.activeAbility = function(team, enemy){
+// 特性の発動
+exports.activeAbility = function(team, enemy, num){
+    if (num == "both"){
+        // 素早さ判定
+        let order = afn.speedCheck(team.con, enemy.con)
+        if (order[0] > order[1] || (order[0] == order[1] && Math.random() < 0.5)){
+            order = [team, enemy]
+        } else {
+            order = [enemy, team]
+        }
+        if (user1.con.f_con.includes("トリックルーム")){
+            order = [order[1], order[0]]
+        }
+        abilityEmarge(order[0], order[1])
+        abilityEmarge(order[1], order[0])
+    } else if (num == 1){
+        abilityEmarge(team, enemy)
+    }
+}
+
+function abilityEmarge(team, enemy){
     let con = team.con
     if (con.ability == "あめふらし" && !con.f_con.includes("あめ") && !con.f_con.includes("おおひでり") && !con.f_con.includes("らんきりゅう")){
         cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　あめふらし！" + "\n")

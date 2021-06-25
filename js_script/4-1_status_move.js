@@ -3,6 +3,7 @@ const itemEff = require("./item_effect")
 const afn = require("./function")
 const bfn = require("./base_function")
 const cfn = require("./law_function")
+const efn = require("./ex_function")
 const summon = require("./1_summon")
 const com = require("./compatibility")
 
@@ -755,7 +756,7 @@ function otherStatusMove(atk, def, move){
         }
         def.data.command = battle + 4
         summon.pokeReplace(def, atk)
-        summon.activAbility(def, atk, 1)
+        summon.onField(def, atk, 1)
         def.data.command = ""
     } else if (move[0] == "へんしん" && !def.con.p_con.includes("みがわり") && !def.con.p_con.includes("へんしん")){
         for (const parameter of ["sex", "type", "nature", "ability", 
@@ -781,7 +782,7 @@ function otherStatusMove(atk, def, move){
         }
         cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　" + def.con.name + "　に　へんしんした" + "\n")
         atk.con.p_con += "へんしん" + "\n"
-        summon.activAbility(atk, def, 1)
+        summon.onField(atk, def, 1)
     } else if (move[0] == "ほろびのうた"){
         if (!atk.con.p_con.includes("ほろびカウント")){
             atk.con.p_con += "ほろびカウント　4" + "\n"

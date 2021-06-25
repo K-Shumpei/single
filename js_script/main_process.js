@@ -7,7 +7,9 @@ const end = require("./5_end_process")
 const afn = require("./function")
 const bfn = require("./base_function")
 const cfn = require("./law_function")
+const efn = require("./ex_function")
 const item = require("./item_effect")
+const { enemyField } = require("./move_effect")
 
 // 初めのポケモンを場に出す
 // 適当なポケモンであれば、メガ進化ボタンとZワザボタンを有効にする
@@ -19,7 +21,7 @@ exports.battleStart = function(rec){
     summon.pokeReplace(rec.user1, rec.user2)
     summon.pokeReplace(rec.user2, rec.user1)
 
-    summon.activAbility(rec.user1, rec.user2, "both")
+    summon.onField(rec.user1, rec.user2, "both")
 
     // 特性による交換ボタンの無効化
     for (const team of [["1", "2"], ["2", "1"]]){
@@ -93,7 +95,7 @@ exports.runBattle = function(rec){
             cfn.logWrite(user[0], user[1], user[0].con.TN + "　は　" + user[0].con.name + "を　引っ込めた！" + "\n")
             summon.comeBack(user[0], user[1])
             summon.pokeReplace(user[0], user[1])
-            summon.activAbility(user[0], user[1], 1)
+            summon.onField(user[0], user[1], 1)
             user[0].data.command = ""
         }
     }

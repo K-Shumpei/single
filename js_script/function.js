@@ -1,6 +1,7 @@
 // jsファイルの読み込み
 const bfn = require("./base_function")
 const cfn = require("./law_function")
+const efn = require("./ex_function")
 const moveEff = require("./move_effect")
 const summon = require("./1_summon")
 
@@ -301,7 +302,7 @@ exports.changeAbility = function(copy, org, num, ability){
                 org.con.p_con = p_con.split("\n")[i] + "\n"
             }
         }
-        summon.activAbility(org, copy, 1)
+        efn.activeAbility(org, copy, 1)
     } else if (num == 2){
         cfn.logWrite(copy, org, "お互いの　特性を入れ替えた！" + "\n")
         let copy_ability = copy.con.ability
@@ -350,7 +351,7 @@ exports.changeAbility = function(copy, org, num, ability){
                 org.con.p_con= org_p_con.split("\n")[i] + "\n"
             }
         }
-        summon.activAbility(org, copy, "both")
+        efn.activeAbility(org, copy, "both")
     } else if (num == 3){
         cfn.logWrite(copy, org, copy.con.TN + "　の　" + copy.con.name + "　の　特性が　" + ability + "に　なった！" + "\n")
         cfn.conditionRemove(copy.con, "poke", "スロースタート　")
@@ -368,7 +369,7 @@ exports.changeAbility = function(copy, org, num, ability){
                 copy.con.p_con = copy_p_con.split("\n")[i] + "\n"
             }
         }
-        summon.activAbility(org, copy, 2)
+        efn.activeAbility(org, copy, 2)
     }
 }
 
@@ -422,7 +423,7 @@ exports.formChenge = function(team, enemy, name){
     }
 
     // 特性の発動
-    summon.activAbility(team, enemy, 1)
+    efn.activeAbility(team, enemy, 1)
 }
 
 // ダメージ量宣言

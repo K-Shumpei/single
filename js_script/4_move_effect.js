@@ -5,6 +5,7 @@ const abiEff = require("./ability_effect")
 const afn = require("./function")
 const bfn = require("./base_function")
 const cfn = require("./law_function")
+const efn = require("./ex_function")
 const summon = require("./1_summon")
 const status = require("./4-1_status_move")
 
@@ -783,8 +784,7 @@ function moveEffect(atk, def, move, damage){
                 battle = hand[1]
             }
             def.data.command = battle + 4
-            summon.pokeReplace(def, atk)
-            summon.activAbility(def, atk, 1)
+            summon.onField(def, atk, 1)
         }
     }
     // うちおとす/サウザンアローによるうちおとす状態
@@ -1038,7 +1038,7 @@ function redCard(atk, def){
     if (atk.con.f_con.includes("選択中（レッドカード）・・・")){
         cfn.conditionRemove(atk.con, "poke", "選択中（レッドカード）・・・")
         summon.pokeReplace(atk, def)
-        summon.activAbility(atk, def, 1)
+        summon.onField(atk, def, 1)
     }
 }
 
