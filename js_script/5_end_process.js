@@ -131,21 +131,21 @@ function otherEnd(order, reverse){
         // じゅうでんのテキスト変更
         if (team[0].con.p_con.includes("じゅうでん　開始")){
             cfn.conditionRemove(team[0].con, "poke", "じゅうでん　開始")
-            team[0].con.p_con += "じゅうでん" + CR
+            team[0].con.p_con += "じゅうでん" + "\n"
         } else {
             cfn.conditionRemove(team[0].con, "poke", "じゅうでん")
         }
         // とぎすますのテキスト変更
         if (team[0].con.p_con.includes("とぎすます　開始")){
             cfn.conditionRemove(team[0].con, "poke", "とぎすます　開始")
-            team[0].con.p_con += "とぎすます" + CR
+            team[0].con.p_con += "とぎすます" + "\n"
         } else {
             cfn.conditionRemove(team[0].con, "poke", "とぎすます")
         }
         // フェアリーロックのテキスト変更
         if (team[0].con.p_con.includes("逃げられない：フェアリーロック　開始")){
             cfn.conditionRemove(team[0].con, "poke", "逃げられない：フェアリーロック　開始")
-            team[0].con.p_con += "逃げられない：フェアリーロック" + CR
+            team[0].con.p_con += "逃げられない：フェアリーロック" + "\n"
         } else {
             cfn.conditionRemove(team[0].con, "poke", "逃げられない：フェアリーロック")
         }

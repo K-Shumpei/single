@@ -83,6 +83,8 @@ exports.runBattle = function(rec){
             }
         }
     }
+    console.log(order[0].data.command)
+    console.log(order[1].data.command)
     
     // 2.交換・よびかける
     for (const user of [order, reverse]){

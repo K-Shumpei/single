@@ -956,19 +956,19 @@ function defenseItemEffect(atk, def, move){
     } else if (def.con.item == "レッドカード" && cfn.lifeCheck(atk)){
         cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　" + def.con.item + "　が発動して　手持ちに戻った" + "\n")
         cfn.setRecycle(def)
-        atk.con.f_con += "選択中（レッドカード）・・・" + "\n"
-        let choose = []
+        let hand = []
         for (let i = 0; i < 3; i++){
             if (atk["poke" + i].life == "控え"){
-                choose.push(i)
+                hand.push(i)
             }
         }
-        let sum = choose[0]
-        if (choose.length == 2 && Math.random() < 0.5){
-            sum = choose[1]
-        }
-        atk.data.command = sum + 4
         summon.comeBack(atk, def)
+        let battle = hand[0]
+        if (hand.length == 2 && Math.random() < 0.5){
+            battle = hand[1]
+        }
+        atk.data.command = battle + 4
+        atk.con.f_con += "選択中（レッドカード）・・・" + "\n"
     }
 }
 
@@ -1036,8 +1036,9 @@ function steelRoller(atk, def, move){
 // 19.レッドカードによる交代先の繰り出し
 function redCard(atk, def){
     if (atk.con.f_con.includes("選択中（レッドカード）・・・")){
+        cfn.conditionRemove(atk.con, "poke", "選択中（レッドカード）・・・")
         summon.pokeReplace(atk, def)
-        cfn.conditionRemove(atk.con, "field", "選択中（レッドカード）・・・")
+        summon.activAbility(atk, def, 1)
     }
 }
 
