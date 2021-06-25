@@ -2,6 +2,7 @@ const afn = require("./function")
 const bfn = require("./base_function")
 const cfn = require("./law_function")
 const abiEff = require("./ability_effect")
+const moveEff = require("./move_effect")
 
 exports.activeAbility = function(team, enemy){
     let con = team.con
