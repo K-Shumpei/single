@@ -153,6 +153,7 @@ function otherEnd(order, reverse){
 }
 
 var end_process_poke_condition = [
+    'まもる', 
     'みきり', 
     'ニードルガード', 
     'トーチカ', 
