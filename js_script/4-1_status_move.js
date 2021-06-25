@@ -293,6 +293,9 @@ function enemyStatusMove(atk, def, move){
     const list = moveEff.enemyStatus()
     for (let i = 0; i < list.length; i++){
         if (move[0] == list[i][0]){
+            if (move[0] == "タールショット"){
+                afn.rankChange(def, atk, "S", -1, 100, move)
+            } 
             if (move[0] == "のろい" && !atk.con.type.includes("ゴースト")){
                 afn.rankChange(atk, def, "A", 1, 100, move)
                 afn.rankChange(atk, def, "B", 1, 100, move)
