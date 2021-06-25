@@ -276,7 +276,7 @@ function cannotChooseAction(order, reverse){
         || (team[1].con.ability == "ありじごく" && cfn.groundedCheck(team[0].con)) 
         || (team[1].con.ability == "かげふみ" && team[0].con.ability != "かげふみ") 
         || (team[1].con.ability == "じりょく" && team[0].con.type.includes("はがね"))){
-            if (team[0].con.item != "きれいなぬけがら" && !team[0].con.type.includes("ゴースト")){
+            if (team[0].con.item != "きれいなぬけがら" && !team[0].con.type.includes("ゴースト") && !team[0].con.f_con.includes("ひんし") && !team[0].con.f_con.includes("選択中")){
                 for (let i = 0; i < 3; i++){
                     team[0].data["radio_" + String(i + 4)] = true
                 }
