@@ -65,14 +65,6 @@ exports.moveSearchByName = function(name){
     }
 }
 
-exports.moveSearch = function(user){
-    const list = moveList.move()
-    for (let i = 0; i < list.length; i++){
-        if (user.con["move_" + user.data.command] == list[i][0]){
-            return list[i]
-        }
-    }
-}
 
 
 exports.compatibilityCheck = function(atk, def, move){

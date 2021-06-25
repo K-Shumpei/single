@@ -69,7 +69,7 @@ exports.runBattle = function(rec){
     // 1.クイックドロウ/せんせいのツメ/イバンのみの発動
     for (const team of order){
         if (team.data.command < 4){
-            if (team.con.ability == "クイックドロウ" && Math.random() < 0.3 && cfn.moveSearch(team)[2] != "変化"){
+            if (team.con.ability == "クイックドロウ" && Math.random() < 0.3 && bfn.moveSearch(team)[2] != "変化"){
                 cfn.logWrite(rec.user1, rec.user2, team.con.TN + "　の　" + team.con.name + "は　クイックドロウで　行動が　早くなった！" + "\n")
                 team.con.p_con += "優先" + "\n"
             } else if (team.con.item == "せんせいのツメ" && Math.random() < 0.2){
@@ -113,7 +113,7 @@ exports.runBattle = function(rec){
             enemy = rec.user2
         }
         if (user.data.command < 4 && user.data.command != undefined && user.data.command != ""){
-            let move = cfn.moveSearch(user)
+            let move = bfn.moveSearch(user)
             if (move[0] == "きあいパンチ"){
                 user.con.p_con += "きあいパンチ" + "\n"
                 cfn.logWrite(user, enemy, user.con.TN + "　の　" + user.con.name + "は　集中している" + "\n")

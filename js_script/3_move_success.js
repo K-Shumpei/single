@@ -1251,7 +1251,7 @@ function moveSpecificationsFailure(atk, def, move, order){
         return true
     }
     // ふいうち: 対象がすでに行動済み/変化技を選択している
-    if (move[0] == "ふいうち" && (atk == order[1] || cfn.moveSearch(def)[2] == "変化")){
+    if (move[0] == "ふいうち" && (atk == order[1] || bfn.moveSearch(def)[2] == "変化")){
         cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
         return true
     }

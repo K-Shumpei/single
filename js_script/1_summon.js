@@ -391,25 +391,25 @@ function condition_ability_item_action(team, enemy){
     }
     // 2.設置技: 技が使用された順に発動
     if (con.item != "あつぞこブーツ"){
-        for (let i = 0; i < con.f_con.split("" + "\n").length - 1; i++){
-            if (con.f_con.split("" + "\n")[i].includes("まきびし") && cfn.groundedCheck(con)){
-                let num = Number(con.f_con.split("" + "\n")[i].slice(5, 6))
+        for (let i = 0; i < con.f_con.split("\n").length - 1; i++){
+            if (con.f_con.split("\n")[i].includes("まきびし") && cfn.groundedCheck(con)){
+                let num = Number(con.f_con.split("\n")[i].slice(5, 6))
                 let damage = Math.floor(con.full_HP / (10 - (num * 2)))
                 afn.HPchangeMagic(team, enemy, damage, "-", "まきびし")
-            } else if (con.f_con.split("" + "\n")[i].includes("どくびし") && cfn.groundedCheck(con)){
-                let num = Number(con.f_con.split("" + "\n")[i].slice(5, 6))
+            } else if (con.f_con.split("\n")[i].includes("どくびし") && cfn.groundedCheck(con)){
+                let num = Number(con.f_con.split("\n")[i].slice(5, 6))
                 if (num == 1){
                     afn.makeAbnormal(team, enemy, "どく", 100, "どくびし")
                 } else if (num == 2){
                     afn.makeAbnormal(team, enemy, "もうどく", 100, "どくびし")
                 }
-            } else if (con.f_con.split("" + "\n")[i].includes("ステルスロック")){
+            } else if (con.f_con.split("\n")[i].includes("ステルスロック")){
                 let rate = cfn.compatibilityCheck(enemy, team, cfn.moveSearchByName("アクセルロック"))
                 let damage = Math.floor(con.full_HP * rate / 8)
                 afn.HPchangeMagic(team, enemy, damage, "-", "ステルスロック")
-            } else if (con.f_con.split("" + "\n")[i].includes("ねばねばネット") && cfn.groundedCheck(con)){
+            } else if (con.f_con.split("\n")[i].includes("ねばねばネット") && cfn.groundedCheck(con)){
                 afn.rankChange(team, enemy, "S", -1, 100, "ねばねばネット")
-            } else if (con.f_con.split("" + "\n")[i].includes("キョダイコウジン")){
+            } else if (con.f_con.split("\n")[i].includes("キョダイコウジン")){
                 let rate = cfn.compatibilityCheck(enemy, team, cfn.moveSearchByName("バレットパンチ"))
                 let damage = Math.floor(con.full_HP * rate / 8)
                 afn.HPchangeMagic(team, enemy, damage, "-", "キョダイコウジン")
@@ -491,12 +491,12 @@ function condition_ability_item_action(team, enemy){
         cfn.conditionRemove(con, "poke", "とぎすます")
         cfn.conditionRemove(con, "poke", "キョダイシンゲキ")
         cfn.conditionRemove(con, "poek", "ボディパージ")
-        for (let i = 0; i < enemy.con.p_con.split("" + "\n").length - 1; i++){
-            if (enemy.con.p_con.split("" + "\n")[i].includes("きゅうしょアップ") 
-            || enemy.con.p_con.split("" + "\n")[i].includes("とぎすます") 
-            || enemy.con.p_con.split("" + "\n")[i].includes("キョダイシンゲキ") 
-            || enemy.con.p_con.split("" + "\n")[i].includes("ボディパージ")){
-                con.p_con += enemy.con.p_con.split("" + "\n")[i] + "\n"
+        for (let i = 0; i < enemy.con.p_con.split("\n").length - 1; i++){
+            if (enemy.con.p_con.split("\n")[i].includes("きゅうしょアップ") 
+            || enemy.con.p_con.split("\n")[i].includes("とぎすます") 
+            || enemy.con.p_con.split("\n")[i].includes("キョダイシンゲキ") 
+            || enemy.con.p_con.split("\n")[i].includes("ボディパージ")){
+                con.p_con += enemy.con.p_con.split("\n")[i] + "\n"
             }
         }
         cfn.logWrite(team, enemy, enemy.con.name + "に　へんしんした" + "\n")

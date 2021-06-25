@@ -651,3 +651,50 @@ exports.processAtFailure = function(team){
     cfn.conditionRemove(team.con, "poke", "がまん")
     cfn.conditionRemove(team.con, "field", "参照項目")
 }
+
+
+exports.moveSearch = function(user){
+    let move_org = "" // 技の元データを代入
+
+    if (user.con.p_con.includes("反動で動けない")){
+        for (let i = 0; i < user.con.p_con.split("\n").length - 1; i++){
+            if (user.con.p_con.split("\n")[i].includes("反動で動けない")){
+                move_org = cfn.moveSearchByName(user.con.p_con.split("\n")[i].slice(8))
+            }
+        }
+    } else if (user.con.p_con.includes("溜め技")){
+        for (let i = 0; i < user.con.p_con.split("\n").length - 1; i++){
+            if (user.con.p_con.split("\n")[i].includes("溜め技")){
+                move_org = cfn.moveSearchByName(user.con.p_con.split("\n")[i].slice(4))
+            }
+        }
+    } else if (user.con.p_con.includes("あばれる")){
+        for (let i = 0; i < user.con.p_con.split("\n").length - 1; i++){
+            if (user.con.p_con.split("\n")[i].includes("あばれる")){
+                move_org = cfn.moveSearchByName(user.con.p_con.split("\n")[i].slice(5, -7))
+            }
+        }
+    } else if (user.con.p_con.includes("アイスボール")){
+        move_org = cfn.moveSearchByName("アイスボール")
+    } else if (user.con.p_con.includes("ころがる")){
+        move_org = cfn.moveSearchByName("ころがる")
+    } else if (user.con.p_con.includes("がまん")){
+        move_org = cfn.moveSearchByName("がまん")
+    } else {
+        const move_name = user.con["move_" + user.data.command]
+        if (move_name.includes("Z")){
+            move_org = cfn.moveSearchByName(move_name.replace("Z", "")).concat()
+            move_org[0] = move_name
+        } else {
+            move_org = cfn.moveSearchByName(move_name)
+        }
+    }
+
+    let move = move_org.concat() // 技データのコピー、こっちをいじる
+
+    if (user.con.ability == "えんかく"){
+        move[6] = "間接"
+    }
+
+    return move
+}
