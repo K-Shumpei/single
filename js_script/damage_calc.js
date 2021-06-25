@@ -409,7 +409,7 @@ function powerCalculation(atk, def, move, order){
             }
         }
     }
-    if ((move[0] == "からげんき" && (atk.con.abnormal.includes("どく") || atk.con.abnormal == "やけど") || atk.con.abnormal == ("まひ")) 
+    if ((move[0] == "からげんき" && (atk.con.abnormal.includes("どく") || atk.con.abnormal == "やけど" || atk.con.abnormal == ("まひ"))) 
     || (move[0] == "しおみず" && def.con.last_HP <= def.con.full_HP / 2) 
     || (move[0] == "ベノムショック" && def.con.abnormal.includes("どく"))){
         correction = Math.round(correction * 8192 / 4096)

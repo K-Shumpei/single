@@ -756,6 +756,7 @@ function otherStatusMove(atk, def, move){
         def.data.command = battle + 4
         summon.pokeReplace(def, atk)
         summon.activAbility(def, atk, 1)
+        def.data.command = ""
     } else if (move[0] == "へんしん" && !def.con.p_con.includes("みがわり") && !def.con.p_con.includes("へんしん")){
         for (const parameter of ["sex", "type", "nature", "ability", 
         "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
