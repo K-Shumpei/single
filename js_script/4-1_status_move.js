@@ -450,11 +450,11 @@ function recoverStatusMove(atk, def, move){
         } else if (move[0] == "いやしのねがい"){
             atk.con.f_con += "いやしのねがい" + "\n"
             atk.con.last_HP = 0
-            bfn.fainted(atk, def)
+            summon.fainted(atk, def)
         } else if (move[0] == "みかづきのまい"){
             atk.con.f_con += "みかづきのまい" + "\n"
             atk.con.last_HP = 0
-            bfn.fainted(atk, def)
+            summon.fainted(atk, def)
         } else if (move[0] == "いのちのしずく"){
             afn.HPchangeMagic(atk, def, Math.round(atk.con.full_HP / 4), "+", move)
         } else if (move[0] == "いやしのはどう"){
@@ -494,7 +494,7 @@ function otherStatusMove(atk, def, move){
         cfn.logWrite(atk, def, "おめでとう！" + "\n")
     } else if (move[0] == "おきみやげ"){
         atk.con.last_HP = 0
-        bfn.fainted(atk, def)
+        summon.fainted(atk, def)
     } else if (move[0] == "おちゃかい"){
         for (const team of [[atk, def], [def, atk]]){
             if (itemEff.berryList().includes(team[0].con.item)){

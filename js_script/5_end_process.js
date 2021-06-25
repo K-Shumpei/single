@@ -706,7 +706,7 @@ function perishSong(order, reverse){
                 } else {
                     list.splice(i, 1)
                     team[0].con.last_HP = 0
-                    bfn.fainted(team[0], team[1])
+                    summon.fainted(team[0], team[1])
                 }
                 break
             }

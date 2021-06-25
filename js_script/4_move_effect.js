@@ -596,7 +596,7 @@ function dyingJudge(atk, def, move){
     // 1.いのちがけ使用者のひんし
     if (move[0] == "いのちがけ"){
         atk.con.last_HP = 0
-        bfn.fainted(atk, def)
+        summon.fainted(atk, def)
     }
     let check = 0
     // 2.技を受けたポケモンのひんし
@@ -604,13 +604,13 @@ function dyingJudge(atk, def, move){
         if (def.con.p_con.includes("みちづれ")){
             check += 1
         }
-        bfn.fainted(def, atk)
+        summon.fainted(def, atk)
     }
     // 3.みちづれの発動による攻撃者のひんし
     if (def.con.f_con.includes("ひんし") && check == 1){
         cfn.logWrite(atk, def, "みちづれが　発動した！" + "\n")
         atk.con.last_HP = 0
-        bfn.fainted(atk, def)
+        summon.fainted(atk, def)
     }
 }
 

@@ -1,6 +1,7 @@
 const afn = require("./function")
 const bfn = require("./base_function")
 const cfn = require("./law_function")
+const summon = require("./1_summon")
 const moveEff = require("./move_effect")
 const pokeData = require("./poke_data")
 const moveList = require("./poke_move")
@@ -1539,7 +1540,7 @@ function selfDestruction(atk, def, move){
         atk.con.f_con += "\n"
         atk.con.last_HP = 0
         atk["poke" + cfn.battleNum(atk)].last_HP = 0
-        bfn.fainted(atk, def)
+        summon.fainted(atk, def)
     }
 }
 

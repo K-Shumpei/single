@@ -29,7 +29,7 @@ exports.HPchangeMagic = function(team, enemy, damage, pm, cause){
     }
     // ひんし宣言
     if (team.con.last_HP == 0){
-        bfn.fainted(team, enemy)
+        summon.fainted(team, enemy)
     }
 }
 
