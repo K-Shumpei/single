@@ -948,12 +948,12 @@ function defenseItemEffect(atk, def, move){
         cfn.setRecycle(def)
     }
     // だっしゅつボタン/レッドカードによって手持ちに戻るまで
-    if (def.con.item == "だっしゅつボタン"){
+    if (def.con.item == "だっしゅつボタン" && cfn.lifeCheck(def)){
         cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　" + def.con.item + "　が発動して　手持ちに戻った" + "\n")
         cfn.setRecycle(def)
         def.con.f_con+= "選択中・・・" + "\n"
         summon.comeBack(def, atk)
-    } else if (def.con.item == "レッドカード"){
+    } else if (def.con.item == "レッドカード" && cfn.lifeCheck(atk)){
         cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　" + def.con.item + "　が発動して　手持ちに戻った" + "\n")
         cfn.setRecycle(def)
         atk.con.f_con += "選択中（レッドカード）・・・" + "\n"
@@ -1015,7 +1015,7 @@ function emergencyExit(atk, def, damage){
     // レッドカードが発動した場合、交代先はランダム
     // だっしゅつボタンやききかいひが発動した場合、交代できない
 function comeBackMove(atk, def, move){
-    if ((move[0] == "とんぼがえり" || move[0] == "ボルトチェンジ" || move[0] == "クイックターン") && atk.con.last_HP > 0 && !atk.con.f_con.includes("選択中") && !def.con.f_con.includes("選択中")){
+    if ((move[0] == "とんぼがえり" || move[0] == "ボルトチェンジ" || move[0] == "クイックターン") && atk.con.last_HP > 0 && !atk.con.f_con.includes("選択中") && !def.con.f_con.includes("選択中") && cfn.lifeCheck(atk)){
         cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "は　手持ちに戻った" + "\n")
         atk.con.f_con += "選択中・・・" + "\n"
         summon.comeBack(atk, def)
@@ -1123,13 +1123,13 @@ function otherItemEffect(atk, def, move){
     }
     // だっしゅつパック
         // だっしゅつボタンやききかいひが発動している場合、だっしゅつパックは発動しない
-    if (atk.con.item == "だっしゅつパック" && atk.con.p_con.includes("ランク下降") && !atk.con.f_con.includes("選択中") && !def.con.f_con.includes("選択中")){
+    if (atk.con.item == "だっしゅつパック" && atk.con.p_con.includes("ランク下降") && !atk.con.f_con.includes("選択中") && !def.con.f_con.includes("選択中") && cfn.lifeCheck(atk)){
         cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　だっしゅつパックで手持ちに戻った" + "\n")
         cfn.setRecycle(atk)
         summon.comeBack(atk, def)
         atk.con.f_con += "選択中・・・" + "\n"
     }
-    if (def.con.item == "だっしゅつパック" && def.con.p_con.includes("ランク下降") && !atk.con.f_con.includes("選択中") && !def.con.f_con.includes("選択中")){
+    if (def.con.item == "だっしゅつパック" && def.con.p_con.includes("ランク下降") && !atk.con.f_con.includes("選択中") && !def.con.f_con.includes("選択中") && cfn.lifeCheck(def)){
         cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　だっしゅつパックで手持ちに戻った" + "\n")
         cfn.setRecycle(def)
         summon.comeBack(def, atk)

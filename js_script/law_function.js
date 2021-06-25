@@ -211,3 +211,13 @@ exports.thisLog = function(con){
     return list.slice(index[0])
 }
 
+// 手持ちに控え状態のポケモンがいるかどうか
+exports.lifeCheck = function(team){
+    for (let i = 0; i < 3; i++){
+        if (team["poke" + i].life == "控え"){
+            return true
+        }
+    }
+    return false
+}
+
