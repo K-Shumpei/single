@@ -325,7 +325,7 @@ function weatherEffect(order, reverse){
             if (team[0].con.f_con.includes("すなあらし") && !(team[0].con.type.includes("いわ") || team[0].con.type.includes("じめん") || team[0].con.type.includes("はがね") || team[0].con.ability == "すながくれ" || team[0].con.ability == "すなかき" || team[0].con.ability == "すなのちから")){
                 afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "-", "すなあらし")
             } else if (team[0].con.f_con.includes("あられ") && !(team[0].con.type.includes("こおり") || team[0].con.ability == "アイスボディ" || team[0].con.ability == "ゆきかき" || team[0].con.ability == "ゆきがくれ")){
-                afn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "-", "あられ")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "-", "あられ")
             }
         }
     }
@@ -333,15 +333,15 @@ function weatherEffect(order, reverse){
     for (const team of [order, reverse]){
         if (team[0].con.last_HP > 0 && cfn.isWeather(order[0].con, order[1].con)){
             if (team[0].con.ability == "かんそうはだ" && team[0].con.f_con.includes("にほんばれ")){
-                afn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "-", "かんそうはだ")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "-", "かんそうはだ")
             } else if (team[0].con.ability == "かんそうはだ" && team[0].con.f_con.includes("あめ")){
-                afn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "+", "かんそうはだ")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "+", "かんそうはだ")
             } else if (team[0].con.ability == "サンパワー" && team[0].con.f_con.includes("にほんばれ")){
-                afn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "-", "サンパワー")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "-", "サンパワー")
             } else if (team[0].con.ability == "あめうけざら" && team[0].con.f_con.includes("あめ")){
-                afn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "+", "あめうけざら")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "+", "あめうけざら")
             } else if (team[0].con.ability == "アイスボディ" && team[0].con.f_con.includes("あられ")){
-                afn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "+", "アイスボディ")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "+", "アイスボディ")
             }
         }
     }
@@ -400,7 +400,7 @@ function fieldAbilityItemDamage(order, reverse){
     // b. グラスフィールド(回復)
     for (const team of [order, reverse]){
         if (cfn.groundedCheck(team[0].con) && team[0].con.f_con.includes("グラスフィールド")){
-            afn.HPChangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "+", "グラスフィールド")
+            afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "+", "グラスフィールド")
         }
     }
     // c. うるおいボディ/だっぴ/いやしのこころ
