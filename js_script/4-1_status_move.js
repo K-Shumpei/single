@@ -494,7 +494,7 @@ function otherStatusMove(atk, def, move){
             }
         }
     } else if (move[0] == "おいわい"){
-        cfn.logWrite(atk, def, "おめでとう！" + "\n")
+        cfn.logWrite(atk, def, "おめでとう！" + atk.con.TN + "！" + "\n")
     } else if (move[0] == "おきみやげ"){
         atk.con.last_HP = 0
         summon.fainted(atk, def)

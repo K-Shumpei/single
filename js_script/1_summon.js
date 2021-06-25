@@ -18,6 +18,15 @@ exports.comeBack = function(user, enemy){
         afn.formChenge(user, enemy, "メテノ(りゅうせいのすがた)")
     }
 
+    // 特性が「さいせいりょく」の時
+    if (user.con.ability == "さいせいりょく"){
+        afn.HPchangeMagic(user, enemy, Math.floor(user.con.full_HP / 3), "+", "さいせいりょく")
+    }
+    // 特性が「しぜんかいふく」の時
+    if (user.con.ability == "しぜんかいふく"){
+        user["poke" + cfn.battleNum(user)].abnormal = ""
+    }
+
     // パラメーターの移動
     for (const parameter of [
         "name", "sex", "level", "type", "nature", "ability", "item", "abnormal", 
@@ -41,15 +50,6 @@ exports.comeBack = function(user, enemy){
     cfn.conditionRemove(enemy.con, "poke", "バインド")
     cfn.conditionRemove(enemy.con, "poke", "たこがため")
     cfn.conditionRemove(enemy.con, "poke", "逃げられない")
-
-    // 特性が「さいせいりょく」の時
-    if (user.con.ability == "さいせいりょく"){
-        afn.HPchangeMagic(user, enemy, Math.floor(user.con.full_HP / 3), "+", "さいせいりょく")
-    }
-    // 特性が「しぜんかいふく」の時
-    if (user.con.ability == "しぜんかいふく"){
-        user["poke" + cfn.battleNum(user)].abnormal = ""
-    }
 
     // 特性が「おわりのだいち」だった時、天候が元に戻る
     if (user.con.ability == "おわりのだいち" && (enemy.con.ability != "おわりのだいち" || enemy.con.last_HP == 0)){
@@ -365,7 +365,7 @@ function condition_ability_item_action(team, enemy){
         cfn.logWrite(team, enemy, con.TN + "　の　いやしのねがいが　発動した！" + "\n")
         con.last_HP = con.full_HP
         con.abnormal = ""
-        bfn.conditionRemove(con, "field", "いやしのねがい")
+        cfn.conditionRemove(con, "field", "いやしのねがい")
     }
     if (con.f_con.includes("みかづきのまい") && (con.last_HP < con.full_HP || con.abnormal != "")){
         let check = 0
@@ -381,14 +381,14 @@ function condition_ability_item_action(team, enemy){
             for (let i = 0; i < 4; i++){
                 con["last_" + i] = con["PP_" + i]
             }
-            bfn.conditionRemove(con, "field", "みかづきのまい")
+            cfn.conditionRemove(con, "field", "みかづきのまい")
         }
     }
     if ((con.f_con.includes("Zおきみやげ") || con.f_con.includes("Zすてゼリフ")) && con.last_HP < con.full_HP){
         cfn.logWrite(team, enemy, con.TN + "　の　Zおきみやげが　発動した！" + "\n")
         con.last_HP = con.full_HP
-        bfn.conditionRemove(con, "field", "Zおきみやげ")
-        bfn.conditionRemove(con, "field", "Zすてゼリフ")
+        cfn.conditionRemove(con, "field", "Zおきみやげ")
+        cfn.conditionRemove(con, "field", "Zすてゼリフ")
     }
     // 2.設置技: 技が使用された順に発動
     if (con.item != "あつぞこブーツ"){
