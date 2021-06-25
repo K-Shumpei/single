@@ -675,18 +675,13 @@ function embargoEnd(order, reverse){
 // 21.ねむけ
 function sleepCheck(order, reverse){
     for (const team of [order, reverse]){
-        let list = team[0].con.p_con.split("\n")
-        for (let i = 0; i < list.length; i++){
-            if (list[i].includes("ねむけ　宣言ターン")){
-                list[i] = "ねむけ"
-                break
-            } else if (list[i].includes("ねむけ")){
-                list.splice(i, 1)
-                afn.makeAbnormal(team[0], team[1], "ねむり", 100, "ねむけ")
-                break
-            }
+        if (team[0].con.p_con.includes("ねむけ　宣言ターン")){
+            cfn.conditionRemove(team[0].con, "poke", "ねむけ　宣言ターン")
+            team[0].con.p_con += "ねむけ" + "\n"
+        } else if (team[0].con.p_con.includes("ねむけ")){
+            cfn.conditionRemove(team[0].con, "poke", "ねむけ")
+            afn.makeAbnormal(team[0], team[1], "ねむり", 100, "ねむけ")
         }
-        team[0].con.p_con = list.join("\n")
     }
 }
 
