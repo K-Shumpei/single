@@ -10,9 +10,7 @@ exports.damageCalculationProcess = function(atk, def, move, order){
         let list = atk.con.f_con.split("\n")
         for (let i = 0; i < list.length; i++){
             if (list[i].includes("参照項目")){
-                console.log(list[i])
                 const sample = list[i].slice(6).split("/")
-                console.log(sample)
                 const parameter = ["name", "sex", "level", "type", "ability", "item", "abnormal", "nature",  
                 "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
                 "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank", 
@@ -30,7 +28,6 @@ exports.damageCalculationProcess = function(atk, def, move, order){
         }
         atk.con.f_con = list.join("\n")
     }
-    console.log(atk.con)
     // ダメージ固定技の時
     if (moveEff.fixDamage().includes(move[0])){
         return fixedDamageMove(atk, def, move)
