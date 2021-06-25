@@ -895,7 +895,7 @@ function hungerSwitch(order, reverse){
             if (team[0].con.p_con.includes("はらぺこもよう")){
                 cfn.conditionRemove(team[0].con, "poke", "はらぺこもよう")
                 team[0].con.p_con += "まんぷくもよう" + "\n"
-            } else if (team.con.p_con.includes("まんぷくもよう")){
+            } else if (team[0].con.p_con.includes("まんぷくもよう")){
                 cfn.conditionRemove(team[0].con, "poke", "まんぷくもよう")
                 team[0].con.p_con += "はらぺこもよう" + "\n"
             }
