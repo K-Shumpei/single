@@ -756,6 +756,7 @@ function moveReplace(atk, def, move, order){
                     move[9] = move[0]
                     for (let j = 0; j < 9; j++){
                         move[j] = cfn.moveSearchByName(move_name)[j]
+                        break
                     }
                 }
             }

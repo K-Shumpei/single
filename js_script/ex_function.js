@@ -35,7 +35,7 @@ exports.activeAbility = function(team, enemy){
         bfn.allFieldStatus(team, enemy, cfn.moveSearchByName("エレキフィールド"))
     } else if (con.ability == "オーラブレイク"){
         cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　オーラブレイクが発動している！" + "\n")
-    } else if (con.ability == "おみとおし" && con.item != ""){
+    } else if (con.ability == "おみとおし" && enemy.con.item != ""){
         cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　おみとおし！" + "\n")
         cfn.logWrite(team, enemy, enemy.con.TN + "　の　" + enemy.con.name + "の　" + enemy.con.item + "を　お見通しだ！" + "\n")
     } else if (con.ability == "おわりのだいち" && !con.f_con.includes("おおひでり")){
