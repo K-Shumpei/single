@@ -80,6 +80,12 @@ exports.compatibilityCheck = function(atk, def, move){
     let compatibility_rate = 1.0
     const compatibility = comTable.compatibility()
 
+    for (let i = 0; i < def.con.p_con.split("\n").length; i++){
+        if (def.con.p_con.split("\n")[i].includes("イリュージョン")){
+            type = def["poke" + def.con.p_con.split("\n")[i].slice(8)].type
+        }
+    }
+
     if ((atk.con.ability == "きもったま" || def.con.p_con.includes("みやぶられている")) && type.includes("ゴースト") && (move[1] == "ノーマル" || move[0] == "かくとう")){
         type = type.replace("ゴースト", "")
     }

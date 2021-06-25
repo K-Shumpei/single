@@ -642,3 +642,12 @@ exports.whiteHerb = function(team, enemy){
         }
     }
 }
+
+exports.processAtFailure = function(team){
+    cfn.conditionRemove(team.con, "poke", "アイスボール")
+    cfn.conditionRemove(team.con, "poke", "ころがる")
+    cfn.conditionRemove(team.con, "poke", "さわぐ")
+    cfn.conditionRemove(team.con, "poke", "れんぞくぎり")
+    cfn.conditionRemove(team.con, "poke", "がまん")
+    cfn.conditionRemove(team.con, "field", "参照項目")
+}

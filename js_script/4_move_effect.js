@@ -444,9 +444,22 @@ function defenseAbility(atk, def, move, damage){
                 cfn.setRecycle(atk)
                 cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　の　メンタルハーブが　発動した！" + "\n")
             }
-        } else if (def.con.ability == "じきゅうりょく" && def.con.p_con.includes("ダメージ") && !def.con.f_con.includes("ひんし")){
+        } else if (def.con.p_con.includes("イリュージョン")){
+            cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　イリュージョン　が解けた！" + "\n")
+            let list = def.con.p_con.split("\n")
+            for (let i = 0; i < list.length; i++){
+                if (list[i].includes("イリュージョン")){
+                    for (const parameter of ["name", "sex", "level", "type"]){
+                        def.con[parameter] = def["poke" + list[i].slice(8)][parameter]
+                        list.splice(i, 1)
+                        break
+                    }
+                }
+            }
+            def.con.p_con = list.join("\n")
+        } else if (def.con.ability == "じきゅうりょく" && !def.con.f_con.includes("ひんし")){
             afn.rankChange(def, atk, "B", 1, 100, "じきゅうりょく")
-        } else if (def.con.ability == "すなはき" && !atk.con.f_con.includes("すなあらし") && def.con.p_con.includes("ダメージ")){
+        } else if (def.con.ability == "すなはき" && !atk.con.f_con.includes("すなあらし")){
             cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　すなはきが　発動した！" + "\n")
             bfn.allFieldStatus(atk, def, cfn.moveSearchByName("すなあらし"))
         } else if (def.con.ability == "わたげ"){
@@ -891,9 +904,9 @@ function abilityEffect(atk, def, move){
         cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "の　マジシャンが発動した" + "\n")
         atk.con.item = def.con.item
         def.con.item = ""
-    } else if ((atk.con.ability == "じしんかじょう" || atk.con.ability == "しろのいななき" || (atk.con.ability == "じんばいったい" && atk_poke == "バドレックス(はくばじょうのすがた)")) && def.con.f_con.includes("ひんし")){
+    } else if ((atk.con.ability == "じしんかじょう" || atk.con.ability == "しろのいななき" || (atk.con.ability == "じんばいったい" && atk.con.name == "バドレックス(はくばじょうのすがた)")) && def.con.f_con.includes("ひんし")){
         afn.rankChange(atk, def, "A", 1, 100, atk.con.ability)
-    } else if ((atk.con.ability == "くろのいななき" || (atk.con.ability == "じんばいったい" && atk_poke == "バドレックス(こくばじょうのすがた)")) && def.con.f_con.includes("ひんし")){
+    } else if ((atk.con.ability == "くろのいななき" || (atk.con.ability == "じんばいったい" && atk.con.name == "バドレックス(こくばじょうのすがた)")) && def.con.f_con.includes("ひんし")){
         afn.rankChange(atk, def, "C", 1, 100, atk.con.ability)
     } else if (atk.con.ability == "ビーストブースト" && def.con.f_con.includes("ひんし")){
         let check = [atk.con.A_AV, "A"]
@@ -1133,6 +1146,9 @@ function returnBattle(atk, def){
         // 2匹同時交換　ききかいひとだっしゅつボタンが同時発動した時
     } else if (atk.con.f_con.includes("選択中")){
         cfn.logWrite(atk, def, atk.con.TN + "　は　戦闘に出すポケモンを選んでください" + "\n")
+        return true
+    } else if (def.con.f_con.includes("選択中")){
+        cfn.logWrite(def, atk, def.con.TN + "　は　戦闘に出すポケモンを選んでください" + "\n")
         return true
     }
 }

@@ -1525,6 +1525,18 @@ function faintedFailure(atk, def, move){
 // 26.だいばくはつ/じばく/ミストバーストの使用者は対象が不在でもHPを全て失う。使用者がひんしになっても攻撃は失敗しない
 function selfDestruction(atk, def, move){
     if (move[0] == "だいばくはつ" || move[0] == "じばく" || move[0] == "ミストバースト"){
+        atk.con.f_con += "参照項目/"
+        for (const parameter of ["name", "sex", "level", "type", "ability", "item", "abnormal", "nature", 
+        "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
+        "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank", 
+        "full_HP", "last_HP", 
+        "move_0", "PP_0", "last_0", 
+        "move_1", "PP_1", "last_1", 
+        "move_2", "PP_2", "last_2", 
+        "move_3", "PP_3", "last_3"]){
+            atk.con.f_con += atk.con[parameter] + "/"
+        }
+        atk.con.f_con += "\n"
         atk.con.last_HP = 0
         atk["poke" + cfn.battleNum(atk)].last_HP = 0
         bfn.fainted(atk, def)
@@ -1533,10 +1545,24 @@ function selfDestruction(atk, def, move){
 
 // 27.ビックリヘッド/てっていこうせんの使用者はHPを50%失う。対象が不在なら失わない。使用者がひんしになっても攻撃が失敗しない
 function mindblownStealbeam(atk, def, move){
-    if ((move[0] == "ビックリヘッド" || move[0] == "てっていこうせん") && def.con.f_con.includes("ひんし")){
-        afn.HPchangeMagic(atk, def, Math.ceil(atk.con.full_HP / 2), "-", move[0])
+    if (move[0] == "ビックリヘッド" || move[0] == "てっていこうせん"){
         if (atk.con.last_HP == 0){
-            bfn.fainted(atk, def)
+            atk.con.f_con += "参照項目/"
+            for (const parameter of ["name", "sex", "level", "type", "ability", "item", "abnormal", "nature", 
+            "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
+            "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank", 
+            "full_HP", "last_HP", 
+            "move_0", "PP_0", "last_0", 
+            "move_1", "PP_1", "last_1", 
+            "move_2", "PP_2", "last_2", 
+            "move_3", "PP_3", "last_3"]){
+                atk.con.f_con += atk.con[parameter] + "/"
+            }
+            atk.con.f_con += "\n"
+        }
+        afn.HPchangeMagic(atk, def, Math.ceil(atk.con.full_HP / 2), "-", move[0])
+        if (!atk.con.f_con.includes("ひんし")){
+            cfn.conditionRemove(atk.con, "field", "参照項目")
         }
     }
 }

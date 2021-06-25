@@ -147,7 +147,7 @@ exports.runBattle = function(rec){
         let move = success.moveSuccessJudge(atk, def, order)
         let team = atk
         if (move == false){
-            processAtFailure(atk)
+            bfn.processAtFailure(atk)
         } else {
             if (move[9] == "反射"){
                 let save = atk
@@ -176,7 +176,7 @@ exports.runBattle = function(rec){
             if (!atk.con.f_con.includes("ひんし")){
                 let move = success.moveSuccessJudge(atk, def, order)
                 if (move == false){
-                    processAtFailure(atk)
+                    bfn.processAtFailure(atk)
                 } else {
                     if (move[9] == "反射"){
                         let save = atk
@@ -193,14 +193,6 @@ exports.runBattle = function(rec){
         }
         end.endProcess(rec.user1, rec.user2)
     }
-}
-
-function processAtFailure(team){
-    cfn.conditionRemove(team.con, "poke", "アイスボール")
-    cfn.conditionRemove(team.con, "poke", "ころがる")
-    cfn.conditionRemove(team.con, "poke", "さわぐ")
-    cfn.conditionRemove(team.con, "poke", "れんぞくぎり")
-    cfn.conditionRemove(team.con, "poke", "がまん")
 }
 
 

@@ -16,7 +16,7 @@ exports.comeBack = function(user, enemy){
     } else if (user.con.name == "メテノ(コア)"){
         afn.formChenge(user, enemy, "メテノ(りゅうせいのすがた)")
     }
- 
+
     // パラメーターの移動
     for (const parameter of [
         "name", "sex", "level", "type", "nature", "ability", "item", "abnormal", 
@@ -27,6 +27,12 @@ exports.comeBack = function(user, enemy){
         "move_2", "PP_2", "last_2", 
         "move_3", "PP_3", "last_3"]){
         user["poke" + cfn.battleNum(user)][parameter] = user.con[parameter]
+    }
+    // 状態異常『ねむり』
+    for (let i = 0; i < user.con.p_con.split("\n").length; i++){
+        if (user.con.p_con.split("\n")[i].includes("ねむり") || user.con.p_con.split("\n")[i].includes("ねむる")){
+            user["poke" + cfn.battleNum(user)].abnormal += user.con.p_con.split("\n")[i].slice(3)
+        }
     }
 
     // 相手のメロメロの解除
@@ -136,15 +142,38 @@ exports.pokeReplace = function(team, enemy){
         }
     }
 
-    // ミミッキュの姿
+    // 特性『イリュージョン』
+    if (team.con.ability == "イリュージョン"){
+        let poke = ""
+        for (let i = 0; i < 3; i++){
+            if (team["poke" + i].life == "控え"){
+                poke = i
+            }
+        }
+        if (poke != ""){
+            for (const parameter of ["name", "sex", "level", "type"]){
+                team.con[parameter] = team["poke" + poke][parameter]
+            }
+            team.con.p_con += "イリュージョン：" + num + "\n"
+        }
+    }
+    // 特性『ばけのかわ』
     if (team["poke" + num].form == "ばけたすがた"){
         team.con.p_con += "ばけたすがた" + "\n"
     } else if (team["poke" + num].form == "ばれたすがた"){
         team.con.p_con += "ばれたすがた" + "\n"
     }
-    // モルペコの模様
+    // 特性『はらぺこスイッチ』
     if (team.con.ability == "はらぺこスイッチ"){
         team.con.p_con += "まんぷくもよう" + "\n"
+    }
+    // 状態異常『ねむり』
+    if (team.con.abnormal.includes("ねむり") || team.con.abnormal.includes("ねむる")){
+        const turn = team.con.abnormal.slice(4)
+        team.con.abnormal = "ねむり"
+        team.con.p_con += "ねむり　" + turn + "\n"
+    } else if (team.con.abnormal == "もうどく"){
+        team.con.p_con += "もうどく　1ターン目" + "\n"
     }
 
     cfn.logWrite(team, enemy, team.con.TN + "　は　" + team.con.name + "　を　繰り出した　！" + "\n")

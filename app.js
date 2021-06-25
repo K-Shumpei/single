@@ -37,6 +37,8 @@ function room_search(socketID){
 // jsファイルの読み込み
 const main = require("./js_script/main_process")
 const summon = require("./js_script/1_summon")
+const movePro = require("./js_script/4_move_effect")
+const success = require("./js_script/3_move_success")
 const end = require("./js_script/5_end_process")
 
 // 接続時の処理
@@ -122,73 +124,95 @@ io.on("connection", function(socket){
     // 各ターンの行動
     socket.on("action decide", function(val) {
         const room = room_search(socket.id)
-        for (const team of [[1, 2], [2, 1]]){
-            // コマンドを記録
-            if (data[room]["user" + team[0]].data.id == socket.id){
-                data[room]["user" + team[0]].data.command = val
-                // ボルチェンなどで交換する時
-                if (data[room]["user" + team[0]].con.f_con == "選択中"){
-                    summon.pokeReplace(data[room]["user" + team[0]], data[room]["user" + team[1]])
-                    summon.activAbility(data[room]["user" + team[0]], data[room]["user" + team[1]], 1)
-
-                    // 交代の後の残りの処理
-                    // 24.きょうせい
-                    // 25.おどりこ
-                    // 26.次のポケモンの行動
-
-                    // 相手がまだ交代していない時
-                    if (data[room]["user" + team[1]].data.command != ""){
-                        let atk = rec[room]["user" + team[1]]
-                        let def = rec[room]["user" + team[0]]
-                        let order = [atk, def]
-                        let move = success.moveSuccessJudge(atk, def, order)
-                        if (move == false){
-                            processAtFailure(atk)
-                        } else {
-                            if (move[9] == "反射"){
-                                let save = atk
-                                atk = def
-                                def = save
-                            }
-                            if (process.moveProcess(atk, def, move, order) == "stop"){
-                                atk.data.command = ""
-                                return
-                            }
-                        }
-                        atk.data.command = ""
+        let player = ""
+        let enemy = ""
+        if (data[room].user1.data.id == socket.id){
+            data[room].user1.data.command = val
+            player = 1
+            enemy = 2
+        } else if (data[room].user2.data.id == socket.id){
+            data[room].user2.data.command = val
+            player = 2
+            enemy = 1
+        }
+        // 空欄、空欄
+        if (!data[room].user1.con.f_con.includes("選択中") && !data[room].user1.con.f_con.includes("ひんし") 
+        && !data[room].user2.con.f_con.includes("選択中") && !data[room].user2.con.f_con.includes("ひんし")){
+            if (data[room].user1.data.command != "" && data[room].user2.data.command != ""){
+                main.runBattle(data[room])
+                io.to(data[room].user1.data.id).emit("run battle", data[room].user1, data[room].user2)
+                io.to(data[room].user2.data.id).emit("run battle", data[room].user2, data[room].user1)
+                return
+            }
+        }
+        // 選択中、空欄
+        if ((data[room].user1.con.f_con.includes("選択中") && !data[room].user2.con.f_con.includes("選択中") && !data[room].user2.con.f_con.includes("ひんし")) 
+        || (data[room].user2.con.f_con.includes("選択中") && !data[room].user1.con.f_con.includes("選択中") && !data[room].user1.con.f_con.includes("ひんし"))){
+            summon.pokeReplace(data[room]["user" + player], data[room]["user" + enemy])
+            summon.activAbility(data[room]["user" + player], data[room]["user" + enemy], player)
+            data[room]["user" + player].data.command = ""
+            if (data[room]["user" + enemy].data.command != ""){
+                let atk = data[room]["user" + enemy]
+                let def = data[room]["user" + player]
+                let order = [def, atk]
+                let move = success.moveSuccessJudge(atk, def, order)
+                if (move == false){
+                    bfn.processAtFailure(atk)
+                } else {
+                    if (move[9] == "反射"){
+                        let save = atk
+                        atk = def
+                        def = save
                     }
-                    end.endProcess(atk, def)
-                    io.to(data[room].user1.data.id).emit("run battle", data[room], 1, 2)
-                    io.to(data[room].user2.data.id).emit("run battle", data[room], 2, 1)
-                    return
+                    if (movePro.moveProcess(atk, def, move, order) == "stop"){
+                        atk.data.command = ""
+                        io.to(data[room].user1.data.id).emit("run battle", data[room].user1, data[room].user2)
+                        io.to(data[room].user2.data.id).emit("run battle", data[room].user2, data[room].user1)
+                        return
+                    }
                 }
-                // 自分だけひんしのポケモンを交換する時
-                if (data[room]["user" + team[0]].con.f_con.includes("ひんし") && !data[room]["user" + team[1]].con.f_con.includes("ひんし")){
-                    summon.pokeReplace(data[room]["user" + team[0]], data[room]["user" + team[1]])
-                    summon.activAbility(data[room]["user" + team[0]], data[room]["user" + team[1]], 1)
-                    data[room]["user" + team[0]].data.command = ""
-                    io.to(data[room].user1.data.id).emit("run battle", data[room], 1, 2)
-                    io.to(data[room].user2.data.id).emit("run battle", data[room], 2, 1)
-                    return
-                }
-                // お互いがひんしのポケモンを交換する時
-                if (data[room]["user" + team[0]].con.f_con.includes("ひんし") && data[room]["user" + team[1]].con.f_con.includes("ひんし") && data[room]["user" + team[1]].data.command != ""){
-                    summon.pokeReplace(data[room]["user" + team[0]], data[room]["user" + team[1]])
-                    summon.pokeReplace(data[room]["user" + team[1]], data[room]["user" + team[0]])
-                    summon.activAbility(data[room]["user" + team[0]], data[room]["user" + team[1]], "both")
-                    data[room]["user" + team[0]].data.command = ""
-                    data[room]["user" + team[1]].data.command = ""
-                    io.to(data[room].user1.data.id).emit("run battle", data[room], 1, 2)
-                    io.to(data[room].user2.data.id).emit("run battle", data[room], 2, 1)
-                    return
-                }
-                // お互いが行動する時に、相手が選択している時
-                if (data[room]["user" + team[1]].data.command != ""){
-                    main.runBattle(data[room])
-                    io.to(data[room].user1.data.id).emit("run battle", data[room], 1, 2)
-                    io.to(data[room].user2.data.id).emit("run battle", data[room], 2, 1)
-                    return
-                }
+                atk.data.command = ""
+            }
+            end.endProcess(data[room].user1, data[room].user2)
+            io.to(data[room].user1.data.id).emit("run battle", data[room].user1, data[room].user2)
+            io.to(data[room].user2.data.id).emit("run battle", data[room].user2, data[room].user1)
+            return
+        }
+        // ひんし、空欄
+        if ((data[room].user1.con.f_con.includes("ひんし") && !data[room].user2.con.f_con.includes("選択中") && !data[room].user2.con.f_con.includes("ひんし")) 
+        || (data[room].user2.con.f_con.includes("ひんし") && !data[room].user1.con.f_con.includes("選択中") && !data[room].user1.con.f_con.includes("ひんし"))){
+            summon.pokeReplace(data[room]["user" + player], data[room]["user" + enemy])
+            summon.activAbility(data[room]["user" + player], data[room]["user" + enemy], player)
+            data[room]["user" + player].data.command = ""
+            io.to(data[room].user1.data.id).emit("run battle", data[room].user1, data[room].user2)
+            io.to(data[room].user2.data.id).emit("run battle", data[room].user2, data[room].user1)
+            return
+        }
+        // 選択中、選択中
+        if (data[room].user1.con.f_con.includes("選択中") && data[room].user2.con.f_con.includes("選択中")){
+            if (data[room].user1.data.command != "" && data[room].user2.data.command != ""){
+                summon.pokeReplace(data[room].user1, data[room].user2)
+                summon.pokeReplace(data[room].user2, data[room].user1)
+                summon.activAbility(data[room].user1, data[room].user2, "both")
+                end.endProcess(data[room].user1, data[room].user2)
+                data[room].user1.data.command = ""
+                data[room].user2.data.command = ""
+                io.to(data[room].user1.data.id).emit("run battle", data[room].user1, data[room].user2)
+                io.to(data[room].user2.data.id).emit("run battle", data[room].user2, data[room].user1)
+                return
+            }
+        }
+        // ひんし、ひんし
+        if (data[room].user1.con.f_con.includes("ひんし") && data[room].user2.con.f_con.includes("ひんし")){
+            if (data[room].user1.data.command != "" && data[room].user2.data.command != ""){
+                summon.pokeReplace(data[room].user1, data[room].user2)
+                summon.pokeReplace(data[room].user2, data[room].user1)
+                summon.activAbility(data[room].user1, data[room].user2, "both")
+                data[room].user1.data.command = ""
+                data[room].user2.data.command = ""
+                io.to(data[room].user1.data.id).emit("run battle", data[room].user1, data[room].user2)
+                io.to(data[room].user2.data.id).emit("run battle", data[room].user2, data[room].user1)
+                return
             }
         }
     })
