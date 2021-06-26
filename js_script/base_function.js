@@ -32,7 +32,8 @@ exports.berryPinch = function(team, enemy){
                 afn.HPchangeMagic(team, enemy, Math.floor(con.full_HP / 4), "+", con.item)
             }
         }
-    } else if (con.last_HP > 0){
+    }
+    if (con.last_HP > 0){
         let HP_border = con.full_HP / 4
         if (con.ability == "くいしんぼう"){
             HP_border = con.full_HP / 2

@@ -117,6 +117,12 @@ exports.comeBack = function(user, enemy){
     if (user.con.f_con.includes("ひんし") || user.con.f_con.includes("選択中")){
         user.data.command = ""
     }
+
+    // 勝敗判定
+    if (user.poke0.life == "ひんし" && user.poke1.life == "ひんし" && user.poke2.life == "ひんし"){
+        user.con.f_con += "負け" + "\n"
+        enemy.con.f_con += "勝ち" + "\n"
+    }
 }
 
 
@@ -133,6 +139,7 @@ exports.pokeReplace = function(team, enemy){
     for (const parameter of ["A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank"]){
         team.con[parameter] = 0
     }
+    team.con.num = team["poke" + num].num
     // 技がないボタンを無効化
     for (let i = 0; i < 4; i++){
         if (team.con["move_" + i] == ""){
@@ -181,6 +188,27 @@ exports.pokeReplace = function(team, enemy){
     } else if (team.con.abnormal == "もうどく"){
         team.con.p_con += "もうどく　1ターン目" + "\n"
     }
+    // バトンタッチの時、ランク変化を受け継ぐ
+    for (let i = 0; i < team.con.p_con.split("\n").length; i++){
+        if (team.con.p_con.split("\n")[i].includes("バトンタッチ")){
+            const rank = team.con.p_con.split("\n")[i].slice(7).split("/")
+            const para_rank = ["A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank"]
+            for (let j = 0; j < 7; j++){
+                team.con[para_rank] = rank[j]
+            }
+        }
+    }
+    cfn.conditionRemove(team.con, "poke", "バトンタッチ")
+    // 特性「かがくへんかガス」のポケモンがいる時
+    if (enemy.con.ability == "かがくへんかガス"){
+        team.con.p_con += "かがくへんかガス：" + team.con.ability + "\n"
+        team.con.ability = ""
+    }
+    // マジックルーム：持ち物を空欄にする
+    if (team.con.f_con.includes("マジックルーム")){
+        team.con.p_con += "マジックルーム：" + team.con.item + "\n"
+        team.con.item = ""
+    }
 
     cfn.logWrite(team, enemy, team.con.TN + "　は　" + team.con.name + "　を　繰り出した　！" + "\n")
 
@@ -199,67 +227,6 @@ exports.pokeReplace = function(team, enemy){
     if (document.getElementById(team + "_Z_text").textContent == "Z技" && new get(team).item.includes("Z")){
         document.getElementById(team + "_Z_move").disabled = false
     }
-
-
-    // バトンタッチの時、ランク変化を受け継ぐ
-    if (new get(team).p_con.includes("バトンタッチ")){
-        for (let i = 0; i < new get(team).p_len; i++){
-            if (new get(team).p_list[i].includes("バトンタッチ")){
-                const rank = new get(team).p_list[i].slice(7).split("/")
-                const para_rank = ["_rank_A", "_rank_B", "_rank_C", "_rank_D", "_rank_S", "_rank_accuracy", "_rank_evasiveness"]
-                for (let j = 0; j < 7; j++){
-                    document.getElementById(team + para_rank[j]).textContent = rank[j]
-                }
-            }
-        }
-        condition_remove(team, "poke", "バトンタッチ")
-    }
-
-    
-
-    // ほおばる：きのみを持っていなければ選択できない
-    for (let i = 0; i < 4; i++){
-        if (document.getElementById(team + "_move_" + i).textContent == "ほおばる" && !berry_item_list.includes(new get(team).item)){
-            document.getElementById(team + "_radio_" + i).disabled = true
-            document.getElementById(team + "_radio_" + i).checked = false
-        }
-    }
-
-    // ゲップ：きのみを使用し、備考欄に「ゲップ」の文字があれば使用可能
-    for (let i = 0; i < 4; i++){
-        if (document.getElementById(team + "_move_" + i).textContent == "ゲップ" && document.getElementById(id + "_belch").textContent != "ゲップ"){
-            document.getElementById(team + "_radio_" + i).disabled = true
-            document.getElementById(team + "_radio_" + i).checked = false
-        }
-    }
-
-    // とつげきチョッキ：変化技を選択不能に
-    if (document.getElementById(team + "_item").textContent == "とつげきチョッキ"){
-        for (let i = 0; i < 4; i++){
-            if (document.getElementById(team + "_move_" + i).textContent != ""){
-                if (move_search_by_name(document.getElementById(team + "_move_" + i).textContent)[2] == "変化"){
-                    document.getElementById(team + "_radio_" + i).disabled = true
-                }
-            }
-        }
-    }
-
-    // 特性「かがくへんかガス」のポケモンがいる時
-    if (new get(enemy).ability == "かがくへんかガス"){
-        document.battle[team + "_poke_condition"].value += "かがくへんかガス：" + new get(team).ability + "\n"
-        document.getElementById(team + "_ability").textContent = ""
-    }
-    // マジックルーム：持ち物を空欄にする
-    if (new get(team).f_con.includes("マジックルーム")){
-        document.getElementById(team + "_item").textContent = ""
-    }
-
-    for (let i = 0; i < 3; i++){
-        if (document.getElementById(team + "_" + i + "_existence").textContent == "ひんし"){
-            document.getElementById(team + "_" + i + "_button").disabled = true
-        }
-    }
-
 }
 
 

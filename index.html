@@ -18,7 +18,7 @@
 
     <div id="password">
         <form id="emitPass" action="">
-            <input id="pass" autocomplete="off" type="password"><button>送信</button>
+            <input id="pass" autocomplete="off" type="password" autofocus><button>送信</button>
         </form>
     </div>
 
@@ -262,16 +262,37 @@
                     <td><img src="" id="you_0"></td><td><img src="" id="you_1"></td>
                 </tr>
                 <tr>
+                    <td><div id="A0_bar"><meter low="0.251" high="0.501" optimum="0.75" value="1" id="A0_HP_bar"></meter></div></td>
+                    <td><div id="A1_bar"><meter low="0.251" high="0.501" optimum="0.75" value="1" id="A1_HP_bar"></meter></div></td>
+                    <td></td>
+                    <td><div id="B0_bar"><meter low="0.251" high="0.501" optimum="0.75" value="1" id="B0_HP_bar"></meter></div></td>
+                    <td><div id="B1_bar"><meter low="0.251" high="0.501" optimum="0.75" value="1" id="B1_HP_bar"></meter></div></td>
+                </tr>
+                <tr>
                     <td><img src="" id="me_2" style="transform: scale(-1, 1);"></td>
                     <td><img src="" id="me_3" style="transform: scale(-1, 1);"></td>
                     <td></td>
                     <td><img src="" id="you_2"></td><td><img src="" id="you_3"></td>
                 </tr>
                 <tr>
+                    <td><div id="A2_bar"><meter low="0.251" high="0.501" optimum="0.75" value="1" id="A2_HP_bar"></meter></div></td>
+                    <td><div id="A3_bar"><meter low="0.251" high="0.501" optimum="0.75" value="1" id="A3_HP_bar"></meter></div></td>
+                    <td></td>
+                    <td><div id="B2_bar"><meter low="0.251" high="0.501" optimum="0.75" value="1" id="B2_HP_bar"></meter></div></td>
+                    <td><div id="B3_bar"><meter low="0.251" high="0.501" optimum="0.75" value="1" id="B3_HP_bar"></meter></div></td>
+                </tr>
+                <tr>
                     <td><img src="" id="me_4" style="transform: scale(-1, 1);"></td>
                     <td><img src="" id="me_5" style="transform: scale(-1, 1);"></td>
                     <td></td>
                     <td><img src="" id="you_4"></td><td><img src="" id="you_5"></td>
+                </tr>
+                <tr>
+                    <td><div id="A4_bar"><meter low="0.251" high="0.501" optimum="0.75" value="1" id="A4_HP_bar"></meter></div></td>
+                    <td><div id="A5_bar"><meter low="0.251" high="0.501" optimum="0.75" value="1" id="A5_HP_bar"></meter></div></td>
+                    <td></td>
+                    <td><div id="B4_bar"><meter low="0.251" high="0.501" optimum="0.75" value="1" id="B4_HP_bar"></meter></div></td>
+                    <td><div id="B5_bar"><meter low="0.251" high="0.501" optimum="0.75" value="1" id="B5_HP_bar"></meter></div></td>
                 </tr>
             </table></div>
         </td></tr></table>
@@ -412,6 +433,8 @@
         for (let i = 0; i < 6; i++){
             document.getElementById("teamPoke" + i).style.display = "none"
             document.getElementById("selectPoke" + i).style.display = "none"
+            document.getElementById("A" + i + "_bar").style.display = "none"
+            document.getElementById("B" + i + "_bar").style.display = "none"
         }
         document.getElementById("mainContent").style.display = "none"
         document.getElementById("trainer_name").style.display = "none"

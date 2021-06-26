@@ -91,12 +91,14 @@ io.on("connection", function(socket){
     // 選出ポケモンを選んだ
     socket.on("get ready", function(select) {
         const room = room_search(socket.id)
-
         for (const team of [[1, 2], [2, 1]]){
             if (data[room]["user" + team[0]].data.id == socket.id){
                 data[room]["user" + team[0]].poke0 = data[room]["user" + team[0]].team[select[0]]
                 data[room]["user" + team[0]].poke1 = data[room]["user" + team[0]].team[select[1]]
                 data[room]["user" + team[0]].poke2 = data[room]["user" + team[0]].team[select[2]]
+                data[room]["user" + team[0]].poke0.num = select[0]
+                data[room]["user" + team[0]].poke1.num = select[1]
+                data[room]["user" + team[0]].poke2.num = select[2]
                 delete data[room]["user" + team[0]].team
                 data[room]["user" + team[0]].data.command = 4
                 // 相手がまだの時
@@ -106,8 +108,8 @@ io.on("connection", function(socket){
                 } else {
                     // 相手が選んでいる時
                     main.battleStart(data[room])
-                    io.to(data[room].user1.data.id).emit("battle start", data[room], 1, 2)
-                    io.to(data[room].user2.data.id).emit("battle start", data[room], 2, 1)
+                    io.to(data[room].user1.data.id).emit("run battle", data[room].user1, data[room].user2)
+                    io.to(data[room].user2.data.id).emit("run battle", data[room].user2, data[room].user1)
                     data[room].user1.data.command = ""
                     data[room].user2.data.command = ""
 

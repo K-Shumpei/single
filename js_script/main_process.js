@@ -23,45 +23,20 @@ exports.battleStart = function(rec){
 
     summon.onField(rec.user1, rec.user2, "both")
 
-    // 特性による交換ボタンの無効化
-    for (const team of [["1", "2"], ["2", "1"]]){
-        if ((rec["user" + team[1]].con.ability == "ありじごく" && cfn.groundedCheck(team[0].con)) 
-        || (rec["user" + team[1]].con.ability == "かげふみ" && rec["user" + team[0]].con.ability != "かげふみ") 
-        || (rec["user" + team[1]].con.ability == "じりょく" && rec["user" + team[0]].con.type.includes("はがね"))){
-            if (rec["user" + team[0]].con.item != "きれいなぬけがら" && !rec["user" + team[0]].con.type.includes("ゴースト")){
-                for (let i = 4; i < 7; i++){
-                    rec["user" + team[0]].data["radio_" + i] = true
-                }
-            }
-        }
-        return
-        // ほおばる：きのみを持っている場合、技選択が可能になる
-        for (let i = 0; i < 4; i++){
-            if (team[0].con["move_" + i] == "ほおばる"){
-                if (item.berryList().includes((team[0]).con.item)){
-                    team[0].data["radio_" + i] = false
-                } else {
-                    team[0].data["radio_" + i] = true
-                }
-            }
-        }
-        // ゲップ：備考欄に「ゲップ」の文字があれば使用可能になる
-        for (let i = 0; i < 4; i++){
-            if (team[0].con["move_" + i] == "ゲップ" && team[0]["poke" + cfn.battleNum(team[0])].belch == "ゲップ"){
-                team[0].data["radio_" + i] = false
-            }
-        }
-        // とつげきチョッキ
-        if (team[0].con.item == "とつげきチョッキ"){
-            for (let i = 0; i < 4; i++){
-                if (cfn.moveSearchByName(team[0].con["move_" + i])[2] == "変化"){
-                    team[0].con["radio_" + i] = true
-                }
-            }
-        }
+    // 素早さ判定
+    let order = afn.speedCheck(rec.user1.con, rec.user2.con)
+    if (order[0] > order[1] || (order[0] == order[1] && Math.random() < 0.5)){
+        order = [rec.user1, rec.user2]
+    } else {
+        order = [rec.user2, rec.user1]
     }
+    if (rec.user1.con.f_con.includes("トリックルーム")){
+        order = [order[1], order[0]]
+    }
+    const reverse = [order[1], order[0]]
 
-    
+    // ボタンの無効化
+    afn.cannotChooseAction(order, reverse)
 }
 
 // ターンの処理
@@ -111,8 +86,6 @@ exports.runBattle = function(rec){
             }
         }
     }
-    console.log(order[0].data.command)
-    console.log(order[1].data.command)
     
     // 2.交換・よびかける
     for (const user of [order, reverse]){

@@ -552,3 +552,88 @@ exports.metamon = function(team, enemy){
     cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　は　" + enemy.con.name + "に　へんしんした" + "\n")
     efn.activeAbility(team, enemy, 1)
 }
+
+
+// D.次ターンの、選択ボタンの無効化
+exports.cannotChooseAction = function(order, reverse){
+    for (const team of [order, reverse]){
+        // ほおばる：きのみを持っている場合、技選択が可能になる
+        for (let i = 0; i < 4; i++){
+            if (team[0].con["move_" + i] == "ほおばる"){
+                if (itemEff.berryList().includes((team[0]).con.item)){
+                    team[0].data["radio_" + i] = false
+                } else {
+                    team[0].data["radio_" + i] = true
+                }
+            }
+        }
+        // ゲップ：備考欄に「ゲップ」の文字があれば使用可能になる
+        for (let i = 0; i < 4; i++){
+            if (team[0].con["move_" + i] == "ゲップ" && team[0]["poke" + cfn.battleNum(team[0])].belch == "ゲップ"){
+                team[0].data["radio_" + i] = false
+            }
+        }
+        // いちゃもん
+        if (team[0].con.p_con.includes("いちゃもん")){
+            for (let i = 0; i < 4; i++){
+                if (team[0].con["move_" + i] == team[0].con.used){
+                    team[0].data["radio_" + i] = true
+                }
+            }
+        }
+        // ちょうはつ
+        if (team[0].con.p_con.includes("ちょうはつ")){
+            for (let i = 0; i < 4; i++){
+                if (cfn.moveSearchByName(team[0].con["move_" + i])[2] == "変化"){
+                    team[0].data["raddio_" + i] = true
+                }
+            }
+        }
+        // こだわりロック
+        if (!team[0].con.item.includes("こだわり") && team[0].con.ability != "ごりむちゅう"){
+            cfn.conditionRemove(team[0].con, "poke", "こだわりロック")
+        }
+        for (let i = 0; i < team[0].con.p_con.split("\n").length - 1; i++){
+            if (team[0].con.p_con.split("\n")[i].includes("こだわりロック")){
+                for (let j = 0; j < 4; j++){
+                    if (team[0].con["move_" + j] != team[0].con.p_con.split("\n")[i].slice(8)){
+                        team[0].data["radio_" + j] = true
+                    }
+                }
+            }
+        }
+        // とつげきチョッキ
+        if (team[0].con.item == "とつげきチョッキ"){
+            for (let i = 0; i < 4; i++){
+                if (cfn.moveSearchByName(team[0].con["move_" + i])[2] == "変化"){
+                    team[0].data["radio_" + i] = true
+                }
+            }
+        }
+        // 逃げられない状態、バインド状態による交換ボタンの無効化
+        if (team[0].con.p_con.includes("逃げられない") || team[0].con.p_con.includes("バインド") || team[0].con.p_con.includes("ねをはる") || team[0].con.f_con.includes("フェアリーロック") 
+        || (team[1].con.ability == "ありじごく" && cfn.groundedCheck(team[0].con)) 
+        || (team[1].con.ability == "かげふみ" && team[0].con.ability != "かげふみ") 
+        || (team[1].con.ability == "じりょく" && team[0].con.type.includes("はがね"))){
+            if (team[0].con.item != "きれいなぬけがら" && !team[0].con.type.includes("ゴースト") && !team[0].con.f_con.includes("ひんし") && !team[0].con.f_con.includes("選択中")){
+                for (let i = 0; i < 3; i++){
+                    team[0].data["radio_" + String(i + 4)] = true
+                }
+            }
+        }
+        // 反動で動けなくなる技の反動ターン
+        // 溜め技の攻撃ターン
+        // 数ターン行動する技の使用中
+        if (team[0].con.p_con.includes("反動で動けない") || team[0].con.p_con.includes("溜め技") || team[0].con.p_con.includes("あばれる") 
+        || team[0].con.p_con.includes("アイスボール") || team[0].con.p_con.includes("ころがる") || team[0].con.p_con.includes("がまん") || team[0].con.p_con.includes("さわぐ")){
+            for (let i = 0; i < 7; i++){
+                team[0].data["radio_" + i] = true
+            }
+        }
+        if (team[0].con.p_con.includes("姿を隠す：フリーフォール（防御）")){
+            for (let i = 4; i < 7; i++){
+                team[0].data["radio_" + i] = true
+            }
+        }
+    }
+}
