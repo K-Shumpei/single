@@ -521,7 +521,13 @@ function setAll(){
             document.getElementById(team + "_PP_" + i).textContent = document.getElementById("PP" + String(i)).textContent
             document.getElementById(team + "_last_" + i).textContent = document.getElementById("PP" + String(i)).textContent
         }
-    
+        // タイプの画像
+        //let type = document.getElementById(team + "_type").textContent.split("、")
+        //for (let i = 0; i < type.length; i++){
+        //    document.getElementById(team + "type" + i).src = "type_figure/" + type[i] + ".gif"
+        //}
+        //document.getElementById(team + "_type").textContent = ""
+
         // アルセウス：プレートによるタイプ変更
         if (document.getElementById(team + "_ability").textContent == "マルチタイプ"){
             for (let i = 0; i < judgement_plate.length; i++){

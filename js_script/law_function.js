@@ -15,6 +15,7 @@ exports.setRecycle = function(user){
     for (let i = 0; i < 3; i++){
         if (user["poke" + i].life == "戦闘中"){
             user["poke" + i].recycle = user.con.item
+            user["poke" + i].item = ""
             break
         }
     }
@@ -207,7 +208,6 @@ exports.thisLog = function(con){
             }
         }
     }
-
     return list.slice(index[0])
 }
 

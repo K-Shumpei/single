@@ -454,11 +454,11 @@ function recoverStatusMove(atk, def, move){
         } else if (move[0] == "いやしのねがい"){
             atk.con.f_con += "いやしのねがい" + "\n"
             atk.con.last_HP = 0
-            summon.fainted(atk, def)
+            summon.comeBack(atk, def)
         } else if (move[0] == "みかづきのまい"){
             atk.con.f_con += "みかづきのまい" + "\n"
             atk.con.last_HP = 0
-            summon.fainted(atk, def)
+            summon.comeBack(atk, def)
         } else if (move[0] == "いのちのしずく"){
             afn.HPchangeMagic(atk, def, Math.round(atk.con.full_HP / 4), "+", move)
         } else if (move[0] == "いやしのはどう"){
@@ -498,7 +498,7 @@ function otherStatusMove(atk, def, move){
         cfn.logWrite(atk, def, "おめでとう！" + atk.con.TN + "！" + "\n")
     } else if (move[0] == "おきみやげ"){
         atk.con.last_HP = 0
-        summon.fainted(atk, def)
+        summon.comeBack(atk, def)
     } else if (move[0] == "おちゃかい"){
         for (const team of [[atk, def], [def, atk]]){
             if (itemEff.berryList().includes(team[0].con.item)){
@@ -758,31 +758,8 @@ function otherStatusMove(atk, def, move){
         summon.pokeReplace(def, atk)
         summon.onField(def, atk, 1)
         def.data.command = ""
-    } else if (move[0] == "へんしん" && !def.con.p_con.includes("みがわり") && !def.con.p_con.includes("へんしん")){
-        for (const parameter of ["sex", "type", "nature", "ability", 
-        "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
-        "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank", 
-        "move_0", "move_1", "move_2", "move_3"]){
-            atk.con[parameter] = def.con[parameter]
-        }
-        for (let i = 0; i < 4; i++){
-            if (atk.con["move_" + i] != ""){
-                atk.con["PP_" + i] = 5
-                atk.con["last_" + i] = 5
-            }
-        }
-        cfn.conditionRemove(atk.con, "poke", "きゅうしょアップ")
-        cfn.conditionRemove(atk.con, "poke", "とぎすます")
-        cfn.conditionRemove(atk.con, "poke", "キョダイシンゲキ")
-        cfn.conditionRemove(atk.con, "poke", "ボディパージ")
-        for (let i = 0; i < def.con.p_con.split("\n").length - 1; i++){
-            if (def.con.p_con.split("\n")[i].includes("きゅうしょアップ") || def.con.p_con.split("\n")[i].includes("とぎすます") || def.con.p_con.split("\n")[i].includes("キョダイシンゲキ") || def.con.p_con.split("\n")[i].includes("ボディパージ")){
-                atk.con.p_con += def.con.p_con.split("\n")[i] + "\n"
-            }
-        }
-        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　" + def.con.name + "　に　へんしんした" + "\n")
-        atk.con.p_con += "へんしん" + "\n"
-        summon.onField(atk, def, 1)
+    } else if (move[0] == "へんしん" && !def.con.p_con.includes("みがわり") && !def.con.p_con.includes("へんしん") && !def.con.p_con.includes("イリュージョン")){
+        afn.metamon(atk, def)
     } else if (move[0] == "ほろびのうた"){
         if (!atk.con.p_con.includes("ほろびカウント")){
             atk.con.p_con += "ほろびカウント　4" + "\n"

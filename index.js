@@ -145,6 +145,13 @@ $(function () {
                 "H_EV", "A_EV", "B_EV", "C_EV", "D_EV", "S_EV", "life"]){
                 document.getElementById(i + "_" + parameter).textContent = data["user" + me]["poke" + i][parameter]
             }
+            document.getElementById(i + "type0").src = ""
+            document.getElementById(i + "type1").src = ""
+            let type = document.getElementById(i + "_type").textContent.split("、")
+            for (let j = 0; j < type.length; j++){
+                document.getElementById(i + "type" + j).src = "type_figure/" + type[j] + ".gif"
+            }
+            document.getElementById(i + "_type").textContent = ""
             if (document.getElementById(i + "_name").textContent == "ミミッキュ"){
                 document.getElementById(i + "_form").textContent = "ばけたすがた"
             }
@@ -170,6 +177,16 @@ $(function () {
                 document.getElementById("A_image").src = "poke_figure/" + pokemon[i][0] + ".gif"
             }
         }
+        // タイプの画像
+        for (let i = 0; i < 4; i++){
+            document.getElementById("A_type_image" + i).src = ""
+        }
+        let A_type = document.getElementById("A_type").textContent.split("、")
+        for (let i = 0; i < A_type.length; i++){
+            document.getElementById("A_type_image" + i).src = "type_figure/" + A_type[i] + ".gif"
+        }
+        document.getElementById("A_type").textContent = ""
+
         // 相手のポケモンの情報を記入
         for (const parameter of ["name", "sex", "level", "type", "abnormal", "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank"]){
             document.getElementById("B_" + parameter).textContent = data["user" + you].con[parameter]
@@ -182,6 +199,16 @@ $(function () {
                 document.getElementById("B_image").src = "poke_figure/" + pokemon[i][0] + ".gif"
             }
         }
+        // タイプの画像
+        for (let i = 0; i < 4; i++){
+            document.getElementById("B_type_image" + i).src = ""
+        }
+        let B_type = document.getElementById("B_type").textContent.split("、")
+        for (let i = 0; i < B_type.length; i++){
+            document.getElementById("B_type_image" + i).src = "type_figure/" + B_type[i] + ".gif"
+        }
+        document.getElementById("B_type").textContent = ""
+        
         // ボタンの無効化
         for (let i = 0; i < 7; i++){
             document.getElementById("radio_" + i).disabled = data["user" + me].data["radio_" + i]
@@ -250,8 +277,16 @@ $(function () {
                 document.getElementById("A_image").src = "poke_figure/" + pokemon[i][0] + ".gif"
             }
         }
+        let A_type = document.getElementById("A_type").textContent.split("、")
+        for (let i = 0; i < A_type.length; i++){
+            document.getElementById("A_type_image" + i).src = "type_figure/" + A_type[i] + ".gif"
+        }
+        document.getElementById("A_type").textContent = ""
         if (me.con.name == ""){
             document.getElementById("A_image").src = ""
+            for (let j = 0; j < 4; j++){
+                document.getElementById("A_type_image" + j).src = ""
+            }
         }
         // 相手のポケモンの情報を記入
         for (const parameter of ["name", "sex", "level", "type", "abnormal", "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank"]){
@@ -266,8 +301,16 @@ $(function () {
                 document.getElementById("B_image").src = "poke_figure/" + pokemon[i][0] + ".gif"
             }
         }
+        let B_type = document.getElementById("B_type").textContent.split("、")
+        for (let i = 0; i < B_type.length; i++){
+            document.getElementById("B_type_image" + i).src = "type_figure/" + B_type[i] + ".gif"
+        }
+        document.getElementById("B_type").textContent = ""
         if (you.con.name == ""){
             document.getElementById("B_image").src = ""
+            for (let j = 0; j < 4; j++){
+                document.getElementById("B_type_image" + j).src = ""
+            }
         }
         // HPバーの表示
         if (me.con.f_con.includes("ひんし") || me.con.f_con.includes("選択中・・・")){

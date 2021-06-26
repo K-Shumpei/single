@@ -8,6 +8,14 @@ const abiEff = require("./ability_effect")
 
 // 戦闘中のポケモンを手持ちに戻す
 exports.comeBack = function(user, enemy){
+    if (user.con.last_HP == 0){
+        cfn.logWrite(user, enemy, user.con.TN + "　の　" + user.con.name + "　は　たおれた　!" + "\n")
+        user.con.f_con += "ひんし" + "\n"
+        if (enemy.con.ability == "ソウルハート" && !enemy.con.f_con.includes("ひんし")){
+            afn.rankChange(enemy, user, "C", 1, 100, "ソウルハート")
+        }
+    }
+
     if (user.con.name == "ヒヒダルマ(ダルマモード)"){
         afn.formChenge(user, enemy, "ヒヒダルマ")
     } else if (user.con.name == "ヒヒダルマ(ダルマモード(ガラルのすがた))"){
@@ -19,24 +27,18 @@ exports.comeBack = function(user, enemy){
     }
 
     // 特性が「さいせいりょく」の時
-    if (user.con.ability == "さいせいりょく"){
+    if (user.con.ability == "さいせいりょく" && !user.con.f_con.includes("ひんし")){
         afn.HPchangeMagic(user, enemy, Math.floor(user.con.full_HP / 3), "+", "さいせいりょく")
     }
     // 特性が「しぜんかいふく」の時
-    if (user.con.ability == "しぜんかいふく"){
+    if (user.con.ability == "しぜんかいふく" && !user.con.f_con.includes("ひんし")){
         user["poke" + cfn.battleNum(user)].abnormal = ""
     }
 
-    // パラメーターの移動
-    for (const parameter of [
-        "name", "sex", "level", "type", "nature", "ability", "item", "abnormal", 
-        "last_HP", "full_HP", 
-        "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
-        "move_0", "PP_0", "last_0", 
-        "move_1", "PP_1", "last_1", 
-        "move_2", "PP_2", "last_2", 
-        "move_3", "PP_3", "last_3"]){
-        user["poke" + cfn.battleNum(user)][parameter] = user.con[parameter]
+    // へんしん状態のポケモンはそのまま
+    if (!user.con.p_con.includes("へんしん")){
+        // パラメーターの移動
+        user["poke" + cfn.battleNum(user)].abnormal = user.con.abnormal
     }
     // 状態異常『ねむり』
     for (let i = 0; i < user.con.p_con.split("\n").length; i++){
@@ -90,6 +92,9 @@ exports.comeBack = function(user, enemy){
     if (user.con.f_con.includes("選択中・・・")){
         user.data["radio_" + Number(cfn.battleNum(user) + 4)] = true
         user["poke" + cfn.battleNum(user)].life = "選択中"
+    } else if (user.con.f_con.includes("ひんし")){
+        user.data["radio_" + Number(cfn.battleNum(user) + 4)] = true
+        user["poke" + cfn.battleNum(user)].life = "ひんし"
     } else {
         user.data["radio_" + Number(cfn.battleNum(user) + 4)] = false
         user["poke" + cfn.battleNum(user)].life = "控え"
@@ -179,7 +184,21 @@ exports.pokeReplace = function(team, enemy){
 
     cfn.logWrite(team, enemy, team.con.TN + "　は　" + team.con.name + "　を　繰り出した　！" + "\n")
 
-    
+    return 
+
+    // メガ進化ボタンの有効化・無効化
+    if (document.getElementById(team + "_mega_text").textContent == "メガ進化"){
+        for (let i = 0; i < mega_stone_item_list.length; i++){
+            if (new get(team).item == mega_stone_item_list[i][0] && new get(team).name == mega_stone_item_list[i][1]){
+                document.getElementById(team + "_mega").disabled = false
+            }
+        }
+    }
+
+    // Z技ボタンの有効化
+    if (document.getElementById(team + "_Z_text").textContent == "Z技" && new get(team).item.includes("Z")){
+        document.getElementById(team + "_Z_move").disabled = false
+    }
 
 
     // バトンタッチの時、ランク変化を受け継ぐ
@@ -196,21 +215,7 @@ exports.pokeReplace = function(team, enemy){
         condition_remove(team, "poke", "バトンタッチ")
     }
 
-    return 
-
-    // メガ進化ボタンの有効化・無効化
-    if (document.getElementById(team + "_mega_text").textContent == "メガ進化"){
-        for (let i = 0; i < mega_stone_item_list.length; i++){
-            if (new get(team).item == mega_stone_item_list[i][0] && new get(team).name == mega_stone_item_list[i][1]){
-                document.getElementById(team + "_mega").disabled = false
-            }
-        }
-    }
-
-    // Z技ボタンの有効化
-    if (document.getElementById(team + "_Z_text").textContent == "Z技" && new get(team).item.includes("Z")){
-        document.getElementById(team + "_Z_move").disabled = false
-    }
+    
 
     // ほおばる：きのみを持っていなければ選択できない
     for (let i = 0; i < 4; i++){
@@ -255,96 +260,6 @@ exports.pokeReplace = function(team, enemy){
         }
     }
 
-}
-
-
-
-// ひんしの処理
-exports.fainted = function(user, enemy){
-    cfn.logWrite(user, enemy, user.con.TN + "　の　" + user.con.name + "　は　たおれた　!" + "\n")
-    user.con.f_con += "ひんし" + "\n"
-
-    if (enemy.con.ability == "ソウルハート" && !enemy.con.f_con.includes("ひんし")){
-        afn.rankChange(enemy, user, "C", 1, 100, "ソウルハート")
-    }
-
-    if (user.con.name == "ヒヒダルマ(ダルマモード)"){
-        afn.formChenge(user, enemy, "ヒヒダルマ")
-    } else if (user.con.name == "ヒヒダルマ(ダルマモード(ガラルのすがた))"){
-        afn.formChenge(user, enemy, "ヒヒダルマ(ガラルのすがた)")
-    } else if (user.con.name == "ギルガルド(ブレードフォルム)"){
-        afn.formChenge(user, enemy, "ギルガルド(シールドフォルム)")
-    } else if (user.con.name == "メテノ(コア)"){
-        afn.formChenge(user, enemy, "メテノ(りゅうせいのすがた)")
-    }
-    // パラメーターの移動
-    for (const parameter of [
-        "name", "sex", "level", "type", "nature", "ability", "item", "abnormal", 
-        "last_HP", "full_HP", 
-        "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
-        "move_0", "PP_0", "last_0", 
-        "move_1", "PP_1", "last_1", 
-        "move_2", "PP_2", "last_2", 
-        "move_3", "PP_3", "last_3"]){
-        user["poke" + cfn.battleNum(user)][parameter] = user.con[parameter]
-    }
-    // 相手のメロメロの解除
-    cfn.conditionRemove(enemy.con, "poke", "メロメロ")
-    cfn.conditionRemove(enemy.con, "poke", "バインド")
-    if (!enemy.con.p_con.includes("はいすいのじん")){
-        cfn.conditionRemove(enemy.con, "poke", "逃げられない")
-    }
-
-    // 特性が「おわりのだいち」だった時、天候が元に戻る
-    if (user.con.ability == "おわりのだいち" && (enemy.con.ability != "おわりのだいち" || enemy.con.last_HP == 0)){
-        cfn.logWrite(user, enemy, "おおひでりが終わった" + "\n")
-        cfn.conditionRemove(user.con, "field", "おおひでり")
-        cfn.conditionRemove(enemy.con, "field", "おおひでり")
-    }
-    // 特性が「はじまりのうみ」だった時、天候が元に戻る
-    if (user.con.ability == "はじまりのうみ" && (enemy.con.ability != "はじまりのうみ" || enemy.con.last_HP == 0)){
-        cfn.logWrite(user, enemy, "おおあめが終わった" + "\n")
-        cfn.conditionRemove(user.con, "field", "おおあめ")
-        cfn.conditionRemove(enemy.con, "field", "おおあめ")
-    }
-    // 特性が「かがくへんかガス」の時
-    if (user.con.ability == "かがくへんかガス"){
-        cfn.logWrite(user, enemy, "かがくへんかガスの効果が切れた" + "\n")
-        for (let i = 0; i < enemy.con.p_con.split("\n").length - 1; i++){
-            if (enemy.con.p_con.split("\n")[i].includes("かがくへんかガス")){
-                enemy.con.ability = enemy.con.p_con.split("\n")[i].slice(9)
-            }
-        }
-        cfn.conditionRemove(enemy.con, "poke", "かがくへんかガス")
-        efn.activeAbility(enemy, user, 1)
-    }
-    // 特性が「きんちょうかん」の時
-    if (user.con.ability == "きんちょうかん"){
-        bfn.berryPinch(enemy, team)
-        bfn.berryAbnormal(enemy, user)
-    }
-
-    // 「戦闘中」を「ひんし」に変更
-    user.data["radio_" + Number(cfn.battleNum(user) + 4)] = true
-    user["poke" + cfn.battleNum(user)].life = "ひんし"
-
-    for (const parameter of [
-        "name", "sex", "level", "type", "nature", "ability", "item", "abnormal", 
-        "last_HP", "full_HP", 
-        "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
-        "move_0", "PP_0", "last_0", 
-        "move_1", "PP_1", "last_1", 
-        "move_2", "PP_2", "last_2", 
-        "move_3", "PP_3", "last_3", "p_con", "used"]){
-        user.con[parameter] = ""
-    }
-    for (const parameter of ["A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank"]){
-        user.con[parameter] = 0
-    }
-    // コマンドの消去
-    if (user.con.f_con.includes("ひんし") || user.con.f_con.includes("選択中")){
-        user.data.command = ""
-    }
 }
 
 
@@ -510,7 +425,7 @@ function condition_ability_item_action(team, enemy){
         cfn.conditionRemove(con, "field", "どくびし")
     }
     // 3.場に出たときに発動する特性
-    efn.activeAbility(team, enemy)
+    efn.activeAbility(team, enemy, 1)
     // 4.ふうせん/きのみ/きのみジュース/メンタルハーブ
     if (con.item == "ふうせん"){
         cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "は　ふうせんで浮いている！" + "\n")

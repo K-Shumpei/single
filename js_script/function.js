@@ -23,6 +23,7 @@ exports.HPchangeMagic = function(team, enemy, damage, pm, cause){
         team.con.p_con += "ダメおし" + "\n"
         // 残りHPの表示
         team.con.last_HP = Math.max(0, team.con.last_HP - damage)
+        team["poke" + cfn.battleNum(team)].last_HP = team.con.last_HP
         if (team.con.HP_last - damage > 0){
             // HPが減った時のきのみ等の発動
             bfn.berryPinch(team, enemy)
@@ -30,7 +31,7 @@ exports.HPchangeMagic = function(team, enemy, damage, pm, cause){
     }
     // ひんし宣言
     if (team.con.last_HP == 0){
-        summon.fainted(team, enemy)
+        summon.comeBack(team, enemy)
     }
 }
 
@@ -514,3 +515,40 @@ function reflection_check(def, move, damage, order){
 }
 
 
+
+// 特性『かわりもの』
+exports.metamon = function(team, enemy){
+    cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　かわりもの！" + "\n")
+    for (const parameter of ["sex", "type", "nature", "ability", 
+    "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
+    "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank", 
+    "move_0", "move_1", "move_2", "move_3"]){
+        con[parameter] = enemy.con[parameter]
+    }
+    for (let i = 0; i < 4; i++){
+        if (con["move_" + i] != ""){
+            con["PP_" + i] = 5
+            con["last_" + i] = 5
+            team.data["radio_" + i] = false
+        } else {
+            con["PP_" + i] = ""
+            con["last_" + i] = ""
+            team.data["radio_" + i] = true
+        }
+    }
+    con.p_con += "へんしん" + "\n"
+    cfn.conditionRemove(con, "poke", "きゅうしょアップ")
+    cfn.conditionRemove(con, "poke", "とぎすます")
+    cfn.conditionRemove(con, "poke", "キョダイシンゲキ")
+    cfn.conditionRemove(con, "poek", "ボディパージ")
+    for (let i = 0; i < enemy.con.p_con.split("\n").length - 1; i++){
+        if (enemy.con.p_con.split("\n")[i].includes("きゅうしょアップ") 
+        || enemy.con.p_con.split("\n")[i].includes("とぎすます") 
+        || enemy.con.p_con.split("\n")[i].includes("キョダイシンゲキ") 
+        || enemy.con.p_con.split("\n")[i].includes("ボディパージ")){
+            con.p_con += enemy.con.p_con.split("\n")[i] + "\n"
+        }
+    }
+    cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　は　" + enemy.con.name + "に　へんしんした" + "\n")
+    efn.activeAbility(team, enemy, 1)
+}

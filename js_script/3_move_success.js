@@ -7,6 +7,7 @@ const pokeData = require("./poke_data")
 const moveList = require("./poke_move")
 const itemEff = require("./item_effect")
 const abiEff = require("./ability_effect")
+const dmgClac = require("./damage_calc")
 
 exports.moveSuccessJudge = function(atk, def, order){
     // 0.技の決定
@@ -64,11 +65,11 @@ exports.moveSuccessJudge = function(atk, def, order){
     // 23.待機中のよこどりで技が盗まれる。技を奪ったポケモンは13-15の行程を繰り返す
     // 24.だいばくはつ/じばく/ミストバーストによるHP消費が確約される
     // 26.だいばくはつ/じばく/ミストバーストの使用者は対象が不在でもHPを全て失う。使用者がひんしになっても攻撃は失敗しない
-    selfDestruction(atk, def, move)
+    selfDestruction(atk, def, move, order)
     // 25.対象のポケモンが全員すでにひんしになっていて場にいないことによる失敗
     if (faintedFailure(atk, def, move)){return false}
     // 27.ビックリヘッド/てっていこうせんの使用者はHPを50%失う。対象が不在なら失わない。使用者がひんしになっても攻撃が失敗しない
-    mindblownStealbeam(atk, def, move)
+    mindblownStealbeam(atk, def, move, order)
     // 28.マグニチュード使用時は威力が決定される
     magnitude(atk, def, move)
     // 29.姿を隠していることによる無効化
@@ -1052,9 +1053,10 @@ function PPDecrease(atk, def, move, order){
         } else {
             con["last_" + atk.data.command] = PP - 1
         }
-        //if (!new get(atk).p_con.includes("へんしん")){
-          //  document.getElementById(atk + "_" + battle_poke_num(atk) + "_" + num + "_last").textContent = document.getElementById(atk + "_move_" + num + "_last").textContent
-        //}
+        if (!con.p_con.includes("へんしん")){
+            atk["poke" + cfn.battleNum(atk)]["last_" + atk.data.command] = con["last_" + atk.data.command]
+        }
+
         // 他の技が出る技の失敗
         if (move.length == 11){
             cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
@@ -1529,47 +1531,20 @@ function faintedFailure(atk, def, move){
 }
 
 // 26.だいばくはつ/じばく/ミストバーストの使用者は対象が不在でもHPを全て失う。使用者がひんしになっても攻撃は失敗しない
-function selfDestruction(atk, def, move){
+function selfDestruction(atk, def, move, order){
     if (move[0] == "だいばくはつ" || move[0] == "じばく" || move[0] == "ミストバースト"){
-        atk.con.f_con += "参照項目/"
-        for (const parameter of ["name", "sex", "level", "type", "ability", "item", "abnormal", "nature", 
-        "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
-        "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank", 
-        "full_HP", "last_HP", 
-        "move_0", "PP_0", "last_0", 
-        "move_1", "PP_1", "last_1", 
-        "move_2", "PP_2", "last_2", 
-        "move_3", "PP_3", "last_3"]){
-            atk.con.f_con += atk.con[parameter] + "/"
-        }
-        atk.con.f_con += "\n"
+        atk.damage = dmgClac.damageCalculationProcess(atk, def, move, order)
         atk.con.last_HP = 0
         atk["poke" + cfn.battleNum(atk)].last_HP = 0
-        summon.fainted(atk, def)
+        summon.comeBack(atk, def)
     }
 }
 
 // 27.ビックリヘッド/てっていこうせんの使用者はHPを50%失う。対象が不在なら失わない。使用者がひんしになっても攻撃が失敗しない
-function mindblownStealbeam(atk, def, move){
+function mindblownStealbeam(atk, def, move, order){
     if (move[0] == "ビックリヘッド" || move[0] == "てっていこうせん"){
-        if (atk.con.last_HP == 0){
-            atk.con.f_con += "参照項目/"
-            for (const parameter of ["name", "sex", "level", "type", "ability", "item", "abnormal", "nature", 
-            "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
-            "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank", 
-            "full_HP", "last_HP", 
-            "move_0", "PP_0", "last_0", 
-            "move_1", "PP_1", "last_1", 
-            "move_2", "PP_2", "last_2", 
-            "move_3", "PP_3", "last_3"]){
-                atk.con.f_con += atk.con[parameter] + "/"
-            }
-            atk.con.f_con += "\n"
-        }
+        atk.damage = dmgClac.damageCalculationProcess(atk, def, move, order)
         afn.HPchangeMagic(atk, def, Math.ceil(atk.con.full_HP / 2), "-", move[0])
-        if (!atk.con.f_con.includes("ひんし")){
-            cfn.conditionRemove(atk.con, "field", "参照項目")
-        }
     }
 }
 

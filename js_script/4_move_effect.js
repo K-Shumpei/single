@@ -77,8 +77,15 @@ function HPDecreaseOperation(atk, def, move, order){
     if (move[0] == "みずしゅりけん" && atk.con.name == "ゲッコウガ(サトシゲッコウガ)"){
         move[3] = 20
     }
-    
-    const damage = dmgClac.damageCalculationProcess(atk, def, move, order) // [ダメージ量、タイプ相性、急所判定]
+
+    let damage = ""
+    // 技の使用ポケモンがひんしとなる可能性のある技
+    if (move[0] == "だいばくはつ" || move[0] == "じばく" || move[0] == "ミストバースト" || move[0] == "ビックリヘッド" || move[0] == "てっていこうせん"){
+        damage = atk.damage
+        delete atk.damage
+    } else {
+        damage = dmgClac.damageCalculationProcess(atk, def, move, order) // [ダメージ量、タイプ相性、急所判定]
+    }
     
     // ばけのかわ
     if (def.con.p_con.includes("ばけたすがた")){
@@ -597,7 +604,8 @@ function dyingJudge(atk, def, move){
     // 1.いのちがけ使用者のひんし
     if (move[0] == "いのちがけ"){
         atk.con.last_HP = 0
-        summon.fainted(atk, def)
+        atk["poke" + cfn.battleNum(atk)].last_HP = 0
+        summon.comeBack(atk, def)
     }
     let check = 0
     // 2.技を受けたポケモンのひんし
@@ -605,13 +613,14 @@ function dyingJudge(atk, def, move){
         if (def.con.p_con.includes("みちづれ")){
             check += 1
         }
-        summon.fainted(def, atk)
+        summon.comeBack(def, atk)
     }
     // 3.みちづれの発動による攻撃者のひんし
     if (def.con.f_con.includes("ひんし") && check == 1){
         cfn.logWrite(atk, def, "みちづれが　発動した！" + "\n")
         atk.con.last_HP = 0
-        summon.fainted(atk, def)
+        atk["poke" + cfn.battleNum(atk)].last_HP = 0
+        summon.comeBack(atk, def)
     }
 }
 
@@ -717,6 +726,10 @@ function continuousMove(atk, def, move, order){
 
 // 9.技の効果
 function moveEffect(atk, def, move, damage){
+    // 技の使用者がひんしなら発動しない
+    if (atk.con.f_con.includes("ひんし")){
+        return
+    }
     // 技の効果による反動ダメージ
     for (i = 0; i < moveEff.recoil().length; i++){
         if (move[0] == moveEff.recoil()[i][0] && atk.con.ability != "いしあたま"){
@@ -748,6 +761,7 @@ function moveEffect(atk, def, move, damage){
     && !(def.con.name.includes("ザマゼンタ") && def.con.item　== "くちたたて")){
         cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　" + def.con.item + "　を　はたき落とされた！" + "\n")
         def.con.item = ""
+        def["poke" + cfn.battleNum(def)].item = ""
         if (def.con.ability == "かるわざ"){
             def.con.p_con += "かるわざ" + "\n"
         }
@@ -758,12 +772,15 @@ function moveEffect(atk, def, move, damage){
         cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　" + def.con.item + "　を　奪った！" + "\n")
         atk.con.item = def.con.item
         def.con.item = ""
+        def["poke" + cfn.battleNum(def)].item = ""
         if (def.con.ability == "かるわざ"){
             def.con.p_con += "かるわざ" + "\n"
         }
     } else if ((move[0] == "むしくい" || move[0] == "ついばむ") && itemEff.berryList().includes(def.con.item) && def.con.ability != "ねんちゃく" ){
         bfn.eatingBerry(atk, def, def.con.item)
         cfn.setBelch(atk)
+        def.con.item = ""
+        def["poke" + cfn.battleNum(def)].item = ""
         if (def.con.ability == "かるわざ"){
             def.con.p_con += "かるわざ" + "\n"
         }

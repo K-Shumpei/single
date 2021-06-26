@@ -5,29 +5,6 @@ const bfn = require("./base_function")
 const cfn = require("./law_function")
 
 exports.damageCalculationProcess = function(atk, def, move, order){
-    // 技の使用ポケモンがひんしである時（じばく、ビックリヘッドなど）
-    if (atk.con.f_con.includes("ひんし")){
-        let list = atk.con.f_con.split("\n")
-        for (let i = 0; i < list.length; i++){
-            if (list[i].includes("参照項目")){
-                const sample = list[i].slice(6).split("/")
-                const parameter = ["name", "sex", "level", "type", "ability", "item", "abnormal", "nature",  
-                "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
-                "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank", 
-                "full_HP", "last_HP", 
-                "move_0", "PP_0", "last_0", 
-                "move_1", "PP_1", "last_1", 
-                "move_2", "PP_2", "last_2", 
-                "move_3", "PP_3", "last_3"]
-                for (let j = 0; j < parameter.length; j++){
-                    atk.con[parameter[j]] = sample[j]
-                }
-            }
-            list.splice(i, 1)
-            break
-        }
-        atk.con.f_con = list.join("\n")
-    }
     // ダメージ固定技の時
     if (moveEff.fixDamage().includes(move[0])){
         return fixedDamageMove(atk, def, move)

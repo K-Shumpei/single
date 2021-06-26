@@ -34,6 +34,7 @@ exports.battleStart = function(rec){
                 }
             }
         }
+        return
         // ほおばる：きのみを持っている場合、技選択が可能になる
         for (let i = 0; i < 4; i++){
             if (team[0].con["move_" + i] == "ほおばる"){

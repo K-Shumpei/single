@@ -40,6 +40,7 @@ const summon = require("./js_script/1_summon")
 const movePro = require("./js_script/4_move_effect")
 const success = require("./js_script/3_move_success")
 const end = require("./js_script/5_end_process")
+const efn = require("./js_script/ex_function")
 
 // 接続時の処理
 io.on("connection", function(socket){
@@ -149,7 +150,7 @@ io.on("connection", function(socket){
         if ((data[room].user1.con.f_con.includes("選択中") && !data[room].user2.con.f_con.includes("選択中") && !data[room].user2.con.f_con.includes("ひんし")) 
         || (data[room].user2.con.f_con.includes("選択中") && !data[room].user1.con.f_con.includes("選択中") && !data[room].user1.con.f_con.includes("ひんし"))){
             summon.pokeReplace(data[room]["user" + player], data[room]["user" + enemy])
-            summon.activAbility(data[room]["user" + player], data[room]["user" + enemy], 1)
+            efn.activeAbility(data[room]["user" + player], data[room]["user" + enemy], 1)
             data[room]["user" + player].data.command = ""
             if (data[room]["user" + enemy].data.command != ""){
                 let atk = data[room]["user" + enemy]
@@ -182,7 +183,7 @@ io.on("connection", function(socket){
         if ((data[room].user1.con.f_con.includes("ひんし") && !data[room].user2.con.f_con.includes("選択中") && !data[room].user2.con.f_con.includes("ひんし")) 
         || (data[room].user2.con.f_con.includes("ひんし") && !data[room].user1.con.f_con.includes("選択中") && !data[room].user1.con.f_con.includes("ひんし"))){
             summon.pokeReplace(data[room]["user" + player], data[room]["user" + enemy])
-            summon.activAbility(data[room]["user" + player], data[room]["user" + enemy], 1)
+            efn.activeAbility(data[room]["user" + player], data[room]["user" + enemy], 1)
             data[room]["user" + player].data.command = ""
             io.to(data[room].user1.data.id).emit("run battle", data[room].user1, data[room].user2)
             io.to(data[room].user2.data.id).emit("run battle", data[room].user2, data[room].user1)
@@ -193,7 +194,7 @@ io.on("connection", function(socket){
             if (data[room].user1.data.command != "" && data[room].user2.data.command != ""){
                 summon.pokeReplace(data[room].user1, data[room].user2)
                 summon.pokeReplace(data[room].user2, data[room].user1)
-                summon.activAbility(data[room].user1, data[room].user2, "both")
+                efn.activeAbility(data[room].user1, data[room].user2, "both")
                 end.endProcess(data[room].user1, data[room].user2)
                 data[room].user1.data.command = ""
                 data[room].user2.data.command = ""
@@ -207,7 +208,7 @@ io.on("connection", function(socket){
             if (data[room].user1.data.command != "" && data[room].user2.data.command != ""){
                 summon.pokeReplace(data[room].user1, data[room].user2)
                 summon.pokeReplace(data[room].user2, data[room].user1)
-                summon.activAbility(data[room].user1, data[room].user2, "both")
+                efn.activeAbility(data[room].user1, data[room].user2, "both")
                 data[room].user1.data.command = ""
                 data[room].user2.data.command = ""
                 io.to(data[room].user1.data.id).emit("run battle", data[room].user1, data[room].user2)

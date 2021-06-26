@@ -14,7 +14,7 @@ exports.activeAbility = function(team, enemy, num){
         } else {
             order = [enemy, team]
         }
-        if (user1.con.f_con.includes("トリックルーム")){
+        if (team.con.f_con.includes("トリックルーム")){
             order = [order[1], order[0]]
         }
         abilityEmarge(order[0], order[1])
@@ -71,40 +71,8 @@ function abilityEmarge(team, enemy){
         }
     } else if (con.ability == "かたやぶり" || con.ability == "ターボブレイズ" || con.ability == "テラボルテージ"){
         cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "は　" + con.ability + "だ！" + "\n")
-    } else if (con.ability == "かわりもの" && !enemy.con.p_con.includes("みがわり") && !enemy.con.p_con.includes("へんしん")){
-        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　かわりもの！" + "\n")
-        for (const parameter of ["sex", "type", "nature", "ability", 
-        "A_AV", "B_AV", "C_AV", "D_AV", "S_AV", 
-        "A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank", 
-        "move_0", "move_1", "move_2", "move_3"]){
-            con[parameter] = enemy.con[parameter]
-        }
-        for (let i = 0; i < 4; i++){
-            if (con["move_" + i] != ""){
-                con["PP_" + i] = 5
-                con["last_" + i] = 5
-                team.data["radio_" + i] = false
-            } else {
-                con["PP_" + i] = ""
-                con["last_" + i] = ""
-                team.data["radio_" + i] = true
-            }
-            break
-        }
-        con.p_con += "へんしん" + "\n"
-        cfn.conditionRemove(con, "poke", "きゅうしょアップ")
-        cfn.conditionRemove(con, "poke", "とぎすます")
-        cfn.conditionRemove(con, "poke", "キョダイシンゲキ")
-        cfn.conditionRemove(con, "poek", "ボディパージ")
-        for (let i = 0; i < enemy.con.p_con.split("\n").length - 1; i++){
-            if (enemy.con.p_con.split("\n")[i].includes("きゅうしょアップ") 
-            || enemy.con.p_con.split("\n")[i].includes("とぎすます") 
-            || enemy.con.p_con.split("\n")[i].includes("キョダイシンゲキ") 
-            || enemy.con.p_con.split("\n")[i].includes("ボディパージ")){
-                con.p_con += enemy.con.p_con.split("\n")[i] + "\n"
-            }
-        }
-        cfn.logWrite(team, enemy, enemy.con.name + "に　へんしんした" + "\n")
+    } else if (con.ability == "かわりもの" && !enemy.con.p_con.includes("みがわり") && !enemy.con.p_con.includes("へんしん") && !enemy.con.p_con.includes("イリュージョン")){
+        afn.metamon(team, enemy)
     } else if (con.ability == "きけんよち"){
         let check = 0
         const list = moveEff.oneShot()
