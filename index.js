@@ -231,6 +231,12 @@ $(function () {
                 document.getElementById(team.char + "_Z_text").textContent = team.data.data.ZTxt
             }
         }
+        if (me.con.f_con.includes("ひんし")){
+            document.getElementById("A" + me.con.num + "_HP_bar").value = 0
+        }
+        if (you.con.f_con.includes("ひんし")){
+            document.getElementById("B" + you.con.num + "_HP_bar").value = 0
+        }
         
         // ボタンの無効化
         for (let i = 0; i < 7; i++){

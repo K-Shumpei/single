@@ -389,9 +389,8 @@ function actionFailure(atk, def, move){
         con.p_con += "なまけ" + "\n"
     }
     // 5.きあいパンチ使用時、そのターンにダメージを受けていて動けない (ダイマックスポケモンを除く)
-    if (con.p_con.includes("きあいパンチ　失敗")){
+    if (con.p_con.includes("ダメージ") && move[0] == "きあいパンチ"){
         cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　集中が途切れて　技が出せなかった　!" + "\n")
-        cfn.conditionRemove(con, "poke", "きあいパンチ　失敗")
         return true
     }
     // 6.ひるみで動けない (ダイマックスポケモンを除く)
@@ -596,6 +595,9 @@ function ZpowerActivation(atk, def, move){
             move[0] = list[i][1]
             move[3] = cfn.moveSearchByName(move[0])[3]
         }
+    }
+    if (move[0] == "ナインエボルブースト"){
+        move[2] = "変化"
     }
     atk.data.Zable = true
     atk.data.ZTxt = "Z技（済）"
@@ -1557,6 +1559,9 @@ function phschoFieldInvalidation(atk, def, move){
 
 // 31.ファストガード/ワイドガード/トリックガードによる無効化 (Zワザ/ダイマックスわざならダメージを75%カットする)
 function otherProtectInvalidation(atk, def, move){
+    if (atk.data.Z){
+        return false
+    }
     let con = def.con
     if ((con.p_con.includes("ファストガード") && bfn.priorityDegree(atk.con, move) > 0 && !(move[8] == "自分" || move[0] == "味方の場" || move[0] == "全体の場")) 
     || (con.p_con.includes("ワイドガード") && (move[8] == "相手全体" || move[8] == "全体"|| move[8] == "自分以外")) 
@@ -1569,10 +1574,13 @@ function otherProtectInvalidation(atk, def, move){
 // 32.まもる/キングシールド/ブロッキング/ニードルガード/トーチカによる無効化 (Zワザ/ダイマックスわざなら75%をカットする)
 function protectInvalidation(atk, def, move){
     if (!(move[8] == "自分以外" || move[8] == "全体" || move[8] == "1体選択" || move[8] == "相手全体")){
-        return
+        return false
     }
     if (atk.con.ability == "ふかしのこぶし" && moveEff.cannotProtect().includes(move[0])){
-        return
+        return false
+    }
+    if (atk.data.Z){
+        return false
     }
 
     let  con = def.con
@@ -1603,6 +1611,9 @@ function protectInvalidation(atk, def, move){
 
 // 33.たたみがえしによる無効化 (Zワザ/ダイマックスわざなら75%をカットする)
 function matBlock(atk, def, move){
+    if (atk.data.Z){
+        return false
+    }
     if (def.con.p_con.includes("たたみがえし") && move[2] != "変化"){
         cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　攻撃を守った！" + "\n")
         return true

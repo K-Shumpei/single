@@ -124,7 +124,7 @@ exports.comeBack = function(user, enemy){
     user.data.Zable = true
 
     // 勝敗判定
-    if (user.poke0.life == "ひんし" && user.poke1.life == "ひんし" && user.poke2.life == "ひんし"){
+    if (user.poke0.life == "ひんし" && user.poke1.life == "ひんし" && user.poke2.life == "ひんし" && !user.con.f_con.includes("勝ち") && !user.con.f_con.includes("負け")){
         user.con.f_con += "負け" + "\n"
         enemy.con.f_con += "勝ち" + "\n"
     }

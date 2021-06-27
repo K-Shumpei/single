@@ -807,6 +807,9 @@ function damageCalculation(atk, def, move, power, critical, attack, defense){
         damage = Math.round(damage * 8192 / 4096)
     }
     // まもる状態貫通補正
+    if (def.con.p_con.includes("守る")){
+        damage = cfn.fiveCut(damage * 1024 / 4096)
+    }
 
     // 最終ダメージ
     return {damage: Math.max(damage, 1), compatibility: compatibility_rate, critical: critical}
