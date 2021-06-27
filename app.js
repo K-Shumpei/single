@@ -74,12 +74,12 @@ io.on("connection", function(socket){
             let info = {user1: "", user2: ""}
             info.user1 = {team: team_data, poke0: "", poke1: "", poke2: "", data: "", con: ""}
             info.user2 = {team: "", poke0: "", poke1: "", poke2: "", data: "", con: ""}
-            info.user1.data = {id: socket.id, command: ""}
+            info.user1.data = {id: socket.id, command: "", mega: false, megable: true, megaTxt: "メガ進化", Z: false, Zable: true, ZTxt: "Z技"}
             info.user1.con = {TN: name, p_con: "", f_con: "", used: "", log: ""}
             data.push(info)
             io.to(socket.id).emit("find enemy", {})
         } else {
-            data[room_search(socket.id)].user2.data = {id: socket.id, command: ""}
+            data[room_search(socket.id)].user2.data = {id: socket.id, command: "", mega: false, megable: true, megaTxt: "メガ進化", Z: true, Zable: true, ZTxt: "Z技"}
             data[room_search(socket.id)].user2.con = {TN: name, p_con: "", f_con: "", used: "", log: ""}
             data[room_search(socket.id)].user2.team = team_data
             io.to(data[room_search(socket.id)].user1.data.id).emit("select pokemon", data[room_search(socket.id)], 1, 2)
@@ -125,16 +125,20 @@ io.on("connection", function(socket){
     })
 
     // 各ターンの行動
-    socket.on("action decide", function(val) {
+    socket.on("action decide", function(val, opt) {
         const room = room_search(socket.id)
         let player = ""
         let enemy = ""
         if (data[room].user1.data.id == socket.id){
             data[room].user1.data.command = val
+            data[room].user1.data.mega = opt.mega
+            data[room].user1.data.Z = opt.Z
             player = 1
             enemy = 2
         } else if (data[room].user2.data.id == socket.id){
             data[room].user2.data.command = val
+            data[room].user2.data.mega = opt.mega
+            data[room].user2.data.Z = opt.Z
             player = 2
             enemy = 1
         }

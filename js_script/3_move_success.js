@@ -2,6 +2,7 @@ const afn = require("./function")
 const bfn = require("./base_function")
 const cfn = require("./law_function")
 const summon = require("./1_summon")
+const process = require("./4_move_effect")
 const moveEff = require("./move_effect")
 const pokeData = require("./poke_data")
 const moveList = require("./poke_move")
@@ -25,7 +26,7 @@ exports.moveSuccessJudge = function(atk, def, order){
     }
     // 4.ねごと/いびき使用時「ぐうぐう 眠っている」メッセージ
     // 5.Zワザの場合はZパワーを送る。Z変化技の場合は付加効果
-    //Z_power_activation(atk, move)
+    ZpowerActivation(atk, def, move)
     // 6.他の技が出る技により技を置き換え、(3-8~10)の行程を繰り返す
     moveReplace(atk, def, move, order)
     // 7.特性バトルスイッチによるフォルムチェンジ
@@ -510,100 +511,94 @@ function actionFailure(atk, def, move){
 }
 
 // 5.Zワザの場合はZパワーを送る。Z変化技の場合は付加効果
-function Z_power_activation(atk, move){
-    let check = 0
+function ZpowerActivation(atk, def, move){
+    // Z技にチェックがなければ何もしない
+    if (!atk.data.Z){
+        return
+    }
+    cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　Zパワーを身に纏った！" + "\n")
     // 普通のZクリスタル（攻撃技）の場合
-    for (let i = 0; i < itemEff.Zcrystal().length; i++){
-        if (move[0] == itemEff.Zcrystal()[i][1]){
-            check += 1
-            txt = atk + "チームの　" + new get(atk).name + "　は　Zパワーを身に纏った！" + "\n"
-            document.battle_log.battle_log.value += txt
-            const poke_num = battle_poke_num(atk)
-            const move_num = document.getElementById("battle")[atk + "_move"].value
-            const org_move = move_search_by_name(document.getElementById(atk + "_" + poke_num + "_" + move_num + "_move").textContent)
-            if (org_move[2] != "変化"){
-                if (org_move[3] < 60){
-                    move[3] = 100
-                } else if (org_move[3] < 70){
-                    move[3] = 120
-                } else if (org_move[3] < 80){
-                    move[3] = 140
-                } else if (org_move[3] < 90){
-                    move[3] = 160
-                } else if (org_move[3] < 100){
-                    move[3] = 175
-                } else if (org_move[3] < 110){
-                    move[3] = 180
-                } else if (org_move[3] < 120){
-                    move[3] = 185
-                } else if (org_move[3] < 130){
-                    move[3] = 190
-                } else if (org_move[3] < 140){
-                    move[3] = 195
-                } else {
-                    move[3] = 200
-                }
+    if (move[2] != "変化"){
+        if (move[3] < 60){
+            move[3] = 100
+        } else if (move[3] < 70){
+            move[3] = 120
+        } else if (move[3] < 80){
+            move[3] = 140
+        } else if (move[3] < 90){
+            move[3] = 160
+        } else if (move[3] < 100){
+            move[3] = 175
+        } else if (move[3] < 110){
+            move[3] = 180
+        } else if (move[3] < 120){
+            move[3] = 185
+        } else if (move[3] < 130){
+            move[3] = 190
+        } else if (move[3] < 140){
+            move[3] = 195
+        } else {
+            move[3] = 200
+        }
+        const power = moveEff.Zpower()
+        for (let i = 0; i < power.length; i++){
+            if (move[0] == power[i][0]){
+                move[3] = power[i][2]
+            }
+        }
+        const list = itemEff.Zcrystal()
+        for (let i = 0; i < list.length; i++){
+            if (atk.con.item == list[i][2]){
+                move[0] = list[i][1]
             }
         }
     }
     // 普通のZクリスタル（変化技）の場合
-    if (move[0].includes("Z")){
-        check += 1
-        txt = atk + "チームの　" + new get(atk).name + "　は　Zパワーを身に纏った！" + "\n"
-        document.battle_log.battle_log.value += txt
-        for (let i = 0; i < Z_status_move.length; i++){
-            if (move[0].slice(1) == Z_status_move[i][0]){
-                if (move[0].slice(1) == "のろい"){
-                    if (new get(atk).type.includes("ゴースト")){
-                        txt = atk + "チームの　" + new get(atk).name + "　の　HPが全回復した！" + "\n"
-                        document.battle_log.battle_log.value += txt
-                        document.getElementById(atk + "_HP_last").textContent = new get(atk).full_HP
+    if (move[2] == "変化"){
+        const list = moveEff.Zstatus()
+        for (let i = 0; i < list.length; i++){
+            if (move[0] == list[i][0]){
+                if (move[0] == "のろい"){
+                    if (atk.con.type.includes("ゴースト")){
+                        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　の　HPが全回復した！" + "\n")
+                        atk.con.last_HP = atk.con.full_HP
                     } else {
-                        rank_change_Z(atk, "A", 1)
+                        afn.rankChangeZ(atk, def, "A", 1)
                     }
-                } else if (Z_status_move[i][1] == "A" || Z_status_move[i][1] == "B" || Z_status_move[i][1] == "C" || Z_status_move[i][1] == "D" 
-                || Z_status_move[i][1] == "S" || Z_status_move[i][1] == "accuracy" || Z_status_move[i][1] == "evasiveness"){
-                    const change = Z_status_move[i][2]
-                    rank_change(atk, Z_status_move[i][1], change)
-                } else if (Z_status_move[i][1] == "all"){
-                    rank_change_Z(atk, "A", 1)
-                    rank_change_Z(atk, "B", 1)
-                    rank_change_Z(atk, "C", 1)
-                    rank_change_Z(atk, "D", 1)
-                    rank_change_Z(atk, "S", 1)
-                } else if (Z_status_move[i][1] == "critical"){
-                    if (!new get(atk).p_con.includes("きゅうしょアップ")){
-                        txt = atk + "チームの　" + new get(atk).name + "　は　技が急所に当たりやすくなった！" + "\n"
-                        document.battle_log.battle_log.value += txt
-                        document.battle[atk + "_poke_condition"].value += "きゅうしょアップ" + "\n"
+                } else if (list[i][1] == "A" || list[i][1] == "B" || list[i][1] == "C" || list[i][1] == "D" || list[i][1] == "S" || list[i][1] == "X" || list[i][1] == "Y"){
+                    afn.rankChangeZ(atk, def, list[i][1], list[i][2])
+                } else if (list[i][1] == "all"){
+                    for (const parameter of ["A", "B", "C", "D", "S"]){
+                        afn.rankChangeZ(atk, def, parameter, 1)
                     }
-                } else if (Z_status_move[i][1] == "clear"){
-                    txt = atk + "チームの　" + new get(atk).name + "　の　能力ダウンがリセットされた！" + "\n"
-                    document.battle_log.battle_log.value += txt
-                    for (const parameter of ["A", "B", "C", "D", "S", "accuracy", "evasiveness"]){
-                        document.getElementById(atk + "_rank_" + parameter).textContent = Math.max(new get(atk)[parameter + "_rank"], 0)
+                } else if (list[i][1] == "critical"){
+                    if (!atk.con.p_con.includes("きゅうしょアップ")){
+                        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　技が急所に当たりやすくなった！" + "\n")
+                        atk.con.p_con += "きゅうしょアップ" + "\n"
                     }
-                } else if (Z_status_move[i][1] == "cure"){
-                    txt = atk + "チームの　" + new get(atk).name + "　の　HPが全回復した！" + "\n"
-                    document.battle_log.battle_log.value += txt
-                    document.getElementById(atk + "_HP_last").textContent = new get(atk).full_HP
+                } else if (list[i][1] == "clear"){
+                    cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　の　能力ダウンがリセットされた！" + "\n")
+                    for (const parameter of ["A", "B", "C", "D", "S", "X", "Y"]){
+                        atk.con[parameter + "_rank"] = Math.max(atk.con[parameter + "_rank"], 0)
+                    }
+                } else if (list[i][1] == "cure"){
+                    cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　の　HPが全回復した！" + "\n")
+                    atk.con.last_HP = atk.con.full_HP
                 }
             }
         }
+        move[0] = "Z" + move[0]
     }
     // 専用Zクリスタルの場合
-    for (let i = 0; i < special_Z_crystal_list.length; i++){
-        if (move[0] == special_Z_crystal_list[i][1]){
-            check += 1
-            txt = atk + "チームの　" + new get(atk).name + "　は　Zパワーを身に纏った！" + "\n"
-            document.battle_log.battle_log.value += txt
+    const list = itemEff.spZcrystal()
+    for (let i = 0; i < list.length; i++){
+        if (move[0] == list[i][3]){
+            move[0] = list[i][1]
+            move[3] = cfn.moveSearchByName(move[0])[3]
         }
     }
-    if (check > 0){
-        document.getElementById(atk + "_Z_move").checked = false
-        document.getElementById(atk + "_Z_move").disabled = true
-        document.getElementById(atk + "_Z_text").textContent = "Z技：済"
-    }
+    atk.data.Zable = true
+    atk.data.ZTxt = "Z技（済）"
 }
 
 // 6.他の技が出る技により技を置き換え、(3-8~10)の行程を繰り返す
@@ -877,6 +872,9 @@ function attackDeclaration(atk, def, move){
         }
     }
 
+    // 変化Z技の技名を元に戻す
+    move[0] = move[0].replace("Z", "")
+
     // アンコールターンの消費
     let p_list = con.p_con.split("\n")
     for (let i = 0; i < p_list.length; i++){
@@ -1064,53 +1062,23 @@ function PPDecrease(atk, def, move, order){
         }
     }
 
-    return
-
-    // Z技を元の技に戻す
-    for (let i = 0; i < Z_crystal_list.length; i++){
-        if (move[0] == Z_crystal_list[i][1]){
-            const poke_num = battle_poke_num(atk)
-            for (let j = 0; j < 4; j++){
-                document.getElementById(atk + "_move_" + j).textContent = document.getElementById(atk + "_" + poke_num + "_" + j + "_move").textContent
-            }
-        }
-    }
-    // 普通のZクリスタル（変化技）の場合
-    if (move[0].includes("Z")){
-        move[0] = move[0].replace("Z", "")
-        const poke_num = battle_poke_num(atk)
-        for (let i = 0; i < 4; i++){
-            document.getElementById(atk + "_move_" + i).textContent = document.getElementById(atk + "_" + poke_num + "_" + i + "_move").textContent
-        }
-    }
-    // 専用Zクリスタルの場合
-    for (let i = 0; i < special_Z_crystal_list.length; i++){
-        if (move[0] == special_Z_crystal_list[i][1]){
-            const poke_num = battle_poke_num(atk)
-            for (let j = 0; j < 4; j++){
-                document.getElementById(atk + "_move_" + j).textContent = document.getElementById(atk + "_" + poke_num + "_" + j + "_move").textContent
-            }
-        }
-    }
-
     // よこどり状態のポケモンがいる時、よこどりされる
-    if (new get(def).p_con.includes("よこどり") && snatch_move_list.includes(move[0])){
-        condition_remove(def, "poke", "よこどり")
-        txt = def + "チームの　" + new get(def).name + "に　技を横取りされた！" + "\n"
-        document.battle_log.battle_log.value += txt
+    if (def.con.p_con.includes("よこどり") && moveEff.snatch().includes(move[0])){
+        cfn.conditionRemove(def.con, "poke", "よこどり")
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "に　技を横取りされた！" + "\n")
         atk = order[0]
         def = order[1]
 
         // 9.わざのタイプが変わる。1→2→3の順にタイプが変わる
         moveTypeChange(atk, def, move)
         // 45.技の仕様による無効化(その1)
-        if (moveSpecificationsInvalidation1(atk, def, move)){return false}
+        if (moveSpecificationsInvalidation1(atk, def, move)){return true}
         // 46.技の仕様による無効化(その2)
-        if (moveSpecificationsInvalidation2(atk, def, move)){return false}
+        if (moveSpecificationsInvalidation2(atk, def, move)){return true}
         // 62.技の仕様による無効化(その3)
-        if (moveSpecificationsInvalidation3(atk, def, move)){return false}
+        if (moveSpecificationsInvalidation3(atk, def, move)){return true}
 
-        move_process(order[0], order[1], move, order)
+        process.moveProcess(atk, def, move, order)
 
         return true
     }

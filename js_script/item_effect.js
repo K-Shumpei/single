@@ -179,6 +179,10 @@ var incense_item_list = [
     ['メタルコート', 'はがね']  
 ]
 
+exports.megaStone = function(){
+    return mega_stone_item_list
+}
+
 var mega_stone_item_list = [
     ['アブソルナイト', 'アブソル', 'メガアブソル'], 
     ['エルレイドナイト', 'エルレイド', 'メガエルレイド'], 
@@ -333,6 +337,9 @@ var Z_crystal_list = [
 ]
 
 // 専用Z
+exports.spZcrystal = function(){
+    return special_Z_crystal_list
+}
 var special_Z_crystal_list = [
     ['ピカチュウ', 'ひっさつのピカチュート', 'ピカチュウZ', 'ボルテッカー'], 
     ['ジュナイパー', 'シャドーアローズストライク', 'ジュナイパーZ', 'かげぬい'], 

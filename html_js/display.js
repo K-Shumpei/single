@@ -326,54 +326,6 @@ function PP_change(num, value){
     }
 }
 
-function move_search_by_name(name){
-    for (let i = 0; i < move_list.length; i++){
-        if (name == move_list[i][0]){
-            return move_list[i]
-        }
-    }
-}
-
-
-// Z技
-function Z_move(team){
-    if (document.getElementById(team + "_Z_move").checked){
-        // 普通のZクリスタルの場合
-        for (let i = 0; i < Z_crystal_list.length; i++){
-            if (new get(team).item == Z_crystal_list[i][2]){
-                const Z_type = Z_crystal_list[i][0]
-                const Z_name = Z_crystal_list[i][1]
-                for (let j = 0; j < 4; j++){
-                    if (document.getElementById(team + "_move_" + j).textContent != ""){
-                        let move = move_search_by_name(document.getElementById(team + "_move_" + j).textContent)
-                        if (move[1] == Z_type && move[2] != "変化"){
-                            document.getElementById(team + "_move_" + j).textContent = Z_name
-                        } else if (move[1] == Z_type && move[2] == "変化"){
-                            document.getElementById(team + "_move_" + j).textContent = "Z" + move[0]
-                        }
-                    }
-                }
-            }
-        }
-        // 専用Zクリスタルの場合
-        for (let i = 0; i < special_Z_crystal_list.length; i++){
-            if (new get(team).item == special_Z_crystal_list[i][2] && new get(team).name == special_Z_crystal_list[i][0]){
-                for (let j = 0; j < 4; j++){
-                    if (document.getElementById(team + "_move_" + j).textContent == special_Z_crystal_list[i][3]){
-                        document.getElementById(team + "_move_" + j).textContent = special_Z_crystal_list[i][1]
-                    }
-                }
-            }
-        }
-    } else {
-        const poke_num = battle_poke_num(team)
-        for (let i = 0; i < 4; i++){
-            document.getElementById(team + "_move_" + i).textContent = document.getElementById(team + "_" + poke_num + "_" + i + "_move").textContent
-        }
-    }
-}
-
-
 
 // コマンドタイム
 function start_action_timer(){
@@ -573,6 +525,110 @@ function selectPoke(){
             document.getElementById("first" + i).disabled = false
             document.getElementById("second" + i).disabled = false
             document.getElementById("third" + i).disabled = false
+        }
+    }
+}
+
+function move_search_by_name(name){
+    for (let i = 0; i < move_list.length; i++){
+        if (name == move_list[i][0]){
+            return move_list[i]
+        }
+    }
+}
+
+// Z技
+var Zlist = [
+    ['ノーマル', 'ウルトラダッシュアタック', 'ノーマルZ'], 
+    ['くさ', 'ブルームシャインエクストラ', 'クサZ'], 
+    ['ほのお', 'ダイナミックフルフレイム', 'ホノオZ'], 
+    ['みず', 'スーパーアクアトルネード', 'ミズZ'], 
+    ['でんき', 'スパーキングギガボルト', 'デンキZ'], 
+    ['ひこう', 'ファイナルダイブクラッシュ', 'ヒコウZ'], 
+    ['かくとう', 'ぜんりょくむそうげきれつけん', 'カクトウZ'], 
+    ['じめん', 'ライジングランドオーバー', 'ジメンZ'], 
+    ['むし', 'ぜったいほしょくかいてんざん', 'ムシZ'], 
+    ['いわ', 'ワールズエンドフォール', 'イワZ'], 
+    ['あく', 'ブラックホールイクリプス', 'アクZ'], 
+    ['こおり', 'レイジングジオフリーズ', 'コオリZ'], 
+    ['どく', 'アシッドポイズンデリート', 'ドクZ'], 
+    ['はがね', 'ちょうぜつらせんれんげき', 'ハガネZ'], 
+    ['ゴースト', 'むげんあんやへのいざない', 'ゴーストZ'], 
+    ['エスパー', 'マキシマムサイブレイカー', 'エスパーZ'], 
+    ['ドラゴン', 'アルティメットドラゴンバーン', 'ドラゴンZ'], 
+    ['フェアリー', 'ラブリースターインパクト', 'フェアリーZ']
+]
+
+// 専用Z
+var spZlist = [
+    ['ピカチュウ', 'ひっさつのピカチュート', 'ピカチュウZ', 'ボルテッカー'], 
+    ['ジュナイパー', 'シャドーアローズストライク', 'ジュナイパーZ', 'かげぬい'], 
+    ['ガオガエン', 'ハイパーダーククラッシャー', 'ガオガエンZ', 'DDラリアット'], 
+    ['アシレーヌ', 'わだつみのシンフォニア', 'アシレーヌZ', 'うたかたのアリア'], 
+    ['カプ・コケコ', 'ガーディアン・デ・アローラ', 'カプZ', 'しぜんのいかり'], 
+    ['カプ・テテフ', 'ガーディアン・デ・アローラ', 'カプZ', 'しぜんのいかり'], 
+    ['カプ・ブルル', 'ガーディアン・デ・アローラ', 'カプZ', 'しぜんのいかり'], 
+    ['カプ・レヒレ', 'ガーディアン・デ・アローラ', 'カプZ', 'しぜんのいかり'], 
+    ['マーシャドー', 'しちせいだっこんたい', 'マーシャドーZ', 'シャドースチール'], 
+    ['ライチュウ(アローラのすがた)', 'ライトニングサーフライド', 'アロライZ', '10まんボルト'], 
+    ['カビゴン', 'ほんきをだす こうげき', 'カビゴンZ', 'ギガインパクト'], 
+    ['イーブイ', 'ナインエボルブースト', 'イーブイZ', 'とっておき'], 
+    ['ミュウ', 'オリジンズスーパーノヴァ', 'ミュウZ', 'サイコキネシス'], 
+    ['サトシのピカチュウ', '1000まんボルト', 'サトピカZ', '10まんボルト'], 
+    ['ソルガレオ', 'サンシャインスマッシャー', 'ソルガレオZ', 'メテオドライブ'], 
+    ['日食ネクロズマ', 'サンシャインスマッシャー', 'ソルガレオZ', 'メテオドライブ'], 
+    ['ルナアーラ', 'ムーンライトブラスター', 'ルナアーラZ', 'シャドーレイ'], 
+    ['月食ネクロズマ', 'ムーンライトブラスター', 'ルナアーラZ', 'シャドーレイ'], 
+    ['ウルトラネクロズマ', 'てんこがすめつぼうのひかり', 'ウルトラネクロZ', 'フォトンゲイザー'], 
+    ['ミミッキュ', 'ぽかぼかフレンドタイム', 'ミミッキュZ', 'じゃれつく'], 
+    ['ルガルガン', 'ラジアルエッジストーム', 'ルガルガンZ', 'ストーンエッジ'], 
+    ['ジャラランガ', 'ブレイジングソウルビート', 'ジャラランガZ', 'スケイルノイズ'], 
+]
+
+
+function Z_move(){
+    if (document.getElementById("A_Z").checked){
+        // 普通のZクリスタルの場合
+        let Zmove = ""
+        for (let i = 0; i < Zlist.length; i++){
+            if (document.getElementById("A_item").textContent == Zlist[i][2]){
+                Zmove = Zlist[i]
+            }
+        }
+        for (let i = 0; i < 4; i++){
+            let move = ""
+            for (let j = 0; j < move_list.length; j++){
+                if (move_list[j][0] == document.getElementById("A_move_" + i).textContent){
+                    move = move_list[j]
+                }
+            }
+            if (move != "" && move[1] == Zmove[0] && move[2] != "変化"){
+                document.getElementById("A_move_" + i).textContent = Zmove[1]
+            } else if (move != "" && move[1] == Zmove[0] && move[2] == "変化"){
+                document.getElementById("A_move_" + i).textContent = "Z" + move[0]
+            }
+        }
+        // 専用Zクリスタルの場合
+        let spZmove = ""
+        for (let i = 0; i < spZlist.length; i++){
+            if (document.getElementById("A_item").textContent == spZlist[i][2] && document.getElementById("A_name").textContent == spZlist[i][0]){
+                spZmove = spZlist[i]
+            }
+        }
+        for (let i = 0; i < 4; i++){
+            if (spZmove != "" && document.getElementById("A_move_" + i).textContent == spZmove[3]){
+                document.getElementById("A_move_" + i).textContent = spZmove[1]
+            }
+        }
+    } else {
+        let poke_num = ""
+        for (let i = 0; i < 3; i++){
+            if (document.getElementById(i + "_life").textContent == "戦闘中"){
+                poke_num = i
+            }
+        }
+        for (let i = 0; i < 4; i++){
+            document.getElementById("A_move_" + i).textContent = document.getElementById(poke_num + "_move_" + i).textContent
         }
     }
 }

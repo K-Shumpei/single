@@ -133,7 +133,8 @@ $(function () {
             alert("行動を選択してください")
             return false
         }
-        socketio.emit("action decide", val)
+        const option = {mega: document.getElementById("A_mega").checked, Z: document.getElementById("A_Z").checked}
+        socketio.emit("action decide", val, option)
         document.getElementById("battle_button").disabled = true
         return false
     })
@@ -225,6 +226,9 @@ $(function () {
                 document.getElementById(team.char + "_percent").textContent = Math.ceil(team.data.con.last_HP * 100 / team.data.con.full_HP)
                 document.getElementById(team.char + team.data.con.num + "_bar").style.display = "block"
                 document.getElementById(team.char + team.data.con.num + "_HP_bar").value = team.data.con.last_HP / team.data.con.full_HP
+                // メガ進化、Z技、ダイマックスのテキスト
+                document.getElementById(team.char + "_mega_text").textContent = team.data.data.megaTxt
+                document.getElementById(team.char + "_Z_text").textContent = team.data.data.ZTxt
             }
         }
         
@@ -233,6 +237,13 @@ $(function () {
             document.getElementById("radio_" + i).disabled = me.data["radio_" + i]
             document.getElementById("radio_" + i).checked = false
         }
+        // メガ進化、Z技、ダイマックスのボタンの無効化
+        document.getElementById("A_mega").checked = false
+        document.getElementById("A_mega").disabled = me.data.megable
+        document.getElementById("A_Z").checked = false
+        document.getElementById("A_Z").disabled = me.data.Zable
+        console.log(me.data)
+        
        
         // 決定ボタンの有効化
         if ((!me.con.f_con.includes("ひんし") && !me.con.f_con.includes("選択中・・・")) 

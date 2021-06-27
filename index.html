@@ -9,6 +9,7 @@
     <script src="html_js/basepoke_data.js"></script>
     <script src="html_js/poke_item.js"></script>
     <script src="html_js/poke_move_base.js"></script>
+    <script src="html_js/poke_move.js"></script>
 
     <script src="html_js/display.js"></script>
   </head>
@@ -145,12 +146,12 @@
         <hr>
 
         <form id="team">
-            <input type="radio" name="team" id="team" value="0" checked>1
-            <input type="radio" name="team" id="team" value="1">2
-            <input type="radio" name="team" id="team" value="2">3
-            <input type="radio" name="team" id="team" value="3">4
-            <input type="radio" name="team" id="team" value="4">5
-            <input type="radio" name="team" id="team" value="5">6
+            <input type="radio" name="team" value="0" checked>1
+            <input type="radio" name="team" value="1">2
+            <input type="radio" name="team" value="2">3
+            <input type="radio" name="team" value="3">4
+            <input type="radio" name="team" value="4">5
+            <input type="radio" name="team" value="5">6
             <input type="button" value="決定" onclick="set_pokemon()">
             <input type="button" value="全部セット" onclick="setAll()">
         </form>
@@ -304,7 +305,7 @@
             <tr><td>
                 <table align="center">
                     <tr><td><input type="checkbox" id="A_mega" disabled></td><td><span id="A_mega_text">メガ進化</span></td></tr>
-                    <tr><td><input type="checkbox" id="A_Z_move" disabled onchange="Z_move('A')"></td><td><span id="A_Z_text">Z技</span></td></tr>
+                    <tr><td><input type="checkbox" id="A_Z" disabled onchange="Z_move()"></td><td><span id="A_Z_text">Z技</span></td></tr>
                     <tr><td><input type="checkbox" id="A_dynamax"></td><td>ダイマックス</td></tr>
                 </table>
             </td>

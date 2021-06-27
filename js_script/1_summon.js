@@ -4,6 +4,7 @@ const cfn = require("./law_function")
 const efn = require("./ex_function")
 const moveEff = require("./move_effect")
 const abiEff = require("./ability_effect")
+const itemEff = require("./item_effect")
 
 
 // 戦闘中のポケモンを手持ちに戻す
@@ -117,6 +118,10 @@ exports.comeBack = function(user, enemy){
     if (user.con.f_con.includes("ひんし") || user.con.f_con.includes("選択中")){
         user.data.command = ""
     }
+    // メガ進化ボタンの無効化
+    user.data.megable = true
+    // Z技ボタンの無効化
+    user.data.Zable = true
 
     // 勝敗判定
     if (user.poke0.life == "ひんし" && user.poke1.life == "ひんし" && user.poke2.life == "ひんし"){
@@ -210,18 +215,44 @@ exports.pokeReplace = function(team, enemy){
         team.con.item = ""
     }
 
+    // メガ進化ボタンの有効化
+    if (team.data.megaTxt == "メガ進化"){
+        const list = itemEff.megaStone()
+        for (let i = 0; i < list.length; i++){
+            if (team.con.item == list[i][0] && team.con.name == list[i][1]){
+                team.data.megable = false
+            }
+        }
+    }
+    // Z技ボタンの有効化
+    if (team.data.ZTxt == "Z技"){
+        const list = itemEff.Zcrystal()
+        for (let i = 0; i < list.length; i++){
+            if (list[i][2] == team.con.item){
+                for (let j = 0; j < 4; j++){
+                    if (cfn.moveSearchByName(team.con["move_" + j])[1] == list[i][0]){
+                        team.data.Zable = false
+                    }
+                }
+            }
+        }
+        const spList = itemEff.spZcrystal()
+        for (let i = 0; i < spList.length; i++){
+            if (spList[i][2] == team.con.item){
+                for (let j = 0; j < 4; j++){
+                    if (team.con["move_" + j] == spList[i][3] && team.con.name == spList[i][0]){
+                        team.data.Zable = false
+                    }
+                }
+            }
+        }
+    }
+
     cfn.logWrite(team, enemy, team.con.TN + "　は　" + team.con.name + "　を　繰り出した　！" + "\n")
 
     return 
 
-    // メガ進化ボタンの有効化・無効化
-    if (document.getElementById(team + "_mega_text").textContent == "メガ進化"){
-        for (let i = 0; i < mega_stone_item_list.length; i++){
-            if (new get(team).item == mega_stone_item_list[i][0] && new get(team).name == mega_stone_item_list[i][1]){
-                document.getElementById(team + "_mega").disabled = false
-            }
-        }
-    }
+    
 
     // Z技ボタンの有効化
     if (document.getElementById(team + "_Z_text").textContent == "Z技" && new get(team).item.includes("Z")){

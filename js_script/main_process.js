@@ -8,7 +8,7 @@ const afn = require("./function")
 const bfn = require("./base_function")
 const cfn = require("./law_function")
 const efn = require("./ex_function")
-const item = require("./item_effect")
+const itemEff = require("./item_effect")
 const { enemyField } = require("./move_effect")
 
 // 初めのポケモンを場に出す
@@ -105,6 +105,16 @@ exports.runBattle = function(rec){
     // 3.ローテーションバトルにおけるローテーションする。
         // きんちょうかんのみローテションした際に表示される。
     // 4.メガシンカ/ウルトラバースト
+    for (const user of [order, reverse]){
+        const list = itemEff.megaStone()
+        for (let i = 0; i < list.length; i++){
+            if (user[0].con.name == list[i][1] && user[0].data.mega){
+                afn.formChenge(user[0], user[1], list[i][2])
+                user[0].data.megable = true
+                user[0].data.megaTxt = "メガ進化（済）"
+            }
+        }
+    }
 
         // 複数のポケモンが同時にメガシンカ/ウルトラバーストする場合、発動前のすばやさ順に発動される。
     // 5.ダイマックス
@@ -223,7 +233,7 @@ function buttonValidation(order){
         }
         // ほおばる：きのみを持っていない場合、使用不能に
         for (let i = 0; i < 4; i++){
-            if (team.con["move_" + i] == "ほおばる" && !item.berryList().includes(team.con.item)){
+            if (team.con["move_" + i] == "ほおばる" && !itemEff.berryList().includes(team.con.item)){
                 team.data["radio_" + i] = true
             }
         }

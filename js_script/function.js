@@ -273,6 +273,33 @@ exports.rankChange = function(team, enemy, parameter, change, probability, cause
 }
 
 
+// Z技の追加効果によるランク変化、あまのじゃくが効かない
+exports.rankChangeZ = function(team, enemy, parameter, change){
+    const convert = [["A", "攻撃"], ["B", "防御"], ["C", "特攻"], ["D", "特防"], ["S", "素早さ"], ["X", "命中率"], ["Y", "回避率"]]
+    const now = team.con[parameter + "_rank"]
+    let result = now + change
+    result = Math.min(result, 6)
+    result = Math.max(result, -6)
+    team.con[parameter + "_rank"] = result
+    for (let i = 0; i < convert.length; i++){
+        if (parameter == convert[i][0]){
+            const text = convert[i][1]
+            if (result - now == 0){
+                cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　の　" + text + "　は　これ以上　上がらない" + "\n")
+            } else if (result - now == 1){
+                cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　の　" + text + "　が　上がった！" + "\n")
+                team.con.p_con += "ランク上昇" + "\n"
+            } else if (result - now == 2){
+                cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　の　" + text + "　が　ぐーんと上がった！" + "\n")
+                team.con.p_con += "ランク上昇" + "\n"
+            } else if (result - now > 2){
+                cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　の　" + text + "　が　ぐぐーんと上がった！" + "\n")
+                team.con.p_con += "ランク上昇" + "\n"
+            }
+        }
+    }
+}
+
 // 特性の入れ替え
 exports.changeAbility = function(copy, org, num, ability){
     // copy：コピーされるチーム
