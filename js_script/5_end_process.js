@@ -104,6 +104,9 @@ exports.endProcess = function(user1, user2){
 
     cfn.logWrite(order[0], order[1], "---------- ターン終了 ----------" + "\n")
 
+    // ダイマックスの終了
+    dynamaxEnd(order, reverse)
+
     // C.ひんしのポケモンがいる時、交換する
     returnFaintedPokemon(order, reverse)
     // D.次ターンの、選択ボタンの無効化
@@ -163,6 +166,7 @@ var end_process_poke_condition = [
     'ワイドガード', 
     'トリックガード', 
     'たたみがえし', 
+    'ダイウォール', 
     'ふんじん', 
     'ランク上昇', 
     'ランク下降', 
@@ -211,6 +215,38 @@ function otherProcess(order, reverse){
         // ひんしであれば、ポケモンの状態を削除
         if (team[0].con.f_con.includes("ひんし")){
             team[0].con.p_con = ""
+        }
+    }
+}
+
+// ダイマックスの終了
+function dynamaxEnd(order, reverse){
+    for (const team of [order, reverse]){
+        if (team[0].data.dynaTxt == "ダイマックス：3/3"){
+            team[0].data.dynaTxt = "ダイマックス：2/3"
+        } else if (team[0].data.dynaTxt == "ダイマックス：2/3"){
+            team[0].data.dynaTxt = "ダイマックス：1/3"
+        } else if (team[0].data.dynaTxt == "ダイマックス：1/3"){
+            team[0].data.dynaTxt = "ダイマックス（済）"
+            team[0].data.gigaTxt = "キョダイマックス（済）"
+            cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　の　ダイマックスが　終了した" + "\n")
+            team[0].con.full_HP = Math.ceil(team[0].con.full_HP / 2)
+            team[0]["poke" + cfn.battleNum(team[0])].full_HP = Math.ceil(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 2)
+            team[0].con.last_HP = Math.ceil(team[0].con.last_HP / 2)
+            team[0]["poke" + cfn.battleNum(team[0])].last_HP = Math.ceil(team[0]["poke" + cfn.battleNum(team[0])].last_HP / 2)
+        }
+        if (team[0].data.gigaTxt == "キョダイマックス：3/3"){
+            team[0].data.gigaTxt = "キョダイマックス：2/3"
+        } else if (team[0].data.gigaTxt == "キョダイマックス：2/3"){
+            team[0].data.gigaTxt = "キョダイマックス：1/3"
+        } else if (team[0].data.gigaTxt == "キョダイマックス：1/3"){
+            team[0].data.dynaTxt = "ダイマックス（済）"
+            team[0].data.gigaTxt = "キョダイマックス（済）"
+            cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　の　キョダイマックスが　終了した" + "\n")
+            team[0].con.full_HP = Math.ceil(team[0].con.full_HP / 2)
+            team[0]["poke" + cfn.battleNum(team[0])].full_HP = Math.ceil(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 2)
+            team[0].con.last_HP = Math.ceil(team[0].con.last_HP / 2)
+            team[0]["poke" + cfn.battleNum(team[0])].last_HP = Math.ceil(team[0]["poke" + cfn.battleNum(team[0])].last_HP / 2)
         }
     }
 }

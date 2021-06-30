@@ -133,7 +133,11 @@ $(function () {
             alert("行動を選択してください")
             return false
         }
-        const option = {mega: document.getElementById("A_mega").checked, Z: document.getElementById("A_Z").checked}
+        const mega = document.getElementById("A_mega").checked
+        const Z = document.getElementById("A_Z").checked
+        const dyna = document.getElementById("A_dyna").checked
+        const giga = document.getElementById("A_giga").checked
+        const option = {mega: mega, Z: Z, dyna: dyna, giga: giga}
         socketio.emit("action decide", val, option)
         document.getElementById("battle_button").disabled = true
         return false
@@ -229,6 +233,8 @@ $(function () {
                 // メガ進化、Z技、ダイマックスのテキスト
                 document.getElementById(team.char + "_mega_text").textContent = team.data.data.megaTxt
                 document.getElementById(team.char + "_Z_text").textContent = team.data.data.ZTxt
+                document.getElementById(team.char + "_dyna_text").textContent = team.data.data.dynaTxt
+                document.getElementById(team.char + "_giga_text").textContent = team.data.data.gigaTxt
             }
         }
         if (me.con.f_con.includes("ひんし")){
@@ -248,7 +254,17 @@ $(function () {
         document.getElementById("A_mega").disabled = me.data.megable
         document.getElementById("A_Z").checked = false
         document.getElementById("A_Z").disabled = me.data.Zable
-        console.log(me.data)
+        document.getElementById("A_dyna").checked = false
+        document.getElementById("A_dyna").disabled = me.data.dynable
+        document.getElementById("A_giga").checked = false
+        document.getElementById("A_giga").disabled = me.data.gigable
+
+        // ダイマックス、キョダイマックス状態の時、技の変更
+        if (document.getElementById("A_dyna_text").textContent.includes("3")){
+            change_dyna_move()
+        } else if (document.getElementById("A_giga_text").textContent.includes("3")){
+            change_giga_move()
+        }
         
        
         // 決定ボタンの有効化

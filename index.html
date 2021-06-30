@@ -306,7 +306,8 @@
                 <table align="center">
                     <tr><td><input type="checkbox" id="A_mega" disabled></td><td><span id="A_mega_text">メガ進化</span></td></tr>
                     <tr><td><input type="checkbox" id="A_Z" disabled onchange="Z_move()"></td><td><span id="A_Z_text">Z技</span></td></tr>
-                    <tr><td><input type="checkbox" id="A_dynamax"></td><td>ダイマックス</td></tr>
+                    <tr><td><input type="checkbox" id="A_dyna" onchange="dynamax()"></td><td><span id="A_dyna_text">ダイマックス</span></td></tr>
+                    <tr><td><input type="checkbox" id="A_giga" disabled onchange="gigadyna()"></td><td><span id="A_giga_text">キョダイマックス</span></td></tr>
                 </table>
             </td>
             <td rowspan="4"><table border="1">
@@ -405,9 +406,10 @@
         </table>
         </td>
         <td><table align="center">
-            <tr><td></td><td><span id="B_mega_text">メガ進化</span></td></tr>
-            <tr><td></td><td><span id="B_Z_text">Z技</span></td></tr>
-            <tr><td></td><td>ダイマックス</td></tr>
+            <tr><td><span id="B_mega_text">メガ進化</span></td></tr>
+            <tr><td><span id="B_Z_text">Z技</span></td></tr>
+            <tr><td><span id="B_dyna_text">ダイマックス</span></td></tr>
+            <tr><td><span id="B_giga_text">キョダイマックス</span></td></tr>
         </table></td>
         </tr>
         <tr>

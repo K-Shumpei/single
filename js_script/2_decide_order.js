@@ -65,16 +65,16 @@ function priorityCheck(user1, user2){
         } else if (team.con.p_con.includes("がまん")){
             move = cfn.moveSearchByName("がまん")
         } else {
-            let move_name = team.con["move_" + team.data.command]
-            if (move_name.includes("Z")){
-                move = cfn.moveSearchByName(move_name.replace("Z", ""))
-            } else {
-                move = cfn.moveSearchByName(move_name)
-            }
+            move = cfn.moveSearchByName(team.con["move_" + team.data.command])
         }
 
-        priority.push(bfn.priorityDegree(team.con, move))
-        
+        if ((team.data.Z || team.data.dynaTxt.includes("3") || team.data.gigaTxt.includes("3")) && move[2] != "変化"){
+            priority.push(0)
+        } else if ((team.data.dynaTxt.includes("3") || team.data.gigaTxt.includes("3")) && move[2] == "変化"){
+            priority.push(4)
+        } else {
+            priority.push(bfn.priorityDegree(team.con, move))
+        }
     }
     if (priority[0] > priority[1]){
         return [1, 2]

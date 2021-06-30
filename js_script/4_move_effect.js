@@ -300,6 +300,45 @@ function additionalEffectEtc(atk, def, move, order, damage){
         }
     }
     // 3.ダイマックスわざの効果
+    if (atk.data.dynaTxt.includes("3") || atk.data.gigaTxt.includes("3")){
+        if (move[1] == "かくとう"){
+            afn.rankChange(atk, def, "A", 1, 100, move)
+        } else if (move[1] == "はがね"){
+            afn.rankChange(atk, def, "B", 1, 100, move)
+        } else if (move[1] == "どく"){
+            afn.rankChange(atk, def, "C", 1, 100, move)
+        } else if (move[1] == "じめん"){
+            afn.rankChange(atk, def, "D", 1, 100, move)
+        } else if (move[1] == "ひこう"){
+            afn.rankChange(atk, def, "S", 1, 100, move)
+        } else if (move[1] == "ドラゴン"){
+            afn.rankChange(def, atk, "A", -1, 100, move)
+        } else if (move[1] == "ゴースト"){
+            afn.rankChange(def, atk, "B", -1, 100, move)
+        } else if (move[1] == "むし"){
+            afn.rankChange(def, atk, "C", -1, 100, move)
+        } else if (move[1] == "あく"){
+            afn.rankChange(def, atk, "D", -1, 100, move)
+        } else if (move[1] == "ノーマル"){
+            afn.rankChange(def, atk, "S", -1, 100, move)
+        } else if (move[1] == "ほのお" && !atk.con.f_con.includes("にほんばれ")){
+            bfn.allFieldStatus(atk, def, cfn.moveSearchByName("にほんばれ"))
+        } else if (move[1] == "みず" && !atk.con.f_con.includes("あめ")){
+            bfn.allFieldStatus(atk, def, cfn.moveSearchByName("あまごい"))
+        } else if (move[1] == "いわ" && !atk.con.f_con.includes("すなあらし")){
+            bfn.allFieldStatus(atk, def, cfn.moveSearchByName("すなあらし"))
+        } else if (move[1] == "こおり" && !atk.con.f_con.includes("あられ")){
+            bfn.allFieldStatus(atk, def, cfn.moveSearchByName("あられ"))
+        } else if (move[1] == "でんき" && !atk.con.f_con.includes("エレキフィールド")){
+            bfn.allFieldStatus(atk, def, cfn.moveSearchByName("エレキフィールド"))
+        } else if (move[1] == "くさ" && !atk.con.f_con.includes("グラスフィールド")){
+            bfn.allFieldStatus(atk, def, cfn.moveSearchByName("グラスフィールド"))
+        } else if (move[1] == "エスパー" && !atk.con.f_con.includes("サイコフィールド")){
+            bfn.allFieldStatus(atk, def, cfn.moveSearchByName("サイコフィールド"))
+        } else if (move[1] == "フェアリー" && !atk.con.f_con.includes("ミストフィールド")){
+            bfn.allFieldStatus(atk, def, cfn.moveSearchByName("ミストフィールド"))
+        }
+    }
     // 4.防御側のいかり
     if (def.con.p_con.includes("いかり") && move[2] != "変化" && (!damage.substitute || moveEff.music().includes(move[0]) || atk.con.ability == "すりぬけ" || def.con.last_HP > 0)){
         afn.rankChange(def, atk, "A", 1, 100, "いかり")

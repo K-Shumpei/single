@@ -3,6 +3,7 @@ const bfn = require("./base_function")
 const cfn = require("./law_function")
 const efn = require("./ex_function")
 const moveEff = require("./move_effect")
+const itemEff = require("./item_effect")
 const summon = require("./1_summon")
 
 exports.HPchangeMagic = function(team, enemy, damage, pm, cause){

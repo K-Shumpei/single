@@ -118,6 +118,23 @@ exports.runBattle = function(rec){
 
         // 複数のポケモンが同時にメガシンカ/ウルトラバーストする場合、発動前のすばやさ順に発動される。
     // 5.ダイマックス
+    for (const user of [order, reverse]){
+        if (user[0].data.dyna){
+            cfn.logWrite(user[0], user[1], user[0].con.TN + "　の　" + user[0].con.name + "　は　ダイマックスした！" + "\n")
+            user[0].data.dynaTxt = "ダイマックス：3/3"
+        } else if (user[0].data.giga){
+            cfn.logWrite(user[0], user[1], user[0].con.TN + "　の　" + user[0].con.name + "　は　キョダイマックスした！" + "\n")
+            user[0].data.gigaTxt = "キョダイマックス：3/3"
+        }
+        if (user[0].data.dyna || user[0].data.giga){
+            user[0].data.dynable = true
+            user[0].data.gigable = true
+            user[0].con.full_HP *= 2
+            user[0].con.last_HP *= 2
+            user[0]["poke" + cfn.battleNum(user[0])].full_HP *= 2
+            user[0]["poke" + cfn.battleNum(user[0])].last_HP *= 2
+        }
+    }
         // 複数のポケモンが同時にダイマックスする場合、すばやさ順に発動する。
     // 6.きあいパンチ/トラップシェル/くちばしキャノンの準備行動
     for (const user of order){

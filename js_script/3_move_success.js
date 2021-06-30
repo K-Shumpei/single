@@ -27,6 +27,8 @@ exports.moveSuccessJudge = function(atk, def, order){
     // 4.ねごと/いびき使用時「ぐうぐう 眠っている」メッセージ
     // 5.Zワザの場合はZパワーを送る。Z変化技の場合は付加効果
     ZpowerActivation(atk, def, move)
+    // 5a.ダイマックス技に変更
+    dynamaxMove(atk, def, move)
     // 6.他の技が出る技により技を置き換え、(3-8~10)の行程を繰り返す
     moveReplace(atk, def, move, order)
     // 7.特性バトルスイッチによるフォルムチェンジ
@@ -603,6 +605,74 @@ function ZpowerActivation(atk, def, move){
     atk.data.ZTxt = "Z技（済）"
 }
 
+// 5a.ダイマックス技に変更
+function dynamaxMove(atk, def, move){
+    if (atk.data.dynaTxt.includes("3") || atk.data.gigaTxt.includes("3")){
+        const list = moveEff.dyna()
+        const giga = moveEff.gigadyna()
+        if (move[2] == "変化"){
+            move[0] = "ダイウォール"
+            move[1] = "ノーマル"
+        } else {
+            move[4] = "-"
+            move[6] = "間接"
+            for (let i = 0; i < list.length; i++){
+                if (move[1] == list[i][0]){
+                    if (move[1] == "かくとう" || move[1] == "どく"){
+                        if (move[3] > 0){
+                            move[3] = 70
+                        } else if (move[3] > 40){
+                            move[3] = 75
+                        } else if (move[3] > 50){
+                            move[3] = 80
+                        } else if (move[3] > 60){
+                            move[3] = 85
+                        } else if (move[3] > 70){
+                            move[3] = 90
+                        } else if (move[3] > 100){
+                            move[3] = 95
+                        } else if (move[3] > 140){
+                            move[3] = 100
+                        }
+                    } else {
+                        if (move[3] > 0){
+                            move[3] = 90
+                        } else if (move[3] > 40){
+                            move[3] = 100
+                        } else if (move[3] > 50){
+                            move[3] = 110
+                        } else if (move[3] > 60){
+                            move[3] = 120
+                        } else if (move[3] > 70){
+                            move[3] = 130
+                        } else if (move[3] > 100){
+                            move[3] = 140
+                        } else if (move[3] > 140){
+                            move[3] = 150
+                        }
+                    }
+                    for (let j = 0; j < moveEff.dynaPow().length; j++){
+                        if (move[0] == moveEff.dynaPow()[j][0]){
+                            move[3] = moveEff.dynaPow()[j][1]
+                        }
+                    }
+                    move[0] = list[i][1]
+                }
+            }
+            if (atk.data.giga){
+                for (let i = 0; i < giga.length; i++){
+                    if (move[1] == giga[i][2] && atk.con.name == giga[i][0]){
+                        move[0] = giga[i][1]
+                        if (move[0] == "キョダイコランダ" || move[0] == "キョダイカキュウ" || move[0] == "キョダイソゲキ"){
+                            move[3] = 160
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 // 6.他の技が出る技により技を置き換え、(3-8~10)の行程を繰り返す
 // オウムがえし、さきどり、しぜんのちから、ねごと、ねこのて、まねっこ、ゆびをふる
 function moveReplace(atk, def, move, order){
@@ -921,20 +991,20 @@ function attackDeclaration(atk, def, move){
 
     // がまんの記録
     if (move[0] == "がまん"){
-        if (con.p_con.includes("がまん　2/2：")){
+        if (con.p_con.includes("がまん")){
             let p_list = con.p_con.split("\n")
             for (let i = 0; i < p_list.length - 1; i++){
                 if (p_list[i].includes("がまん　2/2：")){
                     p_list[i] = "がまん　1/2：" + p_list[i].slice(8)
                     cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　がまんを続けている！" + "\n")
                     move[2] = "変化"
+                } else if (p_list[i].includes("がまん　1/2：")){
+                    cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　の　がまんが解かれた！" + "\n")
+                    move[3] = Number(p_list[i].slice(8))
+                    p_list.splice(i, 1)
                 }
             }
             con.p_con = p_list.join("\n")
-        } else if (con.p_con.includes("がまん　1/2：")){
-            cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　の　がまんが解かれた！" + "\n")
-            move[3] = Number(p_list[i].slice(8))
-            cfn.conditionRemove(con, "poke", "がまん　1/2：")
         } else {
             con.p_con += "がまん　2/2：0" + "\n"
             cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　がまんを始めた！" + "\n")
@@ -1579,12 +1649,12 @@ function protectInvalidation(atk, def, move){
     if (atk.con.ability == "ふかしのこぶし" && moveEff.cannotProtect().includes(move[0])){
         return false
     }
-    if (atk.data.Z){
+    if ((atk.data.Z || atk.data.dynaTxt.includes("3") || atk.data.gigaTxt.includes("3")) && !def.con.p_con.includes("ダイウォール")){
         return false
     }
 
     let  con = def.con
-    if (con.p_con.includes("まもる") || con.p_con.includes("みきり") || con.p_con.includes("ニードルガード") || con.p_con.includes("トーチカ")){
+    if (con.p_con.includes("まもる") || con.p_con.includes("みきり") || con.p_con.includes("ニードルガード") || con.p_con.includes("トーチカ") || con.p_con.includes("ダイウォール")){
         cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　攻撃を守った！" + "\n")
         if (con.p_con.includes("ニードルガード") && move[6] == "直接" && atk.con.item != "ぼうごパット"){
             afn.HPchangeMagic(atk, def, Math.floor(atk.con.full_HP / 8), "-", "ニードルガード")

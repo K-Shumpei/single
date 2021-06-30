@@ -27,6 +27,17 @@ exports.comeBack = function(user, enemy){
         afn.formChenge(user, enemy, "メテノ(りゅうせいのすがた)")
     }
 
+    // ダイマックスポケモンを引っ込める時、ダイマックス権を失う
+    if (user.data.dynaTxt.includes("3") || user.data.gigaTxt.includes("3")){
+        cfn.logWrite(user, enemy, user.con.TN + "　の　" + user.con.name + "　の　ダイマックスが　終わった" + "\n")
+        user.data.dynaTxt = "ダイマックス（済）"
+        user.data.gigaTxt = "キョダイマックス（済）"
+        user.con.full_HP = user.con.full_HP / 2
+        user["poke" + cfn.battleNum(user)].full_HP = user.con.full_HP
+        user.con.last_HP = Math.ceil(user.con.last_HP / 2)
+        user["poke" + cfn.battleNum(user)].last_HP = user.con.last_HP
+    }
+
     // 特性が「さいせいりょく」の時
     if (user.con.ability == "さいせいりょく" && !user.con.f_con.includes("ひんし")){
         afn.HPchangeMagic(user, enemy, Math.floor(user.con.full_HP / 3), "+", "さいせいりょく")
@@ -122,6 +133,8 @@ exports.comeBack = function(user, enemy){
     user.data.megable = true
     // Z技ボタンの無効化
     user.data.Zable = true
+    // キョダイマックスボタンの無効化
+    user.data.gigable = true
 
     // 勝敗判定
     if (user.poke0.life == "ひんし" && user.poke1.life == "ひんし" && user.poke2.life == "ひんし" && !user.con.f_con.includes("勝ち") && !user.con.f_con.includes("負け")){
@@ -244,6 +257,15 @@ exports.pokeReplace = function(team, enemy){
                         team.data.Zable = false
                     }
                 }
+            }
+        }
+    }
+    // キョダイマックスボタンの有効化
+    if (team.data.dynaTxt == "ダイマックス"){
+        const list = moveEff.gigadyna()
+        for (let i = 0; i < list.length; i++){
+            if (team.con.name == list[i][0]){
+                team.data.gigable = false
             }
         }
     }
