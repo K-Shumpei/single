@@ -511,8 +511,12 @@ exports.damageDeclaration = function(atk, def, damage, move){
     if (damage.critical == 1){
         cfn.logWrite(atk, def, "急所に　当たった！" + "\n")
     }
-    if (def.con.p_con.includes("守る")){
-        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　攻撃を守りきれすにダメージを受けた" + "\n")
+    if (!(move[0] == "キョダイイチゲキ" || move[0] == "キョダイレンゲキ")){
+        for (let i = 0; i < def.con.p_con.split("\n").length; i++){
+            if (moveEff.protect().includes(def.con.p_con.split("\n")[i])){
+                cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　攻撃を守りきれすにダメージを受けた" + "\n")
+            }
+        }
     }
 
     return damage

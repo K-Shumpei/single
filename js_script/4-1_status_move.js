@@ -339,7 +339,7 @@ function enemyStatusMove(atk, def, move){
                 cfn.setRecycle(def)
                 cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　メンタルハーブが発動した" + "\n")
             }
-            if (move[0] == "メロメロ" && def.con.item == "あかいいと"){
+            if (move[0] == "メロメロ" && def.con.item == "あかいいと" && !atk.con.p_con.includes("メロメロ")){
                 cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　あかいいとが発動した" + "\n")
                 atk.con.p_con += "メロメロ" + "\n"
                 cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　メロメロになった" + "\n")

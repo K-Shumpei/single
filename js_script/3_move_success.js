@@ -520,6 +520,8 @@ function ZpowerActivation(atk, def, move){
     cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　Zパワーを身に纏った！" + "\n")
     // 普通のZクリスタル（攻撃技）の場合
     if (move[2] != "変化"){
+        move[4] = "-"
+        move[6] = "間接"
         if (move[3] < 60){
             move[3] = 100
         } else if (move[3] < 70){
@@ -619,35 +621,35 @@ function dynamaxMove(atk, def, move){
             for (let i = 0; i < list.length; i++){
                 if (move[1] == list[i][0]){
                     if (move[1] == "かくとう" || move[1] == "どく"){
-                        if (move[3] > 0){
+                        if (move[3] < 45){
                             move[3] = 70
-                        } else if (move[3] > 40){
+                        } else if (move[3] < 55){
                             move[3] = 75
-                        } else if (move[3] > 50){
+                        } else if (move[3] < 65){
                             move[3] = 80
-                        } else if (move[3] > 60){
+                        } else if (move[3] < 75){
                             move[3] = 85
-                        } else if (move[3] > 70){
+                        } else if (move[3] < 110){
                             move[3] = 90
-                        } else if (move[3] > 100){
+                        } else if (move[3] < 150){
                             move[3] = 95
-                        } else if (move[3] > 140){
+                        } else {
                             move[3] = 100
                         }
                     } else {
-                        if (move[3] > 0){
+                        if (move[3] < 45){
                             move[3] = 90
-                        } else if (move[3] > 40){
+                        } else if (move[3] < 55){
                             move[3] = 100
-                        } else if (move[3] > 50){
+                        } else if (move[3] < 65){
                             move[3] = 110
-                        } else if (move[3] > 60){
+                        } else if (move[3] < 75){
                             move[3] = 120
-                        } else if (move[3] > 70){
+                        } else if (move[3] < 110){
                             move[3] = 130
-                        } else if (move[3] > 100){
+                        } else if (move[3] < 150){
                             move[3] = 140
-                        } else if (move[3] > 140){
+                        } else {
                             move[3] = 150
                         }
                     }
@@ -659,7 +661,7 @@ function dynamaxMove(atk, def, move){
                     move[0] = list[i][1]
                 }
             }
-            if (atk.data.giga){
+            if (atk.data.gigaTxt.includes("3")){
                 for (let i = 0; i < giga.length; i++){
                     if (move[1] == giga[i][2] && atk.con.name == giga[i][0]){
                         move[0] = giga[i][1]
@@ -1646,10 +1648,13 @@ function protectInvalidation(atk, def, move){
     if (!(move[8] == "自分以外" || move[8] == "全体" || move[8] == "1体選択" || move[8] == "相手全体")){
         return false
     }
-    if (atk.con.ability == "ふかしのこぶし" && moveEff.cannotProtect().includes(move[0])){
+    if ((atk.con.ability == "ふかしのこぶし" || moveEff.cannotProtect().includes(move[0])) && !def.con.p_con.includes("ダイウォール")){
         return false
     }
     if ((atk.data.Z || atk.data.dynaTxt.includes("3") || atk.data.gigaTxt.includes("3")) && !def.con.p_con.includes("ダイウォール")){
+        return false
+    }
+    if (move[0] == "キョダイイチゲキ" || move[0] == "キョダイレンゲキ"){
         return false
     }
 

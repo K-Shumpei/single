@@ -426,7 +426,7 @@ function getCritical(atk, def, move){
     }
     for (let i = 0; i < atk.con.p_con.split("\n").length - 1; i++){
         if (atk.con.p_con.split("\n")[i].includes("キョダイシンゲキ")){
-            critical += Number(atk.con.p_con.split("\n")[i].substrings(9, 10))
+            critical += Number(atk.con.p_con.split("\n")[i].slice(10))
         }
     }
     if (atk.con.p_con.includes("とぎすます")){
@@ -807,8 +807,12 @@ function damageCalculation(atk, def, move, power, critical, attack, defense){
         damage = Math.round(damage * 8192 / 4096)
     }
     // まもる状態貫通補正
-    if (def.con.p_con.includes("守る")){
-        damage = cfn.fiveCut(damage * 1024 / 4096)
+    if (!(move[0] == "キョダイイチゲキ" || move[0] == "キョダイレンゲキ")){
+        for (let i = 0; i < def.con.p_con.split("\n").length; i++){
+            if (moveEff.protect().includes(def.con.p_con.split("\n")[i])){
+                damage = cfn.fiveCut(damage * 1024 / 4096)
+            }
+        }
     }
 
     // 最終ダメージ

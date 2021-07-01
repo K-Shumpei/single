@@ -300,43 +300,154 @@ function additionalEffectEtc(atk, def, move, order, damage){
         }
     }
     // 3.ダイマックスわざの効果
-    if (atk.data.dynaTxt.includes("3") || atk.data.gigaTxt.includes("3")){
-        if (move[1] == "かくとう"){
-            afn.rankChange(atk, def, "A", 1, 100, move)
-        } else if (move[1] == "はがね"){
-            afn.rankChange(atk, def, "B", 1, 100, move)
-        } else if (move[1] == "どく"){
-            afn.rankChange(atk, def, "C", 1, 100, move)
-        } else if (move[1] == "じめん"){
-            afn.rankChange(atk, def, "D", 1, 100, move)
-        } else if (move[1] == "ひこう"){
-            afn.rankChange(atk, def, "S", 1, 100, move)
-        } else if (move[1] == "ドラゴン"){
-            afn.rankChange(def, atk, "A", -1, 100, move)
-        } else if (move[1] == "ゴースト"){
-            afn.rankChange(def, atk, "B", -1, 100, move)
-        } else if (move[1] == "むし"){
-            afn.rankChange(def, atk, "C", -1, 100, move)
-        } else if (move[1] == "あく"){
-            afn.rankChange(def, atk, "D", -1, 100, move)
-        } else if (move[1] == "ノーマル"){
-            afn.rankChange(def, atk, "S", -1, 100, move)
-        } else if (move[1] == "ほのお" && !atk.con.f_con.includes("にほんばれ")){
-            bfn.allFieldStatus(atk, def, cfn.moveSearchByName("にほんばれ"))
-        } else if (move[1] == "みず" && !atk.con.f_con.includes("あめ")){
-            bfn.allFieldStatus(atk, def, cfn.moveSearchByName("あまごい"))
-        } else if (move[1] == "いわ" && !atk.con.f_con.includes("すなあらし")){
-            bfn.allFieldStatus(atk, def, cfn.moveSearchByName("すなあらし"))
-        } else if (move[1] == "こおり" && !atk.con.f_con.includes("あられ")){
-            bfn.allFieldStatus(atk, def, cfn.moveSearchByName("あられ"))
-        } else if (move[1] == "でんき" && !atk.con.f_con.includes("エレキフィールド")){
-            bfn.allFieldStatus(atk, def, cfn.moveSearchByName("エレキフィールド"))
-        } else if (move[1] == "くさ" && !atk.con.f_con.includes("グラスフィールド")){
-            bfn.allFieldStatus(atk, def, cfn.moveSearchByName("グラスフィールド"))
-        } else if (move[1] == "エスパー" && !atk.con.f_con.includes("サイコフィールド")){
-            bfn.allFieldStatus(atk, def, cfn.moveSearchByName("サイコフィールド"))
-        } else if (move[1] == "フェアリー" && !atk.con.f_con.includes("ミストフィールド")){
-            bfn.allFieldStatus(atk, def, cfn.moveSearchByName("ミストフィールド"))
+    if (move[1] == "ダイナックル"){
+        afn.rankChange(atk, def, "A", 1, 100, move)
+    } else if (move[0] == "ダイスチル"){
+        afn.rankChange(atk, def, "B", 1, 100, move)
+    } else if (move[0] == "ダイアシッド"){
+        afn.rankChange(atk, def, "C", 1, 100, move)
+    } else if (move[0] == "ダイアース"){
+        afn.rankChange(atk, def, "D", 1, 100, move)
+    } else if (move[0] == "ダイジェット"){
+        afn.rankChange(atk, def, "S", 1, 100, move)
+    } else if (move[0] == "ダイドラグーン" && def.con.last_HP > 0){
+        afn.rankChange(def, atk, "A", -1, 100, move)
+    } else if (move[0] == "ダイホロウ" && def.con.last_HP > 0){
+        afn.rankChange(def, atk, "B", -1, 100, move)
+    } else if (move[0] == "ダイワーム" && def.con.last_HP > 0){
+        afn.rankChange(def, atk, "C", -1, 100, move)
+    } else if (move[0] == "ダイアーク" && def.con.last_HP > 0){
+        afn.rankChange(def, atk, "D", -1, 100, move)
+    } else if (move[0] == "ダイアタック" && def.con.last_HP > 0){
+        afn.rankChange(def, atk, "S", -1, 100, move)
+    } else if (move[0] == "ダイバーン" && !atk.con.f_con.includes("にほんばれ")){
+        bfn.allFieldStatus(atk, def, cfn.moveSearchByName("にほんばれ"))
+    } else if (move[0] == "ダイストリーム" && !atk.con.f_con.includes("あめ")){
+        bfn.allFieldStatus(atk, def, cfn.moveSearchByName("あまごい"))
+    } else if (move[0] == "ダイロック" && !atk.con.f_con.includes("すなあらし")){
+        bfn.allFieldStatus(atk, def, cfn.moveSearchByName("すなあらし"))
+    } else if (move[0] == "ダイアイス" && !atk.con.f_con.includes("あられ")){
+        bfn.allFieldStatus(atk, def, cfn.moveSearchByName("あられ"))
+    } else if (move[0] == "ダイサンダー" && !atk.con.f_con.includes("エレキフィールド")){
+        bfn.allFieldStatus(atk, def, cfn.moveSearchByName("エレキフィールド"))
+    } else if (move[0] == "ダイソウゲン" && !atk.con.f_con.includes("グラスフィールド")){
+        bfn.allFieldStatus(atk, def, cfn.moveSearchByName("グラスフィールド"))
+    } else if (move[0] == "ダイサイコ" && !atk.con.f_con.includes("サイコフィールド")){
+        bfn.allFieldStatus(atk, def, cfn.moveSearchByName("サイコフィールド"))
+    } else if (move[0] == "ダイフェアリー" && !atk.con.f_con.includes("ミストフィールド")){
+        bfn.allFieldStatus(atk, def, cfn.moveSearchByName("ミストフィールド"))
+    } else if (move[0] == "キョダイカンデン" && def.con.last_HP > 0){
+        if (Math.random() < 0.5){
+            afn.makeAbnormal(def, atk, "まひ", 100, move)
+        } else {
+            afn.makeAbnormal(def, atk, "どく", 100, move)
+        }
+    } else if (move[0] == "キョダイカンロ"){
+        if (atk.con.abnormal != ""){
+            cfn.logWrite(atk, def, atk.con.TM + "　の　" + atk.con.name + "　の　状態異常が治った" + "\n")
+            atk.con.abnormal = ""
+        }
+    } else if (move[0] == "キョダイガンジン" && !def.con.f_con.includes("ステルスロック")){
+        def.con.f_con += "ステルスロック" + "\n"
+        cfn.logWrite(atk, def, def.con.TN + "　の場に尖った石が漂い始めた" + "\n")
+    } else if (move[0] == "キョダイゲンエイ" && !def.con.p_con.includes("逃げられない") && !def.con.type.includes("ゴースト")){
+        def.con.p_con += "逃げられない" + "\n"
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　逃げられなくなった" + "\n")
+    } else if (move[0] == "キョダイゲンスイ" &&  def.con.used != "" && def.con.last_HP > 0){
+        for (let i = 0; i < 4; i++){
+            if (def.con["move_" + i] == def.con.used && def.con["last_" + i] > 0){
+                cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "の　" + def.con.used + "　の　PPが減った" + "\n")
+                def.con["last_" + i] = Math.max(def.con["last_" + i] - 2, 0)
+            }
+        }
+    } else if (move[0] == "キョダイコウジン" && !def.con.f_con.includes("キョダイコウジン")){
+        def.con.f_con += "キョダイコウジン" + "\n"
+        cfn.logWrite(atk, def, def.con.TN + "　の　の場に尖った鉄が漂い始めた" + "\n")
+    } else if (move[0] == "キョダイコバン" && def.con.last_HP > 0){
+        afn.makeAbnormal(def, atk, "こんらん", 100, move)
+    } else if (move[0] == "キョダイコワク" && def.con.last_HP > 0){
+        if (Math.random() < 1 / 3){
+            afn.makeAbnormal(def, atk, "まひ", 100, move)
+        } else if (Math.random() < 1 / 2){
+            afn.makeAbnormal(def, atk, "どく", 100, move)
+        } else {
+            afn.makeAbnormal(def, atk, "ねむり", 100, move)
+        }
+    } else if (move[0] == "キョダイサイセイ" && atk.con.item == "" && itemEff.berryList().includes(atk["poke" + cfn.battleNum(atk)].recycle) && Math.random()){
+        atk.con.item = atk["poke" + cfn.battleNum(atk)].recycle
+        atk["poke" + cfn.battleNum(atk)].recycle = ""
+        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　" + atk.con.item + "　を　拾ってきた" + "\n")
+    } else if (move[0] == "キョダイサンゲキ" && def.con.last_HP > 0){
+        afn.rankChange(def, atk, "Y", -1, 100, move)
+    } else if (move[0] == "キョダイシュウキ" && def.con.last_HP > 0){
+        afn.makeAbnormal(def, atk, "どく", 100, move)
+    } else if (move[0] == "キョダイシンゲキ"){
+        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　張り切っている！" + "\n")
+        if (!atk.con.p_con.includes("キョダイシンゲキ")){
+            atk.con.p_con += "キョダイシンゲキ　+1"
+        } else {
+            let list = atk.con.p_con.split("\n")
+            for (let i = 0; i < list.length; i++){
+                if (list[i] == "キョダイシンゲキ　+1"){
+                    list[i] = "キョダイシンゲキ　+2"
+                } else if (list[i] == "キョダイシンゲキ　+2"){
+                    list[i] = "キョダイシンゲキ　+3"
+                }
+            }
+            atk.con.p_con = list.join("\n")
+        }
+    } else if (move[0] == "キョダイスイマ" && !def.con.p_con.includes("ねむけ") && Math.random() < 0.5 && def.con.last_HP > 0){
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　眠気を誘われた" + "\n")
+        def.con.p_con += "ねむけ　宣言ターン" + "\n"
+    } else if (move[0] == "キョダイセンリツ" && !atk.con.f_con.includes("オーロラベール")){
+        cfn.logWrite(atk, def, atk.con.TN + "　の　場にオーロラベールが現れた！" + "\n")
+        if (atk.con.item == "ひかりのねんど"){
+            atk.con.p_con += "オーロラベール　8/8" + "\n"
+        } else {
+            atk.con.p_con += "オーロラベール　5/5" + "\n"
+        }
+    } else if (move[0] == "キョダイダンエン"){
+        afn.HPchangeMagic(atk, def, Math.floor(atk.con.full_HP / 6), "+", move)
+    } else if (move[0] == "キョダイテンドウ" && !atk.con.f_con.includes("じゅうりょく")){
+        cfn.logWrite(atk, def, "重力が強くなった！" + "\n")
+        atk.con.f_con += "じゅうりょく　5/5" + "\n"
+        def.con.f_con += "じゅうりょく　5/5" + "\n"
+    } else if (move[0] == "キョダイテンバツ" && def.con.last_HP > 0){
+        afn.makeAbnormal(def, atk, "こんらん", 100, move)
+    } else if (move[0] == "キョダイバンライ" && def.con.last_HP > 0){
+        afn.makeAbnormal(def, atk, "まひ", 100, move)
+    } else if (move[0] == "キョダイフウゲキ"){
+        cfn.logWrite(atk, def, "お互いの場のものが飛び去った" + "\n")
+        cfn.conditionRemove(def.con, "field", "しろいきり")
+        cfn.conditionRemove(def.con, "field", "しんぴのまもり")
+        cfn.conditionRemove(def.con, "field", "リフレクター")
+        cfn.conditionRemove(def.con, "field", "ひかりのかべ")
+        cfn.conditionRemove(def.con, "field", "オーロラベール")
+        for (const team of [atk, def]){
+            cfn.conditionRemove(team.con, "field", "まきびし")
+            cfn.conditionRemove(team.con, "field", "どくびし")
+            cfn.conditionRemove(team.con, "field", "ステルスロック")
+            cfn.conditionRemove(team.con, "field", "ねばねばネット")
+            cfn.conditionRemove(team.con, "field", "キョダイコウジン")
+            cfn.conditionRemove(team.con, "field", "フィールド")
+        }
+
+    } else if (move[0] == "キョダイホーヨー" && !def.con.p_con.includes("メロメロ") && def.con.last_HP > 0 && ((atk.con.sex == " ♂ " && def.con.sex == " ♀ ") || (atk.con.sex == " ♀ " && def.con.sex == " ♂ "))){
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　メロメロになった" + "\n")
+        def.con.p_con += "メロメロ" + "\n"
+    } else if (move[0] == "キョダイホウマツ" && def.con.last_HP > 0){
+        afn.rankChange(def, atk, "S", -2, 100, move)
+    } else if ((move[0] == "キョダイベンタツ" || move[0] == "キョダイゴクエン" || move[0] == "キョダイホウゲキ" || move[0] == "キョダイフンセキ") && !def.con.f_con.includes(move[0])){
+        def.con.f_con += move[0] + "\n"
+        cfn.logWrite(atk, def, def.con.TN + "　の場が　" + move[0] + "　で囲まれた" + "\n")
+    } else if ((move[0] == "キョダイサジン" || move[0] == "キョダイヒャッカ") && !def.con.p_con.includes("バインド") && !damage.substitute && def.con.last_HP > 0){
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　しめつけられた！" + "\n")
+        if (atk.con.item == "ねばりのかぎづめ"){
+            def.con.p_con += "バインド（長）　0ターン目" + "\n"
+        } else if (atk.con.item == "しめつけバンド"){
+            def.con.p_con += "バインド（強）　0ターン目" + "\n"
+        } else {
+            def.con.p_con += "バインド　0ターン目" + "\n"
         }
     }
     // 4.防御側のいかり
@@ -786,8 +897,6 @@ function moveEffect(atk, def, move, damage){
         } else {
             def.con.p_con += "バインド　0ターン目" + "\n"
         }
-        
-        
     }
     // とどめばりによるこうげき上昇
     if (def.con.f_con.includes("ひんし") && move[0] == "とどめばり"){
