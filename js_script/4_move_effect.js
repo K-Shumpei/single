@@ -966,7 +966,7 @@ function moveEffect(atk, def, move, damage){
     // サウザンウェーブ/くらいつくによるにげられない状態
     if ((move[0] == "サウザンウェーブ") && !def.con.p_con.includes("逃げられない") && !damage.substitute && !def.con.f_con.includes("ひんし")){
         def.con.p_con += "逃げられない" + "\n"
-        cfn.logWrite(atk, def, def.con.TN + "　の　" + def_poke + "　は　逃げられなくなった！" + "\n")
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　逃げられなくなった！" + "\n")
     }
     if (move[0] == "くらいつく" && !damage.substitute && !def.con.f_con.includes("ひんし") && !(atk.con.p_con.includes("逃げられない") || def.con.p_con.includes("逃げられない")) && !(atk.con.type.includes("ゴースト") || def.con.type.includes("ゴースト"))){
         atk.con.p_con += "逃げられない" + "\n"
