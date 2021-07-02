@@ -40,6 +40,7 @@ const summon = require("./js_script/1_summon")
 const movePro = require("./js_script/4_move_effect")
 const success = require("./js_script/3_move_success")
 const end = require("./js_script/5_end_process")
+const bfn = require("./js_script/base_function")
 const efn = require("./js_script/ex_function")
 
 // 接続時の処理
