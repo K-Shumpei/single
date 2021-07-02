@@ -161,7 +161,7 @@ io.on("connection", function(socket){
         if ((data[room].user1.con.f_con.includes("選択中") && !data[room].user2.con.f_con.includes("選択中") && !data[room].user2.con.f_con.includes("ひんし")) 
         || (data[room].user2.con.f_con.includes("選択中") && !data[room].user1.con.f_con.includes("選択中") && !data[room].user1.con.f_con.includes("ひんし"))){
             summon.pokeReplace(data[room]["user" + player], data[room]["user" + enemy])
-            efn.activeAbility(data[room]["user" + player], data[room]["user" + enemy], 1)
+            summon.onField(data[room]["user" + player], data[room]["user" + enemy], 1)
             data[room]["user" + player].data.command = ""
             if (data[room]["user" + enemy].data.command != ""){
                 let atk = data[room]["user" + enemy]
@@ -194,7 +194,7 @@ io.on("connection", function(socket){
         if ((data[room].user1.con.f_con.includes("ひんし") && !data[room].user2.con.f_con.includes("選択中") && !data[room].user2.con.f_con.includes("ひんし")) 
         || (data[room].user2.con.f_con.includes("ひんし") && !data[room].user1.con.f_con.includes("選択中") && !data[room].user1.con.f_con.includes("ひんし"))){
             summon.pokeReplace(data[room]["user" + player], data[room]["user" + enemy])
-            efn.activeAbility(data[room]["user" + player], data[room]["user" + enemy], 1)
+            summon.onField(data[room]["user" + player], data[room]["user" + enemy], 1)
             data[room]["user" + player].data.command = ""
             io.to(data[room].user1.data.id).emit("run battle", data[room].user1, data[room].user2)
             io.to(data[room].user2.data.id).emit("run battle", data[room].user2, data[room].user1)
@@ -205,7 +205,7 @@ io.on("connection", function(socket){
             if (data[room].user1.data.command != "" && data[room].user2.data.command != ""){
                 summon.pokeReplace(data[room].user1, data[room].user2)
                 summon.pokeReplace(data[room].user2, data[room].user1)
-                efn.activeAbility(data[room].user1, data[room].user2, "both")
+                summon.onField(data[room].user1, data[room].user2, "both")
                 end.endProcess(data[room].user1, data[room].user2)
                 data[room].user1.data.command = ""
                 data[room].user2.data.command = ""
@@ -219,7 +219,7 @@ io.on("connection", function(socket){
             if (data[room].user1.data.command != "" && data[room].user2.data.command != ""){
                 summon.pokeReplace(data[room].user1, data[room].user2)
                 summon.pokeReplace(data[room].user2, data[room].user1)
-                efn.activeAbility(data[room].user1, data[room].user2, "both")
+                summon.onField(data[room].user1, data[room].user2, "both")
                 data[room].user1.data.command = ""
                 data[room].user2.data.command = ""
                 io.to(data[room].user1.data.id).emit("run battle", data[room].user1, data[room].user2)
