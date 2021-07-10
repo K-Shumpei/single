@@ -756,11 +756,11 @@ function otherConditionAbilityItem(order, reverse){
         if (team[0].con.ability == "かそく"){
             afn.rankChange(team[0], team[1], "S", 1, 100, "かそく")
         } else if (team[0].con.ability == "ムラっけ"){
-            const parameter = ["A", "B", "C", "D", "S"]
-            const plus = Math.floor(Math.random() * 5)
+            let parameter = ["A", "B", "C", "D", "S"]
+            let plus = Math.floor(Math.random() * 5)
             afn.rankChange(team[0], team[1], parameter[plus], 2, 100, "ムラっけ")
             parameter.pop(plus)
-            const minus = Math.floor(Math.random() * 4)
+            let minus = Math.floor(Math.random() * 4)
             afn.rankChange(team[0], team[1], parameter[minus], -1, 100, "ムラっけ")
         } else if (team[0].con.ability == "スロースタート"){
             decreasePerTurn(team[0], team[1], "スロースタート", "p")

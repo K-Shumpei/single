@@ -615,6 +615,7 @@ function dynamaxMove(atk, def, move){
         if (move[2] == "変化"){
             move[0] = "ダイウォール"
             move[1] = "ノーマル"
+            move[8] = "自分"
         } else {
             move[4] = "-"
             move[6] = "間接"
@@ -1623,7 +1624,7 @@ function hideInvalidation(atk, def, move){
 
 // 30.サイコフィールドによる無効化
 function phschoFieldInvalidation(atk, def, move){
-    if (atk.con.f_con.includes("サイコフィールド") && cfn.groundedCheck(def.con) && bfn.priorityDegree(atk.con, move) > 0 && !(move[8] == "自分" || move[0] == "味方の場" || move[0] == "全体の場")){
+    if (atk.con.f_con.includes("サイコフィールド") && cfn.groundedCheck(def.con) && bfn.priorityDegree(atk.con, move) > 0 && !(move[8] == "自分" || move[8] == "味方の場" || move[8] == "全体の場")){
         cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　サイコフィールドに　守られている！" + "\n")
         return true
     }
