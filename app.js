@@ -193,6 +193,7 @@ io.on("connection", function(socket){
         // ひんし、空欄
         if ((data[room].user1.con.f_con.includes("ひんし") && !data[room].user2.con.f_con.includes("選択中") && !data[room].user2.con.f_con.includes("ひんし")) 
         || (data[room].user2.con.f_con.includes("ひんし") && !data[room].user1.con.f_con.includes("選択中") && !data[room].user1.con.f_con.includes("ひんし"))){
+            bfn.buttonValidation(data[room]["user" + player])
             summon.pokeReplace(data[room]["user" + player], data[room]["user" + enemy])
             summon.onField(data[room]["user" + player], data[room]["user" + enemy], 1)
             data[room]["user" + player].data.command = ""
@@ -203,6 +204,8 @@ io.on("connection", function(socket){
         // 選択中、選択中
         if (data[room].user1.con.f_con.includes("選択中") && data[room].user2.con.f_con.includes("選択中")){
             if (data[room].user1.data.command != "" && data[room].user2.data.command != ""){
+                bfn.buttonValidation(data[room].user1)
+                bfn.buttonValidation(data[room].user2)
                 summon.pokeReplace(data[room].user1, data[room].user2)
                 summon.pokeReplace(data[room].user2, data[room].user1)
                 summon.onField(data[room].user1, data[room].user2, "both")
@@ -217,6 +220,8 @@ io.on("connection", function(socket){
         // ひんし、ひんし
         if (data[room].user1.con.f_con.includes("ひんし") && data[room].user2.con.f_con.includes("ひんし")){
             if (data[room].user1.data.command != "" && data[room].user2.data.command != ""){
+                bfn.buttonValidation(data[room].user1)
+                bfn.buttonValidation(data[room].user2)
                 summon.pokeReplace(data[room].user1, data[room].user2)
                 summon.pokeReplace(data[room].user2, data[room].user1)
                 summon.onField(data[room].user1, data[room].user2, "both")

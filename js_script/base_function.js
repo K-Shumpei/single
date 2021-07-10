@@ -3,6 +3,7 @@ const afn = require("./function")
 const cfn = require("./law_function")
 const moveEff = require("./move_effect")
 const summon = require("./1_summon")
+const itemEff = require("./item_effect")
 
 
 exports.berryPinch = function(team, enemy){
@@ -614,4 +615,42 @@ exports.moveSearch = function(user){
     }
 
     return move
+}
+
+
+// 選択ボタンの有効化
+exports.buttonValidation = function(team){
+    // 技選択を全て有効化
+    for (let i = 0; i < 4; i++){
+        if (team.con["move_" + i] != ""){
+            team.data["radio_" + i] = false
+        }
+    }
+    // 交換ボタンの有効化
+    for (let i = 0; i < 3; i++){
+        if (team["poke" + i].life == "控え"){
+            team.data["radio_" + Number(i + 4)] = false
+        }
+    }
+
+    // ゲップ：備考欄に「ゲップ」の文字がなければ使用不能に
+    for (let i = 0; i < 4; i++){
+        if (team.con["move_" + i] == "ゲップ" && team["poke" + cfn.battleNum(team)].belch != "ゲップ"){
+            team.data["radio_" + i] = true
+        }
+    }
+    // ほおばる：きのみを持っていない場合、使用不能に
+    for (let i = 0; i < 4; i++){
+        if (team.con["move_" + i] == "ほおばる" && !itemEff.berryList().includes(team.con.item)){
+            team.data["radio_" + i] = true
+        }
+    }
+    // いちゃもん：いちゃもんで使用不能だった技を使用可能に
+    if (team.con.p_con.includes("いちゃもん")){
+        for (let i = 0; i < 4; i++){
+            if (team.con["move_" + i] == team.con.used){
+                team.data["radio_" + i] = true
+            }
+        }
+    }
 }

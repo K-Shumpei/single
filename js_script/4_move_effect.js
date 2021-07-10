@@ -300,7 +300,7 @@ function additionalEffectEtc(atk, def, move, order, damage){
         }
     }
     // 3.ダイマックスわざの効果
-    if (move[1] == "ダイナックル"){
+    if (move[0] == "ダイナックル"){
         afn.rankChange(atk, def, "A", 1, 100, move)
     } else if (move[0] == "ダイスチル"){
         afn.rankChange(atk, def, "B", 1, 100, move)
