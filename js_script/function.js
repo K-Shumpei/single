@@ -663,10 +663,20 @@ exports.cannotChooseAction = function(order, reverse){
         || team[0].con.p_con.includes("アイスボール") || team[0].con.p_con.includes("ころがる") || team[0].con.p_con.includes("がまん") || team[0].con.p_con.includes("さわぐ")){
             for (let i = 0; i < 7; i++){
                 team[0].data["radio_" + i] = true
+                team[0].data.megable = true
+                team[0].data.Zable = true
+                team[0].data.dynable = true
+                team[0].data.gigable = true
             }
         }
         if (team[0].con.p_con.includes("姿を隠す：フリーフォール（防御）")){
             for (let i = 4; i < 7; i++){
+                team[0].data["radio_" + i] = true
+            }
+        }
+        // PPが0の技は使えない
+        for (let i = 0; i < 4; i++){
+            if (team[0].con["PP_" + i] == 0){
                 team[0].data["radio_" + i] = true
             }
         }

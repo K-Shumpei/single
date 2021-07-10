@@ -1241,21 +1241,25 @@ function someMoveEffect(atk, def, move){
     // あばれる状態の終了によるこんらん　あばれる（技名）　1ターン目
     if (atk.con.p_con.includes("あばれる")){
         let p_list = atk.con.p_con.split("\n")
+        let check = 0
         for (let i = 0; i < p_list.length; i++){
             if (p_list[i].includes("あばれる") && p_list[i].includes("1ターン目")){
                 p_list[i] = p_list[i].slice(0, -5) + "2ターン目"
-            } else if (p_list[i].includes("あばれる") && p_list[i].includes("2ターン目") && Math.random() < 0.5){
-                p_list[i] = p_list[i].slice(0, -5) + "3ターン目"
-            } else if (p_list[i].includes("あばれる")){
-                p_list.slice(i, 1)
-                if (!atk.con.p_con.includes("こんらん")){
-                    cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　疲れ果てて　こんらんした" + "\n")
-                    p_list.push("こんらん　1ターン目")
+            } else if (p_list[i].includes("あばれる") && p_list[i].includes("2ターン目")){
+                if (Math.random() < 0.5){
+                    p_list[i] = p_list[i].slice(0, -5) + "3ターン目"
+                } else {
+                    check = 1
                 }
-                break
+            } else if (p_list[i].includes("あばれる") && p_list[i].includes("3ターン目")){
+                check = 1
             }
         }
         atk.con.p_con = p_list.join("\n")
+        if (check == 1){
+            cfn.conditionRemove(atk.con, "poke", "あばれる")
+            afn.makeAbnormal(atk, def, "こんらん", 100, "疲れ果てたこと")
+        }
     }
 }
 

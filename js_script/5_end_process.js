@@ -147,10 +147,10 @@ function otherEnd(order, reverse){
         }
         // フェアリーロックのテキスト変更
         if (team[0].con.p_con.includes("逃げられない：フェアリーロック　開始")){
-            cfn.conditionRemove(team[0].con, "poke", "逃げられない：フェアリーロック　開始")
+            cfn.conditionRemove(team[0].con, "poke", "フェアリーロック")
             team[0].con.p_con += "逃げられない：フェアリーロック" + "\n"
         } else {
-            cfn.conditionRemove(team[0].con, "poke", "逃げられない：フェアリーロック")
+            cfn.conditionRemove(team[0].con, "poke", "フェアリーロック")
         }
     }
 }
@@ -477,7 +477,7 @@ function nightmare(order, reverse){
 // 11.のろい
 function curse(order, reverse){
     for (const team of [order, reverse]){
-        if (team[0].con.p_con.includes("のろい")){
+        if (team[0].con.p_con.includes("呪い")){
             afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 4), "-", "のろい")
         }
     }

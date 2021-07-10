@@ -321,7 +321,7 @@ function enemyStatusMove(atk, def, move){
                 def.con.p_con += "たこがため" + "\n"
                 def.con.p_con += "逃げられない" + "\n"
             } else if (move[0] == "のろい"){
-                def.con.p_con += "のろい" + "\n"
+                def.con.p_con += "呪い" + "\n"
                 atk.con.last_HP -= Math.floor(atk.con.full_HP / 2)
                 atk["poke" + cfn.battleNum(atk)].last_HP -= Math.floor(atk.con.full_HP / 2)
             } else {
@@ -689,10 +689,11 @@ function otherStatusMove(atk, def, move){
     } else if (move[0] == "ハッピータイム"){
         cfn.logWrite(atk, def, "あたりが幸せに包まれた！" + "\n")
     } else if (move[0] == "ハロウィン"){
-        if (def.con.type = ""){
+        const type = def.con.type
+        if (type == ""){
             def.con.type = "ゴースト"
         } else {
-            def.con.type = def.con.type + "、ゴースト"
+            def.con.type = type + "、ゴースト"
         }
         def.con.p_con += "ハロウィン" + "\n"
         cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　タイプにゴーストが追加された！" + "\n")
@@ -784,10 +785,11 @@ function otherStatusMove(atk, def, move){
         txt = def.con.TN + "　の　" + def.con.name + "の　" + def.con.used +"を　コピーした" + "\n"
         document.battle_log.battle_log.value += txt
     } else if (move[0] == "もりののろい"){
-        if (def.con.type = ""){
-            def.con.type += "くさ"
+        const type = def.con.type
+        if (type == ""){
+            def.con.type = "くさ"
         } else {
-            def.con.type += "、くさ"
+            def.con.type = type + "、くさ"
         }
         def.con.p_con += "もりののろい" + "\n"
         cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　タイプにくさが追加された！" + "\n")
