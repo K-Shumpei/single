@@ -22,7 +22,7 @@ exports.actionOrder = function(user1, user2){
                 return trickRoom(late_item, user1.con.f_con)
             } else {
                 // 5.すばやさ
-                order = afn.speedCheck(user1.con, user2.con)
+                order = afn.speedCheck(user1, user2)
                 if (order[0] > order[1] || (order[0] == order[1] && Math.random() < 0.5)){
                     order = [1, 2]
                 } else {

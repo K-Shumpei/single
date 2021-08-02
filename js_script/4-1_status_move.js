@@ -485,8 +485,13 @@ function otherStatusMove(atk, def, move){
         cfn.logWrite(atk, def, "お互いのHPを　分け合った！" + "\n")
         const atk_HP = atk.con.last_HP
         const def_HP = def.con.last_HP
-        atk.con.last_HP = Math.min(Math.floor((atk_HP + def_HP) / 2), atk.con.full_HP)
-        def.con.last_HP = Math.min(Math.floor((atk_HP + def_HP) / 2), def.con.full_HP)
+        if (def.data.dynaTxt.includes("3") || def.data.gigaTxt.includes("3")){
+            atk.con.last_HP = Math.min(Math.floor((atk_HP + def_HP / 2) / 2), atk.con.full_HP)
+            def.con.last_HP = Math.min(Math.floor((atk_HP + def_HP / 2) / 2 + def_HP / 2), def.con.full_HP)
+        } else {
+            atk.con.last_HP = Math.min(Math.floor((atk_HP + def_HP) / 2), atk.con.full_HP)
+            def.con.last_HP = Math.min(Math.floor((atk_HP + def_HP) / 2), def.con.full_HP)
+        }
     } else if (move[0] == "うらみ") {
         for (let i = 0; i < 4; i++){
             if (def.con.used == def.con["move_" + i]){

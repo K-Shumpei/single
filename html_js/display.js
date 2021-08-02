@@ -326,44 +326,6 @@ function PP_change(num, value){
     }
 }
 
-
-// コマンドタイム
-function start_action_timer(){
-    action_timer = setInterval(function() {
-        let now = Number(document.getElementById("action_time").textContent)
-        document.getElementById("action_time").textContent = now - 1
-        if (now - 1 == 0){
-            stop_action_timer()
-            for (const team of ["A", "B"]){
-                if (new get(team).p_con.includes("選択中・・・")){
-                    if (Number(document.getElementById("battle")[team + "_move"].value) == ""){
-                        for (let i = 0; i < 3; i++){
-                            if (document.getElementById(team + "_button_" + String(2 - i)).disabled == false){
-                                document.getElementById(team + "_button_" + String(2 - i)).checked = true
-                            }
-                        }
-                    }
-                } else {
-                    if (Number(document.getElementById("battle")[team + "_move"].value) == ""){
-                        for (let i = 0; i < 4; i++){
-                            if (document.getElementById(team + "_radio_" + String(3 - i)).disabled == false){
-                                document.getElementById(team + "_radio_" + String(3 - i)).checked = true
-                            }
-                        }
-                    }
-                }
-            }
-            run_battle()
-            start_action_timer()
-        }
-    }, 1000)
-}
-
-function stop_action_timer(){
-    document.getElementById("action_time").textContent = 45
-    clearInterval(action_timer)
-}
-
 // AチームとBチームの6択のポケモンセット
 function set_pokemon(){
     if (Number(document.getElementById("EV_last").textContent) < 0){
@@ -473,12 +435,6 @@ function setAll(){
             document.getElementById(team + "_PP_" + i).textContent = document.getElementById("PP" + String(i)).textContent
             document.getElementById(team + "_last_" + i).textContent = document.getElementById("PP" + String(i)).textContent
         }
-        // タイプの画像
-        //let type = document.getElementById(team + "_type").textContent.split("、")
-        //for (let i = 0; i < type.length; i++){
-        //    document.getElementById(team + "type" + i).src = "type_figure/" + type[i] + ".gif"
-        //}
-        //document.getElementById(team + "_type").textContent = ""
 
         // アルセウス：プレートによるタイプ変更
         if (document.getElementById(team + "_ability").textContent == "マルチタイプ"){
@@ -537,113 +493,13 @@ function move_search_by_name(name){
     }
 }
 
-// Z技
-var Zlist = [
-    ['ノーマル', 'ウルトラダッシュアタック', 'ノーマルZ'], 
-    ['くさ', 'ブルームシャインエクストラ', 'クサZ'], 
-    ['ほのお', 'ダイナミックフルフレイム', 'ホノオZ'], 
-    ['みず', 'スーパーアクアトルネード', 'ミズZ'], 
-    ['でんき', 'スパーキングギガボルト', 'デンキZ'], 
-    ['ひこう', 'ファイナルダイブクラッシュ', 'ヒコウZ'], 
-    ['かくとう', 'ぜんりょくむそうげきれつけん', 'カクトウZ'], 
-    ['じめん', 'ライジングランドオーバー', 'ジメンZ'], 
-    ['むし', 'ぜったいほしょくかいてんざん', 'ムシZ'], 
-    ['いわ', 'ワールズエンドフォール', 'イワZ'], 
-    ['あく', 'ブラックホールイクリプス', 'アクZ'], 
-    ['こおり', 'レイジングジオフリーズ', 'コオリZ'], 
-    ['どく', 'アシッドポイズンデリート', 'ドクZ'], 
-    ['はがね', 'ちょうぜつらせんれんげき', 'ハガネZ'], 
-    ['ゴースト', 'むげんあんやへのいざない', 'ゴーストZ'], 
-    ['エスパー', 'マキシマムサイブレイカー', 'エスパーZ'], 
-    ['ドラゴン', 'アルティメットドラゴンバーン', 'ドラゴンZ'], 
-    ['フェアリー', 'ラブリースターインパクト', 'フェアリーZ']
-]
-
-// 専用Z
-var spZlist = [
-    ['ピカチュウ', 'ひっさつのピカチュート', 'ピカチュウZ', 'ボルテッカー'], 
-    ['ジュナイパー', 'シャドーアローズストライク', 'ジュナイパーZ', 'かげぬい'], 
-    ['ガオガエン', 'ハイパーダーククラッシャー', 'ガオガエンZ', 'DDラリアット'], 
-    ['アシレーヌ', 'わだつみのシンフォニア', 'アシレーヌZ', 'うたかたのアリア'], 
-    ['カプ・コケコ', 'ガーディアン・デ・アローラ', 'カプZ', 'しぜんのいかり'], 
-    ['カプ・テテフ', 'ガーディアン・デ・アローラ', 'カプZ', 'しぜんのいかり'], 
-    ['カプ・ブルル', 'ガーディアン・デ・アローラ', 'カプZ', 'しぜんのいかり'], 
-    ['カプ・レヒレ', 'ガーディアン・デ・アローラ', 'カプZ', 'しぜんのいかり'], 
-    ['マーシャドー', 'しちせいだっこんたい', 'マーシャドーZ', 'シャドースチール'], 
-    ['ライチュウ(アローラのすがた)', 'ライトニングサーフライド', 'アロライZ', '10まんボルト'], 
-    ['カビゴン', 'ほんきをだす こうげき', 'カビゴンZ', 'ギガインパクト'], 
-    ['イーブイ', 'ナインエボルブースト', 'イーブイZ', 'とっておき'], 
-    ['ミュウ', 'オリジンズスーパーノヴァ', 'ミュウZ', 'サイコキネシス'], 
-    ['サトシのピカチュウ', '1000まんボルト', 'サトピカZ', '10まんボルト'], 
-    ['ソルガレオ', 'サンシャインスマッシャー', 'ソルガレオZ', 'メテオドライブ'], 
-    ['日食ネクロズマ', 'サンシャインスマッシャー', 'ソルガレオZ', 'メテオドライブ'], 
-    ['ルナアーラ', 'ムーンライトブラスター', 'ルナアーラZ', 'シャドーレイ'], 
-    ['月食ネクロズマ', 'ムーンライトブラスター', 'ルナアーラZ', 'シャドーレイ'], 
-    ['ウルトラネクロズマ', 'てんこがすめつぼうのひかり', 'ウルトラネクロZ', 'フォトンゲイザー'], 
-    ['ミミッキュ', 'ぽかぼかフレンドタイム', 'ミミッキュZ', 'じゃれつく'], 
-    ['ルガルガン', 'ラジアルエッジストーム', 'ルガルガンZ', 'ストーンエッジ'], 
-    ['ジャラランガ', 'ブレイジングソウルビート', 'ジャラランガZ', 'スケイルノイズ'], 
-]
-
-
-// キョダイマックス
-var gigalist = [
-    ['フシギバナ', 'キョダイベンタツ', 'くさ'], 
-    ['リザードン', 'キョダイゴクエン', 'ほのお'], 
-    ['カメックス', 'キョダイホウゲキ', 'みず'], 
-    ['バタフリー', 'キョダイコワク', 'むし'], 
-    ['ピカチュウ', 'キョダイバンライ', 'でんき'], 
-    ['ニャース', 'キョダイコバン', 'ノーマル'], 
-    ['カイリキー', 'キョダイシンゲキ', 'かくとう'], 
-    ['ゲンガー', 'キョダイゲンエイ', 'ゴースト'], 
-    ['キングラー', 'キョダイホウマツ', 'みず'], 
-    ['ラプラス', 'キョダイセンリツ', 'こおり'], 
-    ['イーブイ', 'キョダイホウヨウ', 'ノーマル'], 
-    ['カビゴン', 'キョダイサイセイ', 'ノーマル'], 
-    ['ダストダス', 'キョダイシュウキ', 'どく'], 
-    ['メルメタル', 'キョダイユウゲキ', 'はがね'], 
-    ['ゴリランダー', 'キョダイコランダ', 'くさ'], 
-    ['エースバーン', 'キョダイカキュウ', 'ほのお'], 
-    ['インテレオン', 'キョダイソゲキ', 'みず'], 
-    ['アーマーガア', 'キョダイフウゲキ', 'ひこう'], 
-    ['イオルブ', 'キョダイテンドウ', 'エスパー'], 
-    ['カジリガメ', 'キョダイガンジン', 'みず'], 
-    ['セキタンザン', 'キョダイフンセキ', 'いわ'], 
-    ['アップリュー', 'キョダイサンゲキ', 'くさ'], 
-    ['タルップル', 'キョダイカンロ', 'くさ'], 
-    ['サダイジャ', 'キョダイサジン', 'じめん'], 
-    ['ストリンダー', 'キョダイカンデン', 'でんき'], 
-    ['マルヤクデ', 'キョダイヒャッカ', 'ほのお'], 
-    ['ブリムオン', 'キョダイテンバツ', 'フェアリー'], 
-    ['オーロンゲ', 'キョダイスイマ', 'あく'], 
-    ['マホイップ', 'キョダイダンエン', 'フェアリー'], 
-    ['ダイオウドウ', 'キョダイコウジン', 'はがね'], 
-    ['ジュラルドン', 'キョダイゲンスイ', 'ドラゴン'], 
-    ['ウーラオス(いちげきのかた)', 'キョダイイチゲキ', 'あく'], 
-    ['ウーラオス(れんげきのかた)', 'キョダイレンゲキ', 'みず']
-]
-
-var dynalist = [
-    ['かくとう', 'ダイナックル'], 
-    ['ドラゴン', 'ダイドラグーン'], 
-    ['はがね', 'ダイスチル'], 
-    ['ゴースト', 'ダイホロウ'], 
-    ['どく', 'ダイアシッド'], 
-    ['むし', 'ダイワーム'], 
-    ['じめん', 'ダイアース'], 
-    ['あく', 'ダイアーク'], 
-    ['ひこう', 'ダイジェット'], 
-    ['ノーマル', 'ダイアタック'], 
-    ['ほのお', 'ダイバーン'], 
-    ['みず', 'ダイストリーム'], 
-    ['いわ', 'ダイロック'], 
-    ['こおり', 'ダイアイス'], 
-    ['でんき', 'ダイサンダー'], 
-    ['くさ', 'ダイソウゲン'], 
-    ['エスパー', 'ダイサイコ'], 
-    ['フェアリー', 'ダイフェアリー'] 
-]
-
+function battle_num(){
+    for (let i = 0; i < 3; i++){
+        if (document.getElementById(i + "_life").textContent == "戦闘中"){
+            return i
+        }
+    }
+}
 
 // Z技ボタンの有効化
 function Zable(){
@@ -705,17 +561,23 @@ function Z_move(){
                 Zmove = Zlist[i]
             }
         }
-        for (let i = 0; i < 4; i++){
-            let move = ""
-            for (let j = 0; j < move_list.length; j++){
-                if (move_list[j][0] == document.getElementById("A_move_" + i).textContent){
-                    move = move_list[j]
+        if (Zmove != ""){
+            for (let i = 0; i < 4; i++){
+                let move = ""
+                for (let j = 0; j < move_list.length; j++){
+                    if (move_list[j][0] == document.getElementById("A_move_" + i).textContent){
+                        move = move_list[j]
+                    }
                 }
-            }
-            if (move != "" && move[1] == Zmove[0] && move[2] != "変化"){
-                document.getElementById("A_move_" + i).textContent = Zmove[1]
-            } else if (move != "" && move[1] == Zmove[0] && move[2] == "変化"){
-                document.getElementById("A_move_" + i).textContent = "Z" + move[0]
+                if (move != "" && move[1] == Zmove[0] && move[2] != "変化"){
+                    document.getElementById("A_move_" + i).textContent = Zmove[1]
+                    document.getElementById("radio_" + i).disabled = false
+                } else if (move != "" && move[1] == Zmove[0] && move[2] == "変化"){
+                    document.getElementById("A_move_" + i).textContent = "Z" + move[0]
+                    document.getElementById("radio_" + i).disabled = false
+                } else {
+                    document.getElementById("radio_" + i).disabled = true
+                }
             }
         }
         // 専用Zクリスタルの場合
@@ -725,9 +587,14 @@ function Z_move(){
                 spZmove = spZlist[i]
             }
         }
-        for (let i = 0; i < 4; i++){
-            if (spZmove != "" && document.getElementById("A_move_" + i).textContent == spZmove[3]){
-                document.getElementById("A_move_" + i).textContent = spZmove[1]
+        if (spZmove != ""){
+            for (let i = 0; i < 4; i++){
+                if (spZmove != "" && document.getElementById("A_move_" + i).textContent == spZmove[3]){
+                    document.getElementById("A_move_" + i).textContent = spZmove[1]
+                    document.getElementById("radio_" + i).disabled = false
+                } else {
+                    document.getElementById("radio_" + i).disabled = true
+                }
             }
         }
     } else {
@@ -742,11 +609,15 @@ function Z_move(){
         for (let i = 0; i < 4; i++){
             document.getElementById("A_move_" + i).textContent = document.getElementById(poke_num + "_move_" + i).textContent
         }
+        buttonInvalidation()
     }
 }
 
 function gigadyna(){
     if (document.getElementById("A_giga").checked){
+        document.getElementById("A_Z").disabled = true
+        document.getElementById("A_dyna").disabled = true
+        buttonValidation()
         change_giga_move()
     } else {
         document.getElementById("A_Z").disabled = Zable()
@@ -760,33 +631,15 @@ function gigadyna(){
         for (let i = 0; i < 4; i++){
             document.getElementById("A_move_" + i).textContent = document.getElementById(poke_num + "_move_" + i).textContent
         }
-    }
-}
-
-function change_giga_move(){
-    document.getElementById("A_Z").disabled = true
-    document.getElementById("A_dyna").disabled = true
-    for (let i = 0; i < 4; i++){
-        let move = move_search_by_name(document.getElementById("A_move_" + i).textContent)
-        if (move[2] == "変化"){
-            document.getElementById("A_move_" + i).textContent = "ダイウォール"
-        } else {
-            for (let j = 0; j < dynalist.length; j++){
-                if (move[1] == dynalist[j][0]){
-                    document.getElementById("A_move_" + i).textContent = dynalist[j][1]
-                }
-            }
-            for (let j = 0; j < gigalist.length; j++){
-                if (move[1] == gigalist[j][2] && document.getElementById("A_name").textContent == gigalist[j][0]){
-                    document.getElementById("A_move_" + i).textContent = gigalist[j][1]
-                }
-            }
-        }
+        buttonInvalidation()
     }
 }
 
 function dynamax(){
     if (document.getElementById("A_dyna").checked){
+        document.getElementById("A_Z").disabled = true
+        document.getElementById("A_giga").disabled = true
+        buttonValidation()
         change_dyna_move()
     } else {
         document.getElementById("A_Z").disabled = Zable()
@@ -800,12 +653,100 @@ function dynamax(){
         for (let i = 0; i < 4; i++){
             document.getElementById("A_move_" + i).textContent = document.getElementById(poke_num + "_move_" + i).textContent
         }
+        buttonInvalidation()
+    }
+}
+
+function buttonValidation(){
+    for (let i = 0; i < 4; i++){
+        document.getElementById("radio_" + i).disabled = false
+    }
+    // ダイマックスするとき
+    if (document.getElementById("A_dyna").checked || document.getElementById("A_giga").checked){
+        // ダイマックス中に技を制限するものは「ちょうはつ」のみ
+        if (document.battle.A_p_con.value.includes("ちょうはつ")){
+            for (let i = 0; i < 4; i++){
+                if (move_search_by_name(document.getElementById("A_move_" + i).textContent)[2] == "変化"){
+                    document.getElementById("radio_" + i).disabled = true
+                }
+            }
+        }
+    }
+}
+
+function buttonInvalidation(){
+    // まず全部有効にする
+    for (let i = 0; i < 4; i++){
+        document.getElementById("radio_" + i).disabled = false
+    }
+    // ほおばる：きのみを持っている場合、技選択が可能になる
+    for (let i = 0; i < 4; i++){
+        if (document.getElementById("A_move_" + i).textContent == "ほおばる" && !berry_item_list.includes(document.getElementById(battle_num() + "_item").textContent)){
+            document.getElementById("radio_" + i).disabled = true
+        }
+    }
+    // ゲップ：備考欄に「ゲップ」の文字があれば使用可能になる
+    for (let i = 0; i < 4; i++){
+        if (document.getElementById("A_move_" + i).textContent == "ゲップ" && !document.getElementById(battle_num() + "_belch").textContent == "ゲップ"){
+            document.getElementById("radio_" + i).disabled = true
+        }
+    }
+    // いちゃもん
+    if (document.battle.A_p_con.value.includes("いちゃもん")){
+        for (let i = 0; i < 4; i++){
+            if (document.getElementById("A_move_" + i).textContent == document.battle.A_used.value){
+                document.getElementById("radio_" + i).disabled = true
+            }
+        }
+    }
+    // アンコール
+    for (let i = 0; i < document.battle.A_p_con.value.split("\n").length - 1; i++){
+        if (document.battle.A_p_con.value.split("\n")[i].includes("アンコール")){
+            for (let j = 0; j < 4; j++){
+                if (document.getElementById("A_move_" + j).textContent != document.battle.A_p_con.value.split("\n")[i].slice(10)){
+                    document.getElementById("radio_" + j).disabled = true
+                }
+            }
+        }
+    }
+    // かなしばり
+    for (let i = 0; i < document.battle.A_p_con.value.split("\n").length - 1; i++){
+        if (document.battle.A_p_con.value.split("\n")[i].includes("かなしばり")){
+            for (let j = 0; j < 4; j++){
+                if (document.getElementById("A_move_" + j).textContent == document.battle.A_p_con.value.split("\n")[i].slice(10)){
+                    document.getElementById("radio_" + j).disabled = true
+                }
+            }
+        }
+    }
+    // ちょうはつ
+    if (document.battle.A_p_con.value.includes("ちょうはつ")){
+        for (let i = 0; i < 4; i++){
+            if (move_search_by_name(document.getElementById("A_move_" + i).textContent)[2] == "変化"){
+                document.getElementById("radio_" + i).disabled = true
+            }
+        }
+    }
+    // こだわりロック
+    for (let i = 0; i < document.battle.A_p_con.value.split("\n").length - 1; i++){
+        if (document.battle.A_p_con.value.split("\n")[i].includes("こだわりロック")){
+            for (let j = 0; j < 4; j++){
+                if (document.getElementById("A_move_" + j).textContent != document.battle.A_p_con.value.split("\n")[i].slice(8)){
+                    document.getElementById("radio_" + j).disabled = true
+                }
+            }
+        }
+    }
+}
+
+function all_clear(){
+    // 全てのチェックを外す
+    for (let i = 0; i < 4; i++){
+        document.getElementById("radio_" + i).checked = false
     }
 }
 
 function change_dyna_move(){
-    document.getElementById("A_Z").disabled = true
-    document.getElementById("A_giga").disabled = true
     for (let i = 0; i < 4; i++){
         let move = move_search_by_name(document.getElementById("A_move_" + i).textContent)
         if (move[2] == "変化"){
@@ -814,6 +755,27 @@ function change_dyna_move(){
             for (let j = 0; j < dynalist.length; j++){
                 if (move[1] == dynalist[j][0]){
                     document.getElementById("A_move_" + i).textContent = dynalist[j][1]
+                }
+            }
+        }
+    }
+}
+
+
+function change_giga_move(){
+    for (let i = 0; i < 4; i++){
+        let move = move_search_by_name(document.getElementById("A_move_" + i).textContent)
+        if (move[2] == "変化"){
+            document.getElementById("A_move_" + i).textContent = "ダイウォール"
+        } else {
+            for (let j = 0; j < dynalist.length; j++){
+                if (move[1] == dynalist[j][0]){
+                    document.getElementById("A_move_" + i).textContent = dynalist[j][1]
+                }
+            }
+            for (let j = 0; j < gigalist.length; j++){
+                if (move[1] == gigalist[j][2] && document.getElementById("A_name").textContent == gigalist[j][0]){
+                    document.getElementById("A_move_" + i).textContent = gigalist[j][1]
                 }
             }
         }

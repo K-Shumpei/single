@@ -23,7 +23,7 @@ exports.endProcess = function(user1, user2){
     cfn.logWrite(user1, user2, "---------- 終了時の処理 ----------" + "\n")
 
     // 素早さ判定
-    let order = afn.speedCheck(user1.con, user2.con)
+    let order = afn.speedCheck(user1, user2)
     if (order[0] > order[1] || (order[0] == order[1] && Math.random() < 0.5)){
         order = [user1, user2]
     } else {
@@ -231,7 +231,6 @@ function dynamaxEnd(order, reverse){
             team[0].data.gigaTxt = "キョダイマックス（済）"
             cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　の　ダイマックスが　終了した" + "\n")
             team[0].con.full_HP = Math.ceil(team[0].con.full_HP / 2)
-            team[0]["poke" + cfn.battleNum(team[0])].full_HP = Math.ceil(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 2)
             team[0].con.last_HP = Math.ceil(team[0].con.last_HP / 2)
             team[0]["poke" + cfn.battleNum(team[0])].last_HP = Math.ceil(team[0]["poke" + cfn.battleNum(team[0])].last_HP / 2)
         }
@@ -244,7 +243,6 @@ function dynamaxEnd(order, reverse){
             team[0].data.gigaTxt = "キョダイマックス（済）"
             cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　の　キョダイマックスが　終了した" + "\n")
             team[0].con.full_HP = Math.ceil(team[0].con.full_HP / 2)
-            team[0]["poke" + cfn.battleNum(team[0])].full_HP = Math.ceil(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 2)
             team[0].con.last_HP = Math.ceil(team[0].con.last_HP / 2)
             team[0]["poke" + cfn.battleNum(team[0])].last_HP = Math.ceil(team[0]["poke" + cfn.battleNum(team[0])].last_HP / 2)
         }
@@ -276,9 +274,9 @@ function weatherEffect(order, reverse){
     for (const team of [order, reverse]){
         if (team[0].con.last_HP > 0 && team[0].con.ability != "ぼうじん" && team[0].con.item != "ぼうじんゴーグル" && cfn.isWeather(order[0].con, order[1].con)){
             if (team[0].con.f_con.includes("すなあらし") && !(team[0].con.type.includes("いわ") || team[0].con.type.includes("じめん") || team[0].con.type.includes("はがね") || team[0].con.ability == "すながくれ" || team[0].con.ability == "すなかき" || team[0].con.ability == "すなのちから")){
-                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "-", "すなあらし")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 16), "-", "すなあらし")
             } else if (team[0].con.f_con.includes("あられ") && !(team[0].con.type.includes("こおり") || team[0].con.ability == "アイスボディ" || team[0].con.ability == "ゆきかき" || team[0].con.ability == "ゆきがくれ")){
-                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "-", "あられ")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 16), "-", "あられ")
             }
         }
     }
@@ -286,15 +284,15 @@ function weatherEffect(order, reverse){
     for (const team of [order, reverse]){
         if (team[0].con.last_HP > 0 && cfn.isWeather(order[0].con, order[1].con)){
             if (team[0].con.ability == "かんそうはだ" && team[0].con.f_con.includes("にほんばれ")){
-                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "-", "かんそうはだ")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 8), "-", "かんそうはだ")
             } else if (team[0].con.ability == "かんそうはだ" && team[0].con.f_con.includes("あめ")){
-                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "+", "かんそうはだ")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 8), "+", "かんそうはだ")
             } else if (team[0].con.ability == "サンパワー" && team[0].con.f_con.includes("にほんばれ")){
-                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "-", "サンパワー")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 8), "-", "サンパワー")
             } else if (team[0].con.ability == "あめうけざら" && team[0].con.f_con.includes("あめ")){
-                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "+", "あめうけざら")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 16), "+", "あめうけざら")
             } else if (team[0].con.ability == "アイスボディ" && team[0].con.f_con.includes("あられ")){
-                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "+", "アイスボディ")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 16), "+", "アイスボディ")
             }
         }
     }
@@ -353,7 +351,7 @@ function fieldAbilityItemDamage(order, reverse){
     // b. グラスフィールド(回復)
     for (const team of [order, reverse]){
         if (cfn.groundedCheck(team[0].con) && team[0].con.f_con.includes("グラスフィールド")){
-            afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "+", "グラスフィールド")
+            afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 16), "+", "グラスフィールド")
         }
     }
     // c. うるおいボディ/だっぴ/いやしのこころ
@@ -371,12 +369,12 @@ function fieldAbilityItemDamage(order, reverse){
     // b. たべのこし/くろいヘドロ
     for (const team of [order, reverse]){
         if (team[0].con.item == "たべのこし"){
-            afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "+", "たべのこし")
+            afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 16), "+", "たべのこし")
         } else if (team[0].con.item == "くろいヘドロ"){
             if (team[0].con.type.includes("どく")){
-                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "+", "くろいヘドロ")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 16), "+", "くろいヘドロ")
             } else {
-                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "-", "くろいヘドロ")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 8), "-", "くろいヘドロ")
             }
         }
     }
@@ -386,7 +384,7 @@ function fieldAbilityItemDamage(order, reverse){
 function aquaRing(order, reverse){
     for (const team of [order, reverse]){
         if (team[0].con.p_con.includes("アクアリング")){
-            let change = Math.floor(team[0].con.full_HP / 16)
+            let change = Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 16)
             if (team[0].con.item == "おおきなねっこ"){
                 change = cfn.fiveCut(change * 5324 / 4096)
             }
@@ -399,7 +397,7 @@ function aquaRing(order, reverse){
 function ingrain(order, reverse){
     for (const team of [order, reverse]){
         if (team[0].con.p_con.includes("ねをはる")){
-            let change = Math.floor(team[0].con.full_HP / 16)
+            let change = Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 16)
             if (team[0].con.item == "おおきなねっこ"){
                 change = cfn.fiveCut(change * 5324 / 4096)
             }
@@ -412,7 +410,7 @@ function ingrain(order, reverse){
 function leechSeed(order, reverse){
     for (const team of [order, reverse]){
         if (team[0].con.p_con.includes("やどりぎのタネ")){
-            let change = Math.floor(team[0].con.full_HP / 8)
+            let change = Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 8)
             afn.HPchangeMagic(team[0], team[1], change, "-", "やどりぎのタネ")
             if (team[1].con.item == "おおきなねっこ"){
                 change = cfn.fiveCut(change * 5324 / 4096)
@@ -431,9 +429,9 @@ function acidCheck(order, reverse){
     for (const team of [order, reverse]){
         if (team[0].con.abnormal == "どく"){
             if (team[0].con.ability == "ポイズンヒール"){
-                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "+", "ポイズンヒール")   
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 8), "+", "ポイズンヒール")   
             } else {
-                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "-", "どく")   
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 8), "-", "どく")   
             }   
         }
         let list = team[0].con.p_con.split("\n")
@@ -442,9 +440,9 @@ function acidCheck(order, reverse){
                 const turn = Number(list[i].replace(/[^0-9]/g, ""))
                 list[i] = "もうどく　" + String(turn + 1) + "ターン目"
                 if (team[0].con.ability == "ポイズンヒール"){
-                    afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "+", "ポイズンヒール")
+                    afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 8), "+", "ポイズンヒール")
                 } else {
-                    afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP * turn / 16), "-", "もうどく")
+                    afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP * turn / 16), "-", "もうどく")
                 }
             }
         }
@@ -457,9 +455,9 @@ function burnCheck(order, reverse){
     for (const team of [order, reverse]){
         if (team[0].con.abnormal == "やけど"){
             if (team[0].con.ability == "たいねつ"){
-                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 32), "-", "やけど")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 32), "-", "やけど")
             } else {
-                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 16), "-", "やけど")
+                afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 16), "-", "やけど")
             }
         }
     }
@@ -469,7 +467,7 @@ function burnCheck(order, reverse){
 function nightmare(order, reverse){
     for (const team of [order, reverse]){
         if (team[0].con.p_con.includes("あくむ")){
-            afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 4), "-", "あくむ")
+            afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 4), "-", "あくむ")
         }
     }
 }
@@ -478,7 +476,7 @@ function nightmare(order, reverse){
 function curse(order, reverse){
     for (const team of [order, reverse]){
         if (team[0].con.p_con.includes("呪い")){
-            afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 4), "-", "のろい")
+            afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 4), "-", "のろい")
         }
     }
 }
@@ -492,7 +490,7 @@ function bindCheck(order, reverse){
                 const turn = Number(list[i].replace(/[^0-9]/g, ""))
                 if (turn < 7){
                     list[i] = "バインド（長）　" + (turn + 1) + "ターン目"
-                    afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "-", "バインド")
+                    afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 8), "-", "バインド")
                 } else {
                     cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　バインドから　解放された！" + "\n")
                     list.splice(i, 1)
@@ -503,9 +501,9 @@ function bindCheck(order, reverse){
                 if (turn < 4 || (turn == 5 && Math.random() < 0.5)){
                     list[i] = list[i].slice(0, -5) + (turn + 1) + "ターン目"
                     if (list[i].includes("バインド（強）")){
-                        afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 6), "-", "バインド")
+                        afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 6), "-", "バインド")
                     } else {
-                        afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "-", "バインド")
+                        afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 8), "-", "バインド")
                     }
                 } else {
                     cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　バインドから　解放された！" + "\n")
@@ -559,7 +557,7 @@ function encoreEnd(order, reverse){
                 list.splice(i, 1)
                 team[0].con.p_con = list.join("\n")
                 break
-            } else if (list[i].includes("アンコール")){
+            } else if (list[i].includes("アンコール") && !(team[0].data.dynaTxt.includes("3") || team[0].data.gigaTxt.includes("3"))){
                 for (let j = 0; j < 4; j++){
                     if (team[0].con["move_" + j] != list[i].slice(10)){
                         team[0].data["radio_" + j] = true
@@ -580,7 +578,7 @@ function disableEnd(order, reverse){
                 list.splice(i, 1)
                 team[0].con.p_con = list.join("\n")
                 break
-            } else if (list[i].includes("かなしばり")){
+            } else if (list[i].includes("かなしばり") && !(team[0].data.dynaTxt.includes("3") || team[0].data.gigaTxt.includes("3"))){
                 for (let j = 0; j < 4; j++){
                     if (list[i].slice(10) == team[0].con["move_" + j]){
                         team[0].data["radio_" + j] = true
@@ -765,11 +763,11 @@ function otherConditionAbilityItem(order, reverse){
         } else if (team[0].con.ability == "スロースタート"){
             decreasePerTurn(team[0], team[1], "スロースタート", "p")
         } else if (team[0].con.ability == "ナイトメア" && team[1].con.abnormal == "ねむり"){
-            afn.HPchangeMagic(team[1], team[0], Math.floor(team[0].con.full_HP / 8), "-", "ナイトメア")
+            afn.HPchangeMagic(team[1], team[0], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 8), "-", "ナイトメア")
         }
         // d. くっつきバリ/どくどくだま/かえんだま
         if (team[0].con.item == "くっつきバリ"){
-            afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 8), "-", "くっつきバリ")
+            afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 8), "-", "くっつきバリ")
         } else if (team[0].con.item == "どくどくだま"){
             afn.makeAbnormal(team[0], team[1], "もうどく", 100, "どくどくだま")
         } else if (team[0].con.item == "かえんだま"){

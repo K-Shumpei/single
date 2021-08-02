@@ -24,7 +24,7 @@ exports.battleStart = function(rec){
     summon.onField(rec.user1, rec.user2, "both")
 
     // 素早さ判定
-    let order = afn.speedCheck(rec.user1.con, rec.user2.con)
+    let order = afn.speedCheck(rec.user1, rec.user2)
     if (order[0] > order[1] || (order[0] == order[1] && Math.random() < 0.5)){
         order = [rec.user1, rec.user2]
     } else {
@@ -42,7 +42,7 @@ exports.battleStart = function(rec){
 // ターンの処理
 exports.runBattle = function(rec){
     // 素早さ判定
-    let order = afn.speedCheck(rec.user1.con, rec.user2.con)
+    let order = afn.speedCheck(rec.user1, rec.user2)
     if (order[0] > order[1] || (order[0] == order[1] && Math.random() < 0.5)){
         order = [rec.user1, rec.user2]
     } else {
@@ -51,7 +51,7 @@ exports.runBattle = function(rec){
     if (rec.user1.con.f_con.includes("トリックルーム")){
         order = [order[1], order[0]]
     }
-    const reverse = [order[1], order[0]]
+    let reverse = [order[1], order[0]]
 
     // わるあがきをするかどうか
     if (rec.user1.data.radio_0 && rec.user1.data.radio_1 && rec.user1.data.radio_2 && rec.user1.data.radio_3 && !rec.user1.con.f_con.includes("溜め技") && rec.user1.data.command == ""){
@@ -105,7 +105,7 @@ exports.runBattle = function(rec){
             // おいうち使用者と3-7の行動を取るポケモンがいた場合、3-7での行動を前倒しにしてからおいうちを行われる。
     // 3.ローテーションバトルにおけるローテーションする。
         // きんちょうかんのみローテションした際に表示される。
-    // 4.メガシンカ/ウルトラバースト
+    // 4.メガシンカ/ウルトラバースト　すばやさ順に発動
     for (const user of [order, reverse]){
         const list = itemEff.megaStone()
         for (let i = 0; i < list.length; i++){
@@ -115,10 +115,13 @@ exports.runBattle = function(rec){
                 user[0].data.megaTxt = "メガ進化（済）"
             }
         }
+        if (user[0].data.mega && user[0].con.name == "レックウザ"){
+            afn.formChenge(user[0], user[1], "メガレックウザ")
+            user[0].data.megable = true
+            user[0].data.megaTxt = "メガ進化（済）"
+        }
     }
-
-        // 複数のポケモンが同時にメガシンカ/ウルトラバーストする場合、発動前のすばやさ順に発動される。
-    // 5.ダイマックス
+    // 5.ダイマックス　すばやさ順に発動
     for (const user of [order, reverse]){
         if (user[0].data.dyna){
             cfn.logWrite(user[0], user[1], user[0].con.TN + "　の　" + user[0].con.name + "　は　ダイマックスした！" + "\n")
@@ -132,11 +135,25 @@ exports.runBattle = function(rec){
             user[0].data.gigable = true
             user[0].con.full_HP *= 2
             user[0].con.last_HP *= 2
-            user[0]["poke" + cfn.battleNum(user[0])].full_HP *= 2
             user[0]["poke" + cfn.battleNum(user[0])].last_HP *= 2
+            cfn.conditionRemove(user[0].con, "poke", "いちゃもん")
+            cfn.conditionRemove(user[0].con, "poke", "みがわり")
+            cfn.conditionRemove(user[0].con, "poke", "ちいさくなる")
         }
     }
-        // 複数のポケモンが同時にダイマックスする場合、すばやさ順に発動する。
+
+    // メガ進化、ダイマックスを終えた後、もう一度素早さチェックを行う
+    order = afn.speedCheck(rec.user1, rec.user2)
+    if (order[0] > order[1] || (order[0] == order[1] && Math.random() < 0.5)){
+        order = [rec.user1, rec.user2]
+    } else {
+        order = [rec.user2, rec.user1]
+    }
+    if (rec.user1.con.f_con.includes("トリックルーム")){
+        order = [order[1], order[0]]
+    }
+    reverse = [order[1], order[0]]
+
     // 6.きあいパンチ/トラップシェル/くちばしキャノンの準備行動
     for (const user of order){
         let enemy = rec.user1

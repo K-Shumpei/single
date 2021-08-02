@@ -33,7 +33,6 @@ exports.comeBack = function(user, enemy){
         user.data.dynaTxt = "ダイマックス（済）"
         user.data.gigaTxt = "キョダイマックス（済）"
         user.con.full_HP = user.con.full_HP / 2
-        user["poke" + cfn.battleNum(user)].full_HP = user.con.full_HP
         user.con.last_HP = Math.ceil(user.con.last_HP / 2)
         user["poke" + cfn.battleNum(user)].last_HP = user.con.last_HP
     }
@@ -228,58 +227,10 @@ exports.pokeReplace = function(team, enemy){
         team.con.item = ""
     }
 
-    // メガ進化ボタンの有効化
-    if (team.data.megaTxt == "メガ進化"){
-        const list = itemEff.megaStone()
-        for (let i = 0; i < list.length; i++){
-            if (team.con.item == list[i][0] && team.con.name == list[i][1]){
-                team.data.megable = false
-            }
-        }
-    }
-    // Z技ボタンの有効化
-    if (team.data.ZTxt == "Z技"){
-        const list = itemEff.Zcrystal()
-        for (let i = 0; i < list.length; i++){
-            if (list[i][2] == team.con.item){
-                for (let j = 0; j < 4; j++){
-                    if (cfn.moveSearchByName(team.con["move_" + j])[1] == list[i][0]){
-                        team.data.Zable = false
-                    }
-                }
-            }
-        }
-        const spList = itemEff.spZcrystal()
-        for (let i = 0; i < spList.length; i++){
-            if (spList[i][2] == team.con.item){
-                for (let j = 0; j < 4; j++){
-                    if (team.con["move_" + j] == spList[i][3] && team.con.name == spList[i][0]){
-                        team.data.Zable = false
-                    }
-                }
-            }
-        }
-    }
-    // キョダイマックスボタンの有効化
-    if (team.data.dynaTxt == "ダイマックス"){
-        const list = moveEff.gigadyna()
-        for (let i = 0; i < list.length; i++){
-            if (team.con.name == list[i][0]){
-                team.data.gigable = false
-            }
-        }
-    }
+    // メガ進化、Z技、ダイマックスボタンの有効化
+    afn.specialButton(team)
 
     cfn.logWrite(team, enemy, team.con.TN + "　は　" + team.con.name + "　を　繰り出した　！" + "\n")
-
-    return 
-
-    
-
-    // Z技ボタンの有効化
-    if (document.getElementById(team + "_Z_text").textContent == "Z技" && new get(team).item.includes("Z")){
-        document.getElementById(team + "_Z_move").disabled = false
-    }
 }
 
 
@@ -289,7 +240,7 @@ exports.onField = function(user1, user2, team){
     // num は、戦闘に出すポケモンの数
     if (team == "both"){
         // 素早さ判定
-        let order = afn.speedCheck(user1.con, user2.con)
+        let order = afn.speedCheck(user1, user2)
         if (order[0] > order[1] || (order[0] == order[1] && Math.random() < 0.5)){
             order = [user1, user2]
         } else {

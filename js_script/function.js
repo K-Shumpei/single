@@ -39,10 +39,11 @@ exports.HPchangeMagic = function(team, enemy, damage, pm, cause){
 
 
 // 素早さ比較
-exports.speedCheck = function(con1, con2){
+exports.speedCheck = function(user1, user2){
     // 素早さ = 実数値 * ランク補正 * 素早さ補正 * まひ補正
     let data = []
-    for (const team of [con1, con2]){
+    for (const user of [user1, user2]){
+        const team = user.con
         let S_AV = team.S_AV
 
         // ランク補正
@@ -55,7 +56,7 @@ exports.speedCheck = function(con1, con2){
         // 素早さ補正初期値
         let correction = 4096
 
-        if (cfn.isWeather(con1, con2)){
+        if (cfn.isWeather(user1.con, user2.con)){
             if ((team.ability == "ようりょくそ" && team.f_con.includes("にほんばれ")) 
             || (team.ability == "すいすい" && team.f_con.includes("あめ")) 
             || (team.ability == "すなかき" && team.f_con.includes("すなあらし")) 
@@ -78,7 +79,7 @@ exports.speedCheck = function(con1, con2){
         if (team.name == "メタモン" && team.item == "スピードパウダー"){
             correction = Math.round(correction * 8192 / 4096)
         }
-        if (team.item == "こだわりスカーフ"){
+        if (team.item == "こだわりスカーフ" && !(user.data.dynaTxt.includes("3") || user.data.gigaTxt.includes("3"))){
             correction = Math.round(correction * 6144 / 4096)
         }
         if (team.item == "くろいてっきゅう"){
@@ -616,24 +617,24 @@ exports.cannotChooseAction = function(order, reverse){
                 }
             }
         }
-        // ちょうはつ
-        if (team[0].con.p_con.includes("ちょうはつ")){
-            for (let i = 0; i < 4; i++){
-                if (cfn.moveSearchByName(team[0].con["move_" + i])[2] == "変化"){
-                    team[0].data["raddio_" + i] = true
-                }
-            }
-        }
         // こだわりロック
         if (!team[0].con.item.includes("こだわり") && team[0].con.ability != "ごりむちゅう"){
             cfn.conditionRemove(team[0].con, "poke", "こだわりロック")
         }
         for (let i = 0; i < team[0].con.p_con.split("\n").length - 1; i++){
-            if (team[0].con.p_con.split("\n")[i].includes("こだわりロック")){
+            if (team[0].con.p_con.split("\n")[i].includes("こだわりロック") && !(team[0].data.dynaTxt.includes("3") || team[0].data.gigaTxt.includes("3"))){
                 for (let j = 0; j < 4; j++){
                     if (team[0].con["move_" + j] != team[0].con.p_con.split("\n")[i].slice(8)){
                         team[0].data["radio_" + j] = true
                     }
+                }
+            }
+        }
+        // ちょうはつ
+        if (team[0].con.p_con.includes("ちょうはつ")){
+            for (let i = 0; i < 4; i++){
+                if (cfn.moveSearchByName(team[0].con["move_" + i])[2] == "変化"){
+                    team[0].data["radio_" + i] = true
                 }
             }
         }
@@ -663,11 +664,11 @@ exports.cannotChooseAction = function(order, reverse){
         || team[0].con.p_con.includes("アイスボール") || team[0].con.p_con.includes("ころがる") || team[0].con.p_con.includes("がまん") || team[0].con.p_con.includes("さわぐ")){
             for (let i = 0; i < 7; i++){
                 team[0].data["radio_" + i] = true
-                team[0].data.megable = true
-                team[0].data.Zable = true
-                team[0].data.dynable = true
-                team[0].data.gigable = true
             }
+            team[0].data.megable = true
+            team[0].data.Zable = true
+            team[0].data.dynable = true
+            team[0].data.gigable = true
         }
         if (team[0].con.p_con.includes("姿を隠す：フリーフォール（防御）")){
             for (let i = 4; i < 7; i++){
@@ -676,8 +677,64 @@ exports.cannotChooseAction = function(order, reverse){
         }
         // PPが0の技は使えない
         for (let i = 0; i < 4; i++){
-            if (team[0].con["PP_" + i] == 0){
+            if (team[0].con["last_" + i] == 0){
                 team[0].data["radio_" + i] = true
+            }
+        }
+    }
+}
+
+// メガ進化、Z技、ダイマックスボタンの有効化
+exports.specialButton = function(team){
+    // メガ進化ボタンの有効化
+    if (team.data.megaTxt == "メガ進化"){
+        const list = itemEff.megaStone()
+        for (let i = 0; i < list.length; i++){
+            if (team.con.item == list[i][0] && team.con.name == list[i][1]){
+                team.data.megable = false
+            }
+        }
+        if (team.con.name == "レックウザ"){
+            for (let i = 0; i < 4; i++){
+                if (team.con["move_" + i] == "ガリョウテンセイ"){
+                    team.data.megable = false
+                }
+            }
+        }
+    }
+    // Z技ボタンの有効化
+    if (team.data.ZTxt == "Z技"){
+        const list = itemEff.Zcrystal()
+        for (let i = 0; i < list.length; i++){
+            if (list[i][2] == team.con.item){
+                for (let j = 0; j < 4; j++){
+                    if (cfn.moveSearchByName(team.con["move_" + j])[1] == list[i][0]){
+                        team.data.Zable = false
+                    }
+                }
+            }
+        }
+        const spList = itemEff.spZcrystal()
+        for (let i = 0; i < spList.length; i++){
+            if (spList[i][2] == team.con.item){
+                for (let j = 0; j < 4; j++){
+                    if (team.con["move_" + j] == spList[i][3] && team.con.name == spList[i][0]){
+                        team.data.Zable = false
+                    }
+                }
+            }
+        }
+    }
+    // ダイマックスボタンの有効化
+    if (team.data.dynaTxt == "ダイマックス"){
+        team.data.dynable = false
+    }
+    // キョダイマックスボタンの有効化
+    if (team.data.gigaTxt == "キョダイマックス"){
+        const list = moveEff.gigadyna()
+        for (let i = 0; i < list.length; i++){
+            if (team.con.name == list[i][0]){
+                team.data.gigable = false
             }
         }
     }

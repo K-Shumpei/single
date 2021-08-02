@@ -201,7 +201,7 @@ function additionalEffectEtc(atk, def, move, order, damage){
                 afn.makeAbnormal(def, atk, addEff[i][3], addEff[i][2], move)
             }
             // 相手をひるみ状態にする技
-            if (move[0] == addEff[i][0] && addEff[i][1] == "f" && def.con.ability != "せいしんりょく" && Math.random() * 100 < addEff[i][2]){
+            if (move[0] == addEff[i][0] && addEff[i][1] == "f" && def.con.ability != "せいしんりょく" && Math.random() * 100 < addEff[i][2] && !(def.data.dynaTxt.includes("3") || def.data.gigaTxt.includes("3"))){
                 def.con.p_con += "ひるみ" + "\n"
             }
         }    
@@ -273,7 +273,7 @@ function additionalEffectEtc(atk, def, move, order, damage){
         if (move[0] == otherEff[i][0] && otherEff[i][1] == "r"){ 
             let change = Math.round(damage.give * otherEff[i][2])
             if (atk.con.item == "おおきなねっこ"){
-                change = five_cut(change * 5324 / 4096)
+                change = cfn.fiveCut(change * 5324 / 4096)
             }
             if (def.con.ability == "ヘドロえき"){
                 afn.HPchangeMagic(atk, def, change, "-", move)
@@ -457,9 +457,9 @@ function additionalEffectEtc(atk, def, move, order, damage){
     // 5.防御側のナゾのみ
     if (def.con.item == "ナゾのみ" && cfn.compatibilityCheck(atk, def, move) > 1 && (!damage.substitute || moveEff.music().includes(move[0]) || atk.con.ability == "すりぬけ" || def.con.last_HP > 0)){
         if (def.con.ability == "じゅくせい"){
-            afn.HPchangeMagic(def, atk, Math.floor(def.con.full_HP / 2), "+", "ナゾのみ")
+            afn.HPchangeMagic(def, atk, Math.floor(def["poke" + cfn.battleNum(def)].full_HP / 2), "+", "ナゾのみ")
         } else {
-            afn.HPchangeMagic(def, atk, Math.floor(def.con.full_HP / 4), "+", "ナゾのみ")
+            afn.HPchangeMagic(def, atk, Math.floor(def["poke" + cfn.battleNum(def)].full_HP / 4), "+", "ナゾのみ")
         }
         cfn.setRecycle(def)
         cfn.setBelch(def)
@@ -510,10 +510,17 @@ function additionalEffectEtc(atk, def, move, order, damage){
     }
     // 8.防御側のおんねん
     if (def.con.p_con.includes("おんねん") && def.con.last_HP == 0){
-        for (let i = 0; i < 4; i++){
-            if (atk.con.used == atk.con["move_" + i]){
-                atk.con["last_" + i]= 0
-                cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　の　" + atk.con["move_" + i] + "　のPPが　おんねんで　PPが0になった　！" + "\n")
+        if (atk.data.dynaTxt.includes("3") || atk.data.gigaTxt.includes("3") || atk.data.Z){
+            atk.con["last_" + atk.data.command] = 0
+            atk["poke" + cfn.battleNum(atk)]["last_" + atk.data.command] = 0
+            cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　の　" + atk.con["move_" + atk.data.command] + "　はおんねんで　PPが0になった　！" + "\n")
+        } else {
+            for (let i = 0; i < 4; i++){
+                if (atk.con.used == atk.con["move_" + i]){
+                    atk.con["last_" + i]= 0
+                    atk["poke" + cfn.battleNum(atk)]["last_" + i] = 0
+                    cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　の　" + atk.con["move_" + i] + "　はおんねんで　PPが0になった　！" + "\n")
+                }
             }
         }
     }
@@ -695,9 +702,9 @@ function defenseItem(atk, def, move, damage){
         }
     } else if ((def.con.item == "ジャポのみ" && move[2] == "物理") || (def.con.item == "レンブのみ" && move[2] == "特殊")){
         if (def.con.ability == "じゅくせい"){
-            afn.HPchangeMagic(atk, def, Math.floor(atk.con.full_HP / 4), "-", def.con.item)
+            afn.HPchangeMagic(atk, def, Math.floor(atk["poke" + cfn.battleNum(atk)].full_HP / 4), "-", def.con.item)
         } else {
-            afn.HPchangeMagic(atk, def, Math.floor(atk.con.full_HP / 8), "-", def.con.item)
+            afn.HPchangeMagic(atk, def, Math.floor(atk["poke" + cfn.battleNum(atk)].full_HP / 8), "-", def.con.item)
         }
         cfn.setRecycle(def)
         cfn.setBelch(def)
@@ -738,7 +745,7 @@ function disguiseIceface(atk, def, move, damage){
     }
     if (def.con.ability == "ばけのかわ" && def.con.p_con.includes("ばけたすがた")){
         cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "の　化けの皮が剥がれた！" + "\n")
-        afn.HPchangeMagic(def, atk, Math.floor(def.con.full_HP / 8), "-", def.con.ability)
+        afn.HPchangeMagic(def, atk, Math.floor(def["poke" + cfn.battleNum(def)].full_HP / 8), "-", def.con.ability)
         cfn.conditionRemove(def.con, "poke", "ばけたすがた")
         def.con.p_con += "ばれたすがた" + "\n"
         def["poke" + cfn.battleNum(def)].form = "ばれたすがた"
@@ -760,7 +767,7 @@ function dyingJudge(atk, def, move){
     let check = 0
     // 2.技を受けたポケモンのひんし
     if (def.con.last_HP == 0){
-        if (def.con.p_con.includes("みちづれ")){
+        if (def.con.p_con.includes("みちづれ") && !(atk.data.dynaTxt.includes("3") || atk.data.gigaTxt.includes("3"))){
             check += 1
         }
         summon.comeBack(def, atk)
@@ -842,7 +849,7 @@ function continuousMove(atk, def, move, order){
                     bfn.berryPinch(atk, def)
                     bfn.berryPinch(def, atk)
                     // 2.攻撃側のポケモンがひんし・ねむり状態になった場合、連続攻撃は中断される。
-                    if (atk.con.full_HP > 0  && def.con.last_HP > 0 && atk.con.abnormal != "ねむり"){
+                    if (atk.con.last_HP > 0  && def.con.last_HP > 0 && atk.con.abnormal != "ねむり"){
                         // 1.ダメージ計算 [与えたダメージ, タイプ相性, 急所判定, 発生したダメージ]
                         if (move[0] == "ふくろだたき"){
                             move[3] = beat_up[j]
@@ -935,7 +942,7 @@ function moveEffect(atk, def, move, damage){
     }
     // ドラゴンテール/ともえなげによる交代・交代先の繰り出し
     if (def.poke0.life == "控え" || def.poke1.life == "控え" || def.poke2.life == "控え"){
-        if ((move[0] == "ドラゴンテール" || move[0] == "ともえなげ") && !damage.substitute && def.con.ability != "きゅうばん"){
+        if ((move[0] == "ドラゴンテール" || move[0] == "ともえなげ") && !damage.substitute && def.con.ability != "きゅうばん" && !(def.data.dynaTxt.includes("3") || def.data.gigaTxt.includes("3"))){
             cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "は　手持ちに戻された！" + "\n")
             let hand = []
             for (let i = 0; i < 3; i++){
@@ -1148,7 +1155,7 @@ function formChengeAbility(atk, def, move){
 // 14.いのちのたまの反動/かいがらのすずの回復
 function lifeorbShellbell(atk, def, damage){
     if (atk.con.item == "いのちのたま"){
-        afn.HPchangeMagic(atk, def, Math.floor(atk.con.full_HP / 10), "-", atk.con.item)
+        afn.HPchangeMagic(atk, def, Math.floor(atk["poke" + cfn.battleNum(atk)].full_HP / 10), "-", atk.con.item)
         bfn.berryPinch(atk, def)
     } else if (atk.con.item == "かいがらのすず"){
         afn.HPchangeMagic(atk, def, Math.floor(damage.give / 8), "+", atk.con.item)
@@ -1259,6 +1266,8 @@ function someMoveEffect(atk, def, move){
         if (check == 1){
             cfn.conditionRemove(atk.con, "poke", "あばれる")
             afn.makeAbnormal(atk, def, "こんらん", 100, "疲れ果てたこと")
+            // メガ進化、Z技、ダイマックスボタンの有効化
+            afn.specialButton(atk)
         }
     }
 }

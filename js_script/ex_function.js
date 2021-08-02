@@ -8,7 +8,7 @@ const moveEff = require("./move_effect")
 exports.activeAbility = function(team, enemy, num){
     if (num == "both"){
         // 素早さ判定
-        let order = afn.speedCheck(team.con, enemy.con)
+        let order = afn.speedCheck(team, enemy)
         if (order[0] > order[1] || (order[0] == order[1] && Math.random() < 0.5)){
             order = [team, enemy]
         } else {

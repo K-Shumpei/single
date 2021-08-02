@@ -57,6 +57,7 @@ exports.moveSuccessJudge = function(atk, def, order){
     // 17.トラップシェルが物理技を受けていないことによる失敗
     if (shellTrap(atk, def, move)){return false}
     // 18.けたぐり/くさむすび/ヘビーボンバー/ヒートスタンプをダイマックスポケモンに使用したことによる失敗
+    if (dynaWeightFailure(atk, def, move)){return false}
     // 19.特性による失敗
     if (abilityFailure(atk, def, move)){return false}
     // 20.中断されても効果が発動する技
@@ -158,50 +159,9 @@ exports.moveSuccessJudge = function(atk, def, order){
 
 // 0.技の決定　その他
 function decideMove(atk, def){
-
-    let move_org = "" // 技の元データを代入
-
-    if (atk.con.p_con.includes("反動で動けない")){
-        for (let i = 0; i < atk.con.p_con.split("\n").length - 1; i++){
-            if (atk.con.p_con.split("\n")[i].includes("反動で動けない")){
-                move_org = cfn.moveSearchByName(atk.con.p_con.split("\n")[i].slice(8))
-            }
-        }
-    } else if (atk.con.p_con.includes("溜め技")){
-        for (let i = 0; i < atk.con.p_con.split("\n").length - 1; i++){
-            if (atk.con.p_con.split("\n")[i].includes("溜め技")){
-                move_org = cfn.moveSearchByName(atk.con.p_con.split("\n")[i].slice(4))
-            }
-        }
-    } else if (atk.con.p_con.includes("あばれる")){
-        for (let i = 0; i < atk.con.p_con.split("\n").length - 1; i++){
-            if (atk.con.p_con.split("\n")[i].includes("あばれる")){
-                move_org = cfn.moveSearchByName(atk.con.p_con.split("\n")[i].slice(5, -7))
-            }
-        }
-    } else if (atk.con.p_con.includes("アイスボール")){
-        move_org = cfn.moveSearchByName("アイスボール")
-    } else if (atk.con.p_con.includes("ころがる")){
-        move_org = cfn.moveSearchByName("ころがる")
-    } else if (atk.con.p_con.includes("がまん")){
-        move_org = cfn.moveSearchByName("がまん")
-    } else {
-        const move_name = atk.con["move_" + atk.data.command]
-        if (move_name.includes("Z")){
-            move_org = cfn.moveSearchByName(move_name.replace("Z", "")).concat()
-            move_org[0] = move_name
-        } else {
-            move_org = cfn.moveSearchByName(move_name)
-        }
-    }
-
-    let move = move_org.concat() // 技データのコピー、こっちをいじる
-
-    if (atk.con.ability == "えんかく"){
-        move[6] = "間接"
-    }
-
     cfn.logWrite(atk, def, "(" + atk.con.TN + "の行動)" + "\n")
+
+    const move = bfn.moveSearch(atk)
 
     // かなしばりのターン消費
     let atk_p_con = atk.con.p_con
@@ -405,7 +365,7 @@ function actionFailure(atk, def, move){
     }
     // 7.かなしばりで技が出せない (Zワザを除く)
     for (let i = 0; i < con.p_con.split("\n").length - 1; i++){
-        if (con.p_con.split("\n")[i].includes("かなしばり") && (con.p_con.split("\n")[i].slice(10) == move[0])){
+        if (con.p_con.split("\n")[i].includes("かなしばり") && (con.p_con.split("\n")[i].slice(10) == move[0]) && !atk.data.Z){
             cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　かなしばりで　技が出せなかった　!" + "\n")
             return true
         }
@@ -416,24 +376,24 @@ function actionFailure(atk, def, move){
         return true
     }
     // 9.かいふくふうじで技が出せない (Zワザを除く)
-    if (con.p_con.includes("かいふくふうじ") && moveEff.recover().includes(move[0])){
+    if (con.p_con.includes("かいふくふうじ") && moveEff.recover().includes(move[0]) && !atk.data.Z){
         cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　かいふくふうじで　技が出せなかった　!" + "\n")
         return true
     }
     // 10.じごくづきで音技が出せない (Zワザを除く)
-    if (con.p_con.includes("じごくづき") && moveEff.music().includes(move[0])){
+    if (con.p_con.includes("じごくづき") && moveEff.music().includes(move[0]) && !atk.data.Z){
         cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　じごくづきで　技が出せなかった　!" + "\n")
         return true
     }
     // 11.こだわっていない技が出せない (ダイマックスポケモンを除く)
     for (let i = 0; i < con.p_con.split("\n").length - 1; i++){
-        if (con.p_con.split("\n")[i].includes("こだわりロック") &&  con.p_con.split("\n")[i].slice(8) != move[0]){
+        if (con.p_con.split("\n")[i].includes("こだわりロック") && con.p_con.split("\n")[i].slice(8) != move[0] && (atk.data.dynaTxt.includes("3") || atk.data.gigaTxt.includes("3"))){
             cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　こだわっているせいで　技が出せなかった　!" + "\n")
             return true
         }
     }
     // 12.ちょうはつで変化技が出せない (Zワザを除く)
-    if (con.p_con.includes("ちょうはつ") && move[2] == "変化"){
+    if (con.p_con.includes("ちょうはつ") && move[2] == "変化" && !atk.data.Z){
         cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　挑発されて　" + move[0] + 　"　が出せなかった　!" + "\n")
         return true
     }
@@ -895,8 +855,40 @@ function attackDeclaration(atk, def, move){
     } else if (move[9] == "Zオウムがえし" || move[9] == "Zさきどり" || move[9] == "Zしぜんのちから" || move[9] == "Zねごと" || move[9] == "Zねこのて" || move[9] == "Zまねっこ" || move[9] == "Zゆびをふる"){
         cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　の　" + move[9] + "　！" + "\n")
         if (move[2] == "変化"){
-            cfn.logWrite(atk, def, move[9] + "　で　" + move[0] + "　がでた！" + "\n")
+            cfn.logWrite(atk, def, move[9] + "　で　Z" + move[0] + "　がでた！" + "\n")
             con.used = move[0]
+            const list = moveEff.Zstatus()
+            for (let i = 0; i < list.length; i++){
+                if (move[0] == list[i][0]){
+                    if (move[0] == "のろい"){
+                        if (atk.con.type.includes("ゴースト")){
+                            cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　の　HPが全回復した！" + "\n")
+                            atk.con.last_HP = atk.con.full_HP
+                        } else {
+                            afn.rankChangeZ(atk, def, "A", 1)
+                        }
+                    } else if (list[i][1] == "A" || list[i][1] == "B" || list[i][1] == "C" || list[i][1] == "D" || list[i][1] == "S" || list[i][1] == "X" || list[i][1] == "Y"){
+                        afn.rankChangeZ(atk, def, list[i][1], list[i][2])
+                    } else if (list[i][1] == "all"){
+                        for (const parameter of ["A", "B", "C", "D", "S"]){
+                            afn.rankChangeZ(atk, def, parameter, 1)
+                        }
+                    } else if (list[i][1] == "critical"){
+                        if (!atk.con.p_con.includes("きゅうしょアップ")){
+                            cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　技が急所に当たりやすくなった！" + "\n")
+                            atk.con.p_con += "きゅうしょアップ" + "\n"
+                        }
+                    } else if (list[i][1] == "clear"){
+                        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　の　能力ダウンがリセットされた！" + "\n")
+                        for (const parameter of ["A", "B", "C", "D", "S", "X", "Y"]){
+                            atk.con[parameter + "_rank"] = Math.max(atk.con[parameter + "_rank"], 0)
+                        }
+                    } else if (list[i][1] == "cure"){
+                        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　の　HPが全回復した！" + "\n")
+                        atk.con.last_HP = atk.con.full_HP
+                    }
+                }
+            }
         } else {
             const list = itemEff.Zcrystal()
             for (let i = 0; i < list.length; i++){
@@ -1163,7 +1155,7 @@ function PPDecrease(atk, def, move, order){
 function commitmentRock(atk, def, move){
     let con = atk.con
     const list = moveList.move()
-    if ((con.item.includes("こだわり") || con.ability == "ごりむちゅう") && !con.p_con.includes("こだわりロック")){
+    if ((con.item.includes("こだわり") || con.ability == "ごりむちゅう") && !con.p_con.includes("こだわりロック") && !(atk.data.dynaTxt.includes("3") || atk.data.gigaTxt.includes("3"))){
         con.p_con += "こだわりロック：" + move[0] + "\n"
         for (let i = 0; i < list.length; i++){
             if (move[9] == list[i][0]){
@@ -1410,7 +1402,7 @@ function greatWeatherFailure(atk, def, move){
 function powderFailure(atk, def, move){
     if (atk.con.p_con.includes("ふんじん") && move[1] == "ほのお"){
         cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　ふんじんで　技が失敗した　!" + "\n")
-        afn.HPchangeMagic(atk, def, Math.round(atk.con.full_HP / 4), "-", "ふんじん")
+        afn.HPchangeMagic(atk, def, Math.round(atk["poke" + cfn.battleNum(atk)].full_HP / 4), "-", "ふんじん")
         return true
     }
 }
@@ -1419,7 +1411,7 @@ function powderFailure(atk, def, move){
 function shellTrap(atk, def, move){
     if (move[0] == "トラップシェル"){
         if (atk.con.p_con.includes("トラップシェル：不発")){
-            cfn.logWrite(atk, def, atk.con,TN + "チームの　" + atk.con.name + "の　トラップシェルは　不発に終わった！")
+            cfn.logWrite(atk, def, atk.con.TN + "チームの　" + atk.con.name + "の　トラップシェルは　不発に終わった！")
             cfn.conditionRemove(atk.con, "poke", "トラップシェル")
             return true
         }
@@ -1427,6 +1419,14 @@ function shellTrap(atk, def, move){
             cfn.conditionRemove(atk.con, "poke", "トラップシェル")
             return false
         }
+    }
+}
+
+// 18.けたぐり/くさむすび/ヘビーボンバー/ヒートスタンプをダイマックスポケモンに使用したことによる失敗
+function dynaWeightFailure(atk, def, move){
+    if ((move[0] == "けたぐり" || move[0] == "くさむすび" || move[0] == "ヘビーボンバー" || move[0] == "ヒートスタンプ") && (def.data.dynaTxt.includes("3") || def.data.gigaTxt.includes("3"))){
+        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　首を横に振った" + "\n")
+        return true
     }
 }
 
@@ -1737,7 +1737,7 @@ function abilityInvalidation1(atk, def, move){
     // かんそうはだ/よびみず/ちょすい: みずタイプ
     if (move[1] == "みず" && !(move[8] == "自分" || move[8].match("場"))){
         if (con.ability == "かんそうはだ" || con.ability == "ちょすい"){
-            afn.HPchangeMagic(def, atk, Math.floor(con.full_HP / 4), "+", con.ability)
+            afn.HPchangeMagic(def, atk, Math.floor(def["poke" + cfn.battleNum(def)].full_HP / 4), "+", con.ability)
             return true
         } else if (con.ability == "よびみず"){
             afn.rankChange(def, atk, "C", 1, 100, "よびみず")
@@ -1753,7 +1753,7 @@ function abilityInvalidation1(atk, def, move){
             afn.rankChange(def, atk, "S", 1, 100, "でんきエンジン")
             return true
         } else if (con.ability == "ちくでん"){
-            afn.HPchangeMagic(def, atk, Math.floor(con.full_HP / 4), "+", "ちくでん")
+            afn.HPchangeMagic(def, atk, Math.floor(def["poke" + cfn.battleNum(def)].full_HP / 4), "+", "ちくでん")
             return true
         }
     }
@@ -1857,6 +1857,10 @@ function moveSpecificationsInvalidation1(atk, def, move){
         return true
     }
     // いちゃもん: 対象がダイマックスしている
+    if (move[0] == "いちゃもん" && (def.data.dynaTxt.includes("3") || def.data.gigaTxt.includes("3"))){
+        cfn.logWrite(atk, def, "しかし　ダイマックスパワーに　弾かれた！" + "\n")
+        return true
+    }
     // ベノムトラップ: 対象がどく/もうどく状態でない
     if (move[0] == "ベノムトラップ" && !def.con.abnormal.includes("どく")){
         cfn.logWrite(atk, def, def.con.TN +  "　の　" + def.con.name + "　には　効果がないようだ・・・" + "\n")
@@ -2010,7 +2014,7 @@ function moveSpecificationsInvalidation2(atk, def, move){
         return true
     }
     // 一撃必殺技: 対象が使用者よりレベルが高い/対象がダイマックスしている
-    if (moveEff.oneShot().includes(move[0]) && atk.con.level < def.con.level){
+    if (moveEff.oneShot().includes(move[0]) && (atk.con.level < def.con.level || def.data.dynaTxt.includes("3") || def.data.gigaTxt.includes("3"))){
         cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "には　全然効いてない！" + "\n")
         return true
     }
@@ -2318,6 +2322,10 @@ function millorArmer(atk, def, move){
 function roarWhirlwind(atk, def, move){
     if (move[0] == "ほえる" || move[0] == "ふきとばし"){
         // 1.ダイマックスによる無効化
+        if (def.data.dynaTxt.includes("3") || def.data.gigaTxt.includes("3")){
+            cfn.logWrite(atk, def, "しかし　ダイマックスパワーに　弾かれた！" + "\n")
+            return true
+        }
         // 2.きゅうばんによる無効化
         if (def.con.ability == "きゅうばん"){
             cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　きゅうばんにより　動かない！" + "\n")
@@ -2335,7 +2343,7 @@ function roarWhirlwind(atk, def, move){
 function moveSpecificationsInvalidation3(atk, def, move){
     // 特性に関する無効化
         // なかまづくり: 対象がダイマックスしている/対象が自身と同じ特性である/自身がコピーできない特性である/対象が上書きできない特性である
-        if (move[0] == "なかまづくり" && (atk.con.ability == def.con.ability || abiEff.entrainmentEnemy().includes(def.con.ability) || abiEff.entrainmentSelf().includes(atk.con.ability))){
+        if (move[0] == "なかまづくり" && (atk.con.ability == def.con.ability || abiEff.entrainmentEnemy().includes(def.con.ability) || abiEff.entrainmentSelf().includes(atk.con.ability) || def.data.dynaTxt.includes("3") || def.data.gigaTxt.includes("3"))){
             cfn.logWrite(atk, def, "しかし　効果がないようだ・・・" + "\n")
             return true
         }
@@ -2360,7 +2368,7 @@ function moveSpecificationsInvalidation3(atk, def, move){
             return true
         }
         // スキルスワップ: 自身や対象が交換できない特性である/対象がダイマックスしている
-        if (move[0] == "スキルスワップ" && (abiEff.skillSwap().includes(atk.con.ability) || abiEff.skillSwap().includes(def.con.ability))){
+        if (move[0] == "スキルスワップ" && (abiEff.skillSwap().includes(atk.con.ability) || abiEff.skillSwap().includes(def.con.ability) || def.data.dynaTxt.includes("3") || def.data.gigaTxt.includes("3"))){
             cfn.logWrite(atk, def, "しかし　効果がないようだ・・・" + "\n")
             return true
         }
@@ -2578,14 +2586,42 @@ function moveSpecificationsInvalidation3(atk, def, move){
                 now_PP = def.con["last_" + i]
             }
         }
-        if (move[0] == "アンコール" && (def.con.used == "" || now_PP == 0 || def.con.used == "アンコール" || def.con.p_con.includes("アンコール"))){
-            cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
-            return true
+        if (move[0] == "アンコール"){
+            if (def.con.used == "" || now_PP == 0 || def.con.used == "アンコール" || def.con.p_con.includes("アンコール") || def.data.dynaTxt.includes("3") || def.data.gigaTxt.includes("3")){
+                cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
+                return true
+            }
+            check = 0
+            for (let i = 0; i < 4; i++){
+                if (def.con["move_" + i] == def.con.used){
+                    check += 1
+                }
+            }
+            if (check == 0){
+                cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
+                return true
+            }
         }
         // かなしばり: 対象が技を使用していない/最後のわざがわるあがき/ダイマックスわざ/すでにかなしばり状態
-        if (move[0] == "かなしばり" && (def.con.used == "" || def.con.used == "わるあがき" || def.con.p_con.includes("かなしばり"))){
-            cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
-            return true
+        if (move[0] == "かなしばり"){
+            if (def.con.used == "" || def.con.used == "わるあがき" || def.con.p_con.includes("かなしばり")){
+                cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
+                return true
+            }
+            const dyna = moveEff.dyna()
+            for (let i = 0; i < dyna.length; i++){
+                if (dyna[i][1] == def.con.used){
+                    cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
+                return true
+                }
+            }
+            const giga = moveEff.gigadyna()
+            for (let i = 0; i < giga.length; i++){
+                if (giga[i][1] == def.con.used){
+                    cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
+                return true
+                }
+            }
         }
         // ものまね: 対象が技を使用していない/ものまねできない技
         if (move[0] == "ものまね"){

@@ -243,12 +243,7 @@ $(function () {
         if (you.con.f_con.includes("ひんし")){
             document.getElementById("B" + you.con.num + "_HP_bar").value = 0
         }
-        
-        // ボタンの無効化
-        for (let i = 0; i < 7; i++){
-            document.getElementById("radio_" + i).disabled = me.data["radio_" + i]
-            document.getElementById("radio_" + i).checked = false
-        }
+    
         // メガ進化、Z技、ダイマックスのボタンの無効化
         document.getElementById("A_mega").checked = false
         document.getElementById("A_mega").disabled = me.data.megable
@@ -258,6 +253,12 @@ $(function () {
         document.getElementById("A_dyna").disabled = me.data.dynable
         document.getElementById("A_giga").checked = false
         document.getElementById("A_giga").disabled = me.data.gigable
+
+        // ボタンの無効化
+        for (let i = 0; i < 7; i++){
+            document.getElementById("radio_" + i).disabled = me.data["radio_" + i]
+            document.getElementById("radio_" + i).checked = false
+        }
 
         // ダイマックス、キョダイマックス状態の時、技の変更
         if (document.getElementById("A_dyna_text").textContent.includes("3")){

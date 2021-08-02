@@ -37,9 +37,17 @@ function fixedDamageMove(atk, def, move){
     } else if (move[0] == "サイコウェーブ"){
         return {damage: Math.floor(atk.con.level * (Math.floor(Math.random() * 101) * 0.01 + 0.5)), compatibility :1, critical: false}
     } else if (move[0] == "いかりのまえば" || move[0] == "しぜんのいかり"){
-        return {damage: Math.floor(def.con.last_HP / 2), compatibility: 1, critical: false}
+        if (def.data.dynaTxt.includes("3") || def.data.gigaTxt.includes("3")){
+            return {damage: Math.floor(def.con.last_HP / 4), compatibility: 1, critical: false}
+        } else {
+            return {damage: Math.floor(def.con.last_HP / 2), compatibility: 1, critical: false}
+        }
     } else if (move[0] == "がむしゃら"){
-        return {damage: def.con.last_HP - atk.con.last_HP, compatibility: 1, critical: false}
+        if (def.data.dynaTxt.includes("3") || def.data.gigaTxt.includes("3")){
+            return {damage: def.con.last_HP / 2 - atk.con.last_HP, compatibility: 1, critical: false}
+        } else {
+            return {damage: def.con.last_HP - atk.con.last_HP, compatibility: 1, critical: false}
+        }
     } else if (move[0] == "カウンター"){
         let damage = 0
         for (let i = 0; i < atk.con.p_con.split("\n").length - 1; i++){
@@ -115,8 +123,8 @@ function powerCalculation(atk, def, move, order){
     } else if (move[0] == "うっぷんばらし" && atk.con.p_con.includes("ランク下降")){
         move[3] = 150
     } else if (move[0] == "エレキボール"){
-        const atk_speed = afn.speedCheck(atk.con, def.con)[0]
-        const def_speed = afn.speedCheck(atk.con, def.con)[1]
+        const atk_speed = afn.speedCheck(atk, def)[0]
+        const def_speed = afn.speedCheck(atk, def)[1]
         if (atk_speed >= def_speed * 4){
             move[3] = 150
         } else if (atk_speed >= def_speed * 3){
@@ -129,8 +137,8 @@ function powerCalculation(atk, def, move, order){
             move[3] = 40
         }
     } else if (move[0] == "ジャイロボール"){
-        const atk_speed = afn.speedCheck(atk.con, def.con)[0]
-        const def_speed = afn.speedCheck(atk.con, def.con)[1]
+        const atk_speed = afn.speedCheck(atk, def)[0]
+        const def_speed = afn.speedCheck(atk, def)[1]
         move[3] = Math.floor((25 * def_speed / atk_speed) + 1)
     } else if (move[0] == "きりふだ"){
         const PP = atk.con["PP_" + atk.data.command]
@@ -635,8 +643,8 @@ function attackCalculation(atk, def, move, status){
         attack = Math.round(attack * 2048 / 4096)
     }
     // こだわりハチマキ、こだわりメガネ
-    if ((atk.con.item == "こだわりハチマキ" && move[2] == "物理") 
-    || (atk.con.item == "こだわりメガネ" && move[2] == "特殊")){
+    if (((atk.con.item == "こだわりハチマキ" && move[2] == "物理") || (atk.con.item == "こだわりメガネ" && move[2] == "特殊")) 
+    && !(atk.data.dynaTxt.includes("3") || atk.data.gigaTxt.includes("3"))){
         attack = Math.round(attack * 6144 / 4096)
     }
     // ふといホネ、しんかいのキバ、でんきだま
@@ -768,7 +776,7 @@ function damageCalculation(atk, def, move, power, critical, attack, defense){
     }
     // ダメージ半減特性補正
     if ((def.con.ability == "こおりのりんぷん" && move[2] == "特殊") 
-    || (def.con.ability == "パンクロック" && music_move_list.includes(move[0])) 
+    || (def.con.ability == "パンクロック" && moveEff.music().includes(move[0])) 
     || ((def.con.ability == "ファントムガード" || def.con.ability == "マルチスケイル") && (def.con.full_HP == def.con.last_HP)) 
     || (def.con.ability == "もふもふ" && move[6] == "直接")){
         damage = Math.round(damage * 2048 / 4096)

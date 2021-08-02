@@ -568,6 +568,8 @@ exports.processAtFailure = function(team){
     cfn.conditionRemove(team.con, "poke", "れんぞくぎり")
     cfn.conditionRemove(team.con, "poke", "がまん")
     cfn.conditionRemove(team.con, "field", "参照項目")
+
+    afn.specialButton(team)
 }
 
 
@@ -598,6 +600,12 @@ exports.moveSearch = function(user){
         move_org = cfn.moveSearchByName("ころがる")
     } else if (user.con.p_con.includes("がまん")){
         move_org = cfn.moveSearchByName("がまん")
+    } else if (user.con.p_con.includes("アンコール")){
+        for (let i = 0; i < user.con.p_con.split("\n").length - 1; i++){
+            if (user.con.p_con.split("\n")[i].includes("アンコール")){
+                move_org = cfn.moveSearchByName(user.con.p_con.split("\n")[i].slice(10))
+            }
+        }
     } else {
         const move_name = user.con["move_" + user.data.command]
         if (move_name.includes("Z")){
@@ -610,7 +618,7 @@ exports.moveSearch = function(user){
 
     let move = move_org.concat() // 技データのコピー、こっちをいじる
 
-    if (user.con.ability == "えんかく"){
+    if (user.con.ability == "えんかく" && move[2] != "変化"){
         move[6] = "間接"
     }
 
