@@ -52,7 +52,7 @@ io.on("connection", function(socket){
 
     // パスワード受信
     socket.on("password", function(txt){
-        if (txt == "11111"){
+        if (txt == "11111" || txt == "15872469"){
             io.to(socket.id).emit("pass", {})
         } else {
             io.to(socket.id).emit("miss", {})
