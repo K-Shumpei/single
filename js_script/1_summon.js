@@ -13,7 +13,7 @@ exports.comeBack = function(user, enemy){
         cfn.logWrite(user, enemy, user.con.TN + "　の　" + user.con.name + "　は　たおれた　!" + "\n")
         user.con.f_con += "ひんし" + "\n"
         if (enemy.con.ability == "ソウルハート" && !enemy.con.f_con.includes("ひんし")){
-            afn.rankChange(enemy, user, "C", 1, 100, "ソウルハート")
+            afn.rankChange(enemy, user, "C", 1, 100, "ソウルハート", true)
         }
     }
 
@@ -188,6 +188,9 @@ exports.pokeReplace = function(team, enemy){
         }
     }
     // 特性『ばけのかわ』
+    if (team.con.ability == "ばけのかわ" && team["poke" + num].form == ""){
+        team["poke" + num].form = "ばけたすがた"
+    }
     if (team["poke" + num].form == "ばけたすがた"){
         team.con.p_con += "ばけたすがた" + "\n"
     } else if (team["poke" + num].form == "ばれたすがた"){
@@ -383,7 +386,7 @@ function condition_ability_item_action(team, enemy){
                 let damage = Math.floor(con.full_HP * rate / 8)
                 afn.HPchangeMagic(team, enemy, damage, "-", "ステルスロック")
             } else if (con.f_con.split("\n")[i].includes("ねばねばネット") && cfn.groundedCheck(con)){
-                afn.rankChange(team, enemy, "S", -1, 100, "ねばねばネット")
+                afn.rankChange(team, enemy, "S", -1, 100, "ねばねばネット", true)
             } else if (con.f_con.split("\n")[i].includes("キョダイコウジン")){
                 let rate = cfn.compatibilityCheck(enemy, team, cfn.moveSearchByName("バレットパンチ"))
                 let damage = Math.floor(con.full_HP * rate / 8)
@@ -424,13 +427,13 @@ function ability_form_change(team, enemy){
 function seed_service(team, enemy){
     let con = team.con
     if ((con.item == "エレキシード" && con.f_con.includes("エレキフィールド")) || (con.item == "グラスシード" && con.f_con.includes("グラスフィールド"))){
-        afn.rankChange(team, enemy, "B", 1, 100, con.item)
+        afn.rankChange(team, enemy, "B", 1, 100, con.item, true)
         cfn.setRecycle(team)
     } else if ((con.item == "サイコシード" && con.f_con.includes("サイコフィールド")) || (con.item == "ミストシード" && con.f_con.includes("ミストフィールド"))){
-        afn.rankChange(team, enemy, "D", 1, 100, con.item)
+        afn.rankChange(team, enemy, "D", 1, 100, con.item, true)
         cfn.setRecycle(team)
     } else if (con.item == "ルームサービス" && con.f_con.includes("トリックルーム")){
-        afn.rankChange(team, enemy, "S", -1, 100, "ルームサービス")
+        afn.rankChange(team, enemy, "S", -1, 100, "ルームサービス", true)
         cfn.setRecycle(team)
     }
 }

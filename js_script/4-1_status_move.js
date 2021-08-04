@@ -38,11 +38,11 @@ function rankChangeOnlyStatusMove(atk, def, move){
     for (let i = 0; i < list.length; i++){
         if (move[0] == list[i][0] && list[i][1] == "s"){
             for (let j = 2; j < list[i].length; j++){
-                afn.rankChange(atk, def, list[i][j][0], list[i][j][1], 100, move)
+                afn.rankChange(atk, def, list[i][j][0], list[i][j][1], 100, move, false)
             }
         } else if (move[0] == list[i][0] && list[i][1] == "e"){
             for (let j = 2; j < list[i].length; j++){
-                afn.rankChange(def, atk, list[i][j][0], list[i][j][1], 100, move)
+                afn.rankChange(def, atk, list[i][j][0], list[i][j][1], 100, move, true)
             }
         }
     }
@@ -53,10 +53,10 @@ function rankChangeOnlyStatusMove(atk, def, move){
 // ランク変化 + その他の効果のある技
 function rankChangeEtcStatusMove(atk, def, move){
     if (move[0] == "いばる"){
-        afn.rankChange(def, atk, "A", 2, 100, move)
+        afn.rankChange(def, atk, "A", 2, 100, move, true)
         afn.makeAbnormal(def, atk, "こんらん", 100, move)
     } else if (move[0] == "おだてる"){
-        afn.rankChange(def, atk, "C", 1, 100, move)
+        afn.rankChange(def, atk, "C", 1, 100, move, true)
         afn.makeAbnormal(def, atk, "こんらん", 100, move)
     } else if (move[0] == "すてゼリフ" || move[0] == "テレポート"){
         summon.comeBack(atk, def)
@@ -65,31 +65,31 @@ function rankChangeEtcStatusMove(atk, def, move){
         return true
     } else if (move[0] == "せいちょう"){
         if (atk.con.f_con.includes("にほんばれ") && atk.con.item != "ばんのうがさ" && cfn.isWeather(atk.con, def.con)){
-            afn.rankChange(atk, def, "A", 2, 100, move)
-            afn.rankChange(atk, def, "C", 2, 100, move)
+            afn.rankChange(atk, def, "A", 2, 100, move, false)
+            afn.rankChange(atk, def, "C", 2, 100, move, false)
         } else {
-            afn.rankChange(atk, def, "A", 1, 100, move)
-            afn.rankChange(atk, def, "C", 1, 100, move)
+            afn.rankChange(atk, def, "A", 1, 100, move, false)
+            afn.rankChange(atk, def, "C", 1, 100, move, false)
         }
     } else if (move[0] == "ソウルビート"){
         atk.con.last_HP -= Math.floor(atk.con.full_HP / 3)
         atk["poke" + cfn.battleNum(atk)].last_HP = atk.con.last_HP
         cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　体力を削って力を得た！" + "\n")
         for (const parameter of ["A", "B", "C", "D", "S"]){
-            afn.rankChange(atk, def, parameter, 1, 100, move)
+            afn.rankChange(atk, def, parameter, 1, 100, move, false)
         }
         if (atk.con.item == "のどスプレー" && atk.con.C_rank < 6){
-            afn.rankChange(atk, def, "C", 1, 100, "のどスプレー")
+            afn.rankChange(atk, def, "C", 1, 100, "のどスプレー", false)
             cfn.setRecycle(atk)
         }
     } else if (move[0] == "たがやす"){
         if (atk.con.type.includes("くさ") && cfn.groundedCheck(atk.con)){
-            afn.rankChange(atk, def, "A", 1, 100, move)
-            afn.rankChange(atk, def, "C", 1, 100, move)
+            afn.rankChange(atk, def, "A", 1, 100, move, false)
+            afn.rankChange(atk, def, "C", 1, 100, move, false)
         }
         if (def.con.type.includes("くさ") && cfn.groundedCheck(def.con)){
-            afn.rankChange(def, atk, "A", 1, 100, move)
-            afn.rankChange(def, atk, "C", 1, 100, move)
+            afn.rankChange(def, atk, "A", 1, 100, move, true)
+            afn.rankChange(def, atk, "C", 1, 100, move, true)
         }
     } else if (move[0] == "つぼをつく"){
         const random = Math.random()
@@ -100,9 +100,9 @@ function rankChangeEtcStatusMove(atk, def, move){
                 check = parameter[i][0]
             }
         }
-        afn.rankChange(atk, def, check, 2, 100, move)
+        afn.rankChange(atk, def, check, 2, 100, move, false)
     } else if (move[0] == "どくのいと"){
-        afn.rankChange(def, atk, "S", -1, 100, move)
+        afn.rankChange(def, atk, "S", -1, 100, move, true)
         afn.makeAbnormal(def, atk, "どく", 100, move)
     } else if (move[0] == "はらだいこ"){
         atk.con.last_HP -= Math.floor(atk.con.full_HP / 2)
@@ -123,14 +123,14 @@ function rankChangeEtcStatusMove(atk, def, move){
         return true
     } else if (move[0] == "フラワーガード"){
         if (atk.con.type.includes("くさ")){
-            afn.rankChange(atk, def, "B", 1, 100, move)
+            afn.rankChange(atk, def, "B", 1, 100, move, false)
         }
         if (def.con.type.includes("くさ")){
-            afn.rankChange(def, atk, "B", 1, 100, move)
+            afn.rankChange(def, atk, "B", 1, 100, move, true)
         }
     } else if (move[0] == "ほおばる"){
         bfn.eatingBerry(atk, def, atk.con.item)
-        afn.rankChange(atk, def, "B", 2, 100, move)
+        afn.rankChange(atk, def, "B", 2, 100, move, false)
 
         eating_berry_effect(atk, atk.con.item)
         rank_change(atk, "B", 2)
@@ -216,8 +216,8 @@ function selfStatusMove(atk, def, move){
     for (let i = 0; i < list.length; i++){
         if (move[0] == list[i][0]){
             if (move[0] == "たくわえる"){
-                afn.rankChange(atk, def, "B", 1, 100, move)
-                afn.rankChange(atk, def, "D", 1, 100, move)
+                afn.rankChange(atk, def, "B", 1, 100, move, false)
+                afn.rankChange(atk, def, "D", 1, 100, move, false)
                 if (atk.con.p_con.includes("たくわえる　1回目")){
                     cfn.conditionRemove(atk.con, "poke", "たくわえる　1回目")
                     atk.con.p_con += "たくわえる　2回目" + "\n"
@@ -235,15 +235,15 @@ function selfStatusMove(atk, def, move){
             }
 
             if (move[0] == "じゅうでん"){
-                afn.rankChange(atk, def, "D", 1, 100, move)
+                afn.rankChange(atk, def, "D", 1, 100, move, false)
                 atk.con.p_con += "じゅうでん　開始" + "\n"
             } else  if (move[0] == "はいすいのじん"){
                 atk.con.p_con += "逃げられない：はいすいのじん" + "\n"
                 for (const parameter of ["A", "B", "C", "D", "S"]){
-                    afn.rankChange(atk, def, parameter, 1, 100, move)
+                    afn.rankChange(atk, def, parameter, 1, 100, move, false)
                 }
             } else if (move[0] == "まるくなる"){
-                afn.rankChange(atk, def, "B", 1, 100, move)
+                afn.rankChange(atk, def, "B", 1, 100, move, false)
                 if (!atk.con.p_con.includes("まるくなる")){
                     atk.con.p_con += "まるくなる" + "\n"
                 }
@@ -267,7 +267,7 @@ function selfStatusMove(atk, def, move){
                 atk["poke" + cfn.battleNum(atk)].last_HP -= Math.floor(atk.con.full_HP / 4)
                 atk.con.p_con += "みがわり：" + Math.floor(atk.con.full_HP / 4) + "/" + Math.floor(atk.con.full_HP / 4) + "\n"
             } else if (move[0] == "ボディパージ"){
-                afn.rankChange(atk, def, "S", 2, 100, move)
+                afn.rankChange(atk, def, "S", 2, 100, move, false)
                 if (atk.con.p_con.includes("ボディパージ")){
                     let p_list = atk.con.p_con.split("\n")
                     for (let i = 0; i < p_list.length; i++){
@@ -295,13 +295,14 @@ function enemyStatusMove(atk, def, move){
     for (let i = 0; i < list.length; i++){
         if (move[0] == list[i][0]){
             if (move[0] == "タールショット"){
-                afn.rankChange(def, atk, "S", -1, 100, move)
+                afn.rankChange(def, atk, "S", -1, 100, move, true)
             } 
             if (move[0] == "のろい" && !atk.con.type.includes("ゴースト")){
-                afn.rankChange(atk, def, "A", 1, 100, move)
-                afn.rankChange(atk, def, "B", 1, 100, move)
-                afn.rankChange(atk, def, "S", -1, 100, move)
+                afn.rankChange(atk, def, "A", 1, 100, move, false)
+                afn.rankChange(atk, def, "B", 1, 100, move, false)
+                afn.rankChange(atk, def, "S", -1, 100, move, false)
                 bfn.whiteHerb(atk, def)
+                return
             } else if (move[0] == "アンコール"){
                 def.con.p_con += "アンコール　3/3：" + def.con.used + "\n"
             } else if (move[0] == "いえき"){
@@ -398,10 +399,10 @@ function recoverStatusMove(atk, def, move){
             }
             if (def.con.ability == "ミラーアーマー"){
                 cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　ミラーアーマーが　発動した！" + "\n")
-                afn.rankChange(atk, def, "A", -1, 100, move)
+                afn.rankChange(atk, def, "A", -1, 100, move, true)
                 bfn.whiteHerb(atk, def)
             } else {
-                afn.rankChange(def, atk, "A", -1, 100, move)
+                afn.rankChange(def, atk, "A", -1, 100, move, true)
                 bfn.whiteHerb(def, atk)
             }
             if (def.con.ability == "ヘドロえき"){
@@ -423,8 +424,8 @@ function recoverStatusMove(atk, def, move){
                 num = -3
             }
             afn.HPchangeMagic(atk, def, recover, "+", move)
-            afn.rankChange(atk, def, "B", num, 100, move)
-            afn.rankChange(atk, def, "D", num, 100, move)
+            afn.rankChange(atk, def, "B", num, 100, move, false)
+            afn.rankChange(atk, def, "D", num, 100, move, false)
             cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　たくわえが　なくなった！" + "\n")
             cfn.conditionRemove(atk.con, "poke", "たくわえる")
         } else if (move[0] == "ねむる"){
@@ -445,12 +446,6 @@ function recoverStatusMove(atk, def, move){
             if (atk.con.abnormal == "やけど" || atk.con.abnormal.includes("どく") || atk.con.abnormal == "まひ"){
                 atk.con.abnormal = ""
             }
-        } else if (move[0] == "アロマセラピー" || move[0] == "リフレッシュ"){
-            cfn.logWrite(atk, def, "心地よい香りが広がった！" + "\n")
-            for (let i = 0; i < 3; i++){
-                atk["poke" + i].abnormal = ""
-            }
-            atk.con.abnormal = ""
         } else if (move[0] == "いやしのねがい"){
             atk.con.f_con += "いやしのねがい" + "\n"
             atk.con.last_HP = 0
@@ -481,7 +476,13 @@ function recoverStatusMove(atk, def, move){
 
 // その他の技
 function otherStatusMove(atk, def, move){
-    if (move[0] == "いたみわけ"){
+    if (move[0] == "アロマセラピー" || move[0] == "リフレッシュ"){
+        cfn.logWrite(atk, def, "心地よい香りが広がった！" + "\n")
+        for (let i = 0; i < 3; i++){
+            atk["poke" + i].abnormal = ""
+        }
+        atk.con.abnormal = ""
+    } else if (move[0] == "いたみわけ"){
         cfn.logWrite(atk, def, "お互いのHPを　分け合った！" + "\n")
         const atk_HP = atk.con.last_HP
         const def_HP = def.con.last_HP
@@ -539,10 +540,10 @@ function otherStatusMove(atk, def, move){
         if (!def.con.p_con.includes("みがわり") || atk.con.ability == "すりぬけ"){
             if (def.con.ability == "ミラーアーマー"){
                 cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　ミラーアーマーが　発動した！" + "\n")
-                afn.rankChange(atk, def, "Y", -1, 100, move)
+                afn.rankChange(atk, def, "Y", -1, 100, move, true)
                 bfn.whiteHerb(atk, def)
             } else {
-                afn.rankChange(def, atk, "Y", -1, 100, move)
+                afn.rankChange(def, atk, "Y", -1, 100, move, true)
                 bfn.whiteHerb(def, atk)
             }
         }

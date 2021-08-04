@@ -27,7 +27,7 @@
     <div id="register">
 
         <form name="poke_name" id="poke_name_id">
-            なまえ：<input name="poke_name" type="text" list="poke_name" value="" size="30" autocomplete="off" onchange="set_ID(), AV_calc()">
+            なまえ：<input name="poke_name" type="text" list="poke_name" value="" size="30" autocomplete="off" onchange="set_ID(), AV_calc()()">
             <datalist id="poke_name">
                 <script type="text/javascript">
                 for (i = 0; i < basePokemon.length; i++){
@@ -122,7 +122,7 @@
             document.write("<tr align='center'><td>技</td><td>タイプ</td><td>威力</td><td>命中</td><td>PP</td></tr>")
             document.write("<tr align='center'>")
             for (i = 0; i < 4; i++){
-                document.write("<td><input type='text' name='move"+i+"' list='move' value='' onchange='set_move("+i+")'></td>")
+                document.write("<td><input type='text' id='move"+i+"' name='move"+i+"' list='move' value='' onchange='set_move("+i+")'></td>")
                 document.write("<td align='center' width='80'><span id='type"+i+"'></span></td>")
                 document.write("<td align='center' width='35'><span id='power"+i+"'></span></td>")
                 document.write("<td align='center' width='35'><span id='accuracy"+i+"'></span></td>")

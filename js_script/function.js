@@ -14,6 +14,7 @@ exports.HPchangeMagic = function(team, enemy, damage, pm, cause){
             cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　は　" + damage + "　の　HP　を回復した" + "\n")
         }
         team.con.last_HP = Math.min(team.con.full_HP, team.con.last_HP + damage)
+        team["poke" + cfn.battleNum(team)].last_HP = team.con.last_HP
     } else if (pm == "-" && team.con.ability != "マジックガード"){
         if (typeof cause == "string"){
             cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　に　" + cause + "　で　" + damage + "　の　ダメージ" + "\n")
@@ -182,91 +183,95 @@ exports.makeAbnormal = function(team, enemy, text, probability, cause){
 // 技の追加効果の時は、原因の宣言はいらない
 // それ以外は原因を宣言する
 // 無効判定も必要、向こうになった時はメッセージがでない
-exports.rankChange = function(team, enemy, parameter, change, probability, cause){
+exports.rankChange = function(team, enemy, parameter, change, probability, cause, CandD){
     let con = team.con
-
+    const random = Math.random() * 100
     if (con.ability == "あまのじゃく"){
         change *= -1
     }
     if (con.ability == "たんじゅん"){
         change *= 2
     }
+    if (random >= probability){
+        return
+    }
+    if (change < 0 && (con.f_con.includes("しろいきり") || con.ability == "しろいけむり" || con.ability == "クリアボディ" || con.ability == "メタルプロテクト" || (con.ability == "フラワーベール" && con.type.includes("くさ")) || con.ability == "ミラーアーマー")){
+        return
+    }
+    if ((parameter == "A" && con.ability == "かいりきバサミ" && change < 0) 
+    || (parameter == "B" && con.ability == "はとむね" && change < 0)
+    || (parameter == "X" && con.ability == "するどいめ" && change < 0)){
+        return
+    }
 
-    const random = Math.random() * 100
-    if (random < probability){
-        if (!(change < 0 && (con.f_con.includes("しろいきり") || con.ability == "しろいけむり" || con.ability == "クリアボディ" || con.ability == "メタルプロテクト" || (con.ability == "フラワーベール" && con.type.includes("くさ")) || con.ability == "ミラーアーマー"))){
-            if ((parameter == "A" && !(con.ability == "かいりきバサミ" && change < 0)) 
-            || (parameter == "B" && !(con.ability == "はとむね" && change < 0))
-            || (parameter == "X" && !(con.ability == "するどいめ" && change < 0)) 
-            || parameter == "C" || parameter == "D" || parameter == "S" || parameter == "Y"){
-                if (typeof cause == "string"){
-                    cfn.logWrite(team, enemy, cause + "が　発動した！" + "\n")
+    if (typeof cause == "string"){
+        cfn.logWrite(team, enemy, cause + "が　発動した！" + "\n")
+    }
+    const convert = [["A", "攻撃"], ["B", "防御"], ["C", "特攻"], ["D", "特防"], ["S", "素早さ"], ["X", "命中率"], ["Y", "回避率"]]
+    let now = con[parameter + "_rank"]
+    let result = now + change
+    if (result > 6){result = 6}
+    if (result < -6){result = -6}
+    con[parameter + "_rank"] = result
+
+    for (let i = 0; i < convert.length; i++){
+        if (parameter == convert[i][0]){
+            const text = convert[i][1]
+            if (change > 0){
+                if (result - now == 0){
+                    cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　は　これ以上　上がらない" + "\n")
+                } else if (result - now == 1){
+                    cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　が　上がった！" + "\n")
+                    con.p_con += "ランク上昇" + "\n"
+                } else if (result - now == 2){
+                    cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　が　ぐーんと上がった！" + "\n")
+                    con.p_con += "ランク上昇" + "\n"
+                } else if (result - now > 2){
+                    cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　が　ぐぐーんと上がった！" + "\n")
+                    con.p_con += "ランク上昇" + "\n"
                 }
-
-                const convert = [["A", "攻撃"], ["B", "防御"], ["C", "特攻"], ["D", "特防"], ["S", "素早さ"], ["X", "命中率"], ["Y", "回避率"]]
-                let now = con[parameter + "_rank"]
-                let result = now + change
-                if (result > 6){result = 6}
-                if (result < -6){result = -6}
-                con[parameter + "_rank"] = result
-
-                for (let i = 0; i < convert.length; i++){
-                    if (parameter == convert[i][0]){
-                        const text = convert[i][1]
-                        if (change > 0){
-                            if (result - now == 0){
-                                cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　は　これ以上　上がらない" + "\n")
-                            } else if (result - now == 1){
-                                cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　が　上がった！" + "\n")
-                                con.p_con += "ランク上昇" + "\n"
-                            } else if (result - now == 2){
-                                cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　が　ぐーんと上がった！" + "\n")
-                                con.p_con += "ランク上昇" + "\n"
-                            } else if (result - now > 2){
-                                cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　が　ぐぐーんと上がった！" + "\n")
-                                con.p_con += "ランク上昇" + "\n"
-                            }
-                        } else if (change < 0){
-                            if (result - now == 0){
-                                cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　は　これ以上　下がらない" + "\n")
-                            } else {
-                                if (result - now == -1){
-                                    cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　が　下がった！" + "\n")
-                                    con.p_con += "ランク下降" + "\n"
-                                } else if (result - now == -2){
-                                    cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　が　がくっと下がった！" + "\n")
-                                    con.p_con += "ランク下降" + "\n"
-                                } else if (result - now < -2){
-                                    cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　が　がくーんと下がった！" + "\n")
-                                    con.p_con += "ランク下降" + "\n"
-                                }
-                                if (con.ability == "かちき"){
-                                    result = Math.min(con.C_rank + 2, 6)
-                                    if (result - con.C_rank == 1){
-                                        cfn.logWrite(team, enemy, "かちきが　発動した" + "\n")
-                                        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　特攻　が　上がった！" + "\n")
-                                        con.p_con += "ランク上昇" + "\n"
-                                    } else if (result - con.C_rank == 2){
-                                        cfn.logWrite(team, enemy, "かちきが　発動した" + "\n")
-                                        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　特攻　が　ぐーんと上がった！" + "\n")
-                                        con.p_con += "ランク上昇" + "\n"
-                                    }
-                                    con.C_rank = result
-                                } else if (con.ability == "まけんき"){
-                                    result = Math.min(con.A_rank + 2, 6)
-                                    if (result - con.A_rank == 1){
-                                        cfn.logWrite(team, enemy, "まけんきが　発動した" + "\n")
-                                        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　攻撃　が　上がった！" + "\n")
-                                        con.p_con += "ランク上昇" + "\n"
-                                    } else if (result - con.A_rank == 2){
-                                        cfn.logWrite(team, enemy, "まけんきが　発動した" + "\n")
-                                        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　攻撃　が　ぐーんと上がった！" + "\n")
-                                        con.p_con += "ランク上昇" + "\n"
-                                    }
-                                    con.A_rank = result
-                                }
-                            }
+            } else if (change < 0){
+                if (result - now == 0){
+                    cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　は　これ以上　下がらない" + "\n")
+                } else {
+                    if (result - now == -1){
+                        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　が　下がった！" + "\n")
+                        con.p_con += "ランク下降" + "\n"
+                    } else if (result - now == -2){
+                        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　が　がくっと下がった！" + "\n")
+                        con.p_con += "ランク下降" + "\n"
+                    } else if (result - now < -2){
+                        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　" + text + "　が　がくーんと下がった！" + "\n")
+                        con.p_con += "ランク下降" + "\n"
+                    }
+                    // かちき・まけんき発動条件を満たしていなければ終了
+                    if (!CandD){
+                        return
+                    }
+                    if (con.ability == "かちき"){
+                        result = Math.min(con.C_rank + 2, 6)
+                        if (result - con.C_rank == 1){
+                            cfn.logWrite(team, enemy, "かちきが　発動した" + "\n")
+                            cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　特攻　が　上がった！" + "\n")
+                            con.p_con += "ランク上昇" + "\n"
+                        } else if (result - con.C_rank == 2){
+                            cfn.logWrite(team, enemy, "かちきが　発動した" + "\n")
+                            cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　特攻　が　ぐーんと上がった！" + "\n")
+                            con.p_con += "ランク上昇" + "\n"
                         }
+                        con.C_rank = result
+                    } else if (con.ability == "まけんき"){
+                        result = Math.min(con.A_rank + 2, 6)
+                        if (result - con.A_rank == 1){
+                            cfn.logWrite(team, enemy, "まけんきが　発動した" + "\n")
+                            cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　攻撃　が　上がった！" + "\n")
+                            con.p_con += "ランク上昇" + "\n"
+                        } else if (result - con.A_rank == 2){
+                            cfn.logWrite(team, enemy, "まけんきが　発動した" + "\n")
+                            cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　攻撃　が　ぐーんと上がった！" + "\n")
+                            con.p_con += "ランク上昇" + "\n"
+                        }
+                        con.A_rank = result
                     }
                 }
             }

@@ -267,8 +267,27 @@ function set_nature(){
 
 }
 
+function getCanUse(){
+    alert(document.poke_name.poke_name.value)
+    alert(can_use_move[0][1])
+    for (let i = 0; i < 4; i++){
+        let form = document.getElementById("input_move" + i)
+        let select = document.createElement("select")
+        for (let j = 0; j < can_use_move.length; j++){
+            if (document.poke_name.poke_name.value == can_use_move[j][1]){
+                for (const move of can_use_move[j][2]){
+                    let option = document.createElement("option")
+                    option.text = move
+                    select.appendChild(option)
+                }
+            }
+        }
+        form.appendChild(select)
+    }
+}
+
 function set_move(num){
-    const name = document.four_moves["move" + String(num)].value
+    const name = document.getElementById("move" + num).value
     for (i = 0; i < base_move_list.length; i++){
         if (name == base_move_list[i][0]){
             document.getElementById("type" + String(num)).textContent = base_move_list[i][1]

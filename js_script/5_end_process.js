@@ -58,7 +58,7 @@ exports.endProcess = function(user1, user2){
     curse(order, reverse)
     // 12.バインド
     bindCheck(order, reverse)
-    // 1[3.たこが, reverse]ため
+    // 13.たこがため
     octolock(order, reverse)
     // 14.ちょうはつの終了
     tauntEnd(order, reverse)
@@ -72,11 +72,11 @@ exports.endProcess = function(user1, user2){
     telekinesisEnd(order, reverse)
     // 19.かいふくふうじの終了
     healBlockEnd(order, reverse)
-    // 20.さ[しおさえの, reverse]終了
+    // 20.さしおさえの終了
     embargoEnd(order, reverse)
     // 21.ねむけ
     sleepCheck(order, reverse)
-    // 22, reverse.ほろびのうた
+    // 22.ほろびのうた
     perishSong(order, reverse)
     // 23.片側の場の状態の継続/終了: ホスト側の状態が先にすべて解除された後に、ホストでない側の状態が解除される。
     oneSideFieldEnd(order, reverse)
@@ -187,7 +187,8 @@ var end_process_poke_condition = [
     'メタルバースト', 
     'マジックコート', 
     'ひるみ', 
-    'スキン'
+    'スキン', 
+    '優先'
 ]
 
 var end_process_field_condition = [
@@ -521,8 +522,8 @@ function octolock(order, reverse){
     for (const team of [order, reverse]){
         if (team[0].con.p_con.includes("たこがため")){
             cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　たこがためを　受けている！" + "\n")
-            afn.rankChange(team[0], team[1], "B", -1, 100, "たこがため")
-            afn.rankChange(team[0], team[1], "D", -1, 100, "たこがため")
+            afn.rankChange(team[0], team[1], "B", -1, 100, "たこがため", true)
+            afn.rankChange(team[0], team[1], "D", -1, 100, "たこがため", true)
         }
     }
 }
@@ -752,14 +753,16 @@ function otherConditionAbilityItem(order, reverse){
         // b. ねむりによるあばれるの中断
         // c. かそく/ムラっけ/スロースタート/ナイトメア
         if (team[0].con.ability == "かそく"){
-            afn.rankChange(team[0], team[1], "S", 1, 100, "かそく")
+            afn.rankChange(team[0], team[1], "S", 1, 100, "かそく", false)
         } else if (team[0].con.ability == "ムラっけ"){
             let parameter = ["A", "B", "C", "D", "S"]
-            let plus = Math.floor(Math.random() * 5)
-            afn.rankChange(team[0], team[1], parameter[plus], 2, 100, "ムラっけ")
-            parameter.pop(plus)
-            let minus = Math.floor(Math.random() * 4)
-            afn.rankChange(team[0], team[1], parameter[minus], -1, 100, "ムラっけ")
+            let change = ["", ""]
+            while (change[0] == change[1]){
+                change[0] = parameter[Math.floor(Math.random() * 5)]
+                change[1] = parameter[Math.floor(Math.random() * 5)]
+            }
+            afn.rankChange(team[0], team[1], change[0], 2, 100, "ムラっけ", false)
+            afn.rankChange(team[0], team[1], change[1], -1, 100, "ムラっけ", false)
         } else if (team[0].con.ability == "スロースタート"){
             decreasePerTurn(team[0], team[1], "スロースタート", "p")
         } else if (team[0].con.ability == "ナイトメア" && team[1].con.abnormal == "ねむり"){

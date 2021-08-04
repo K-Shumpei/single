@@ -254,8 +254,8 @@ function powerCalculation(atk, def, move, order){
             move[3] = 300
             num = -3
         }
-        afn.rankChange(atk, def, "B", num, 100, move)
-        afn.rankChange(atk, def, "D", num, 100, move)
+        afn.rankChange(atk, def, "B", num, 100, move, false)
+        afn.rankChange(atk, def, "D", num, 100, move, false)
         cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "は　たくわえが　なくなった！" + "\n")
         cfn.conditionRemove(atk.con, "poke", "たくわえる")
     } else if (move[0] == "れんぞくぎり"){
@@ -692,7 +692,7 @@ function　defenseCalculation(atk, def, move, status){
         defense = Math.floor(defense * 8192 / 4096)
     }
     // しんかのきせき、とつげきチョッキ
-    if ((def.con.item == "しんかのきせき") 
+    if ((def.con.item == "しんかのきせき" && itemEff.eviolite().includes(def.con.name)) 
     || (def.con.item == "とつげきチョッキ" && move[2] == spec)){
         defense = Math.floor(defense * 6144 / 4096)
     }
@@ -716,7 +716,10 @@ function damageCalculation(atk, def, move, power, critical, attack, defense){
 
     // 複数対象補正
     // おやこあい補正
-
+    if (atk.con.ability == "おやこあい" && atk.con.p_con.includes("おやこあい")){
+        damage = cfn.fiveCut(damage * 1024 / 4096)
+        cfn.conditionRemove(atk.con, "poke", "おやこあい")
+    }
     if (def.con.item != "ばんのうがさ" && cfn.isWeather(atk.con, def.con)){
         // 天気弱化補正
         if ((atk.con.f_con.includes("あめ") && move[1] == "ほのお") 

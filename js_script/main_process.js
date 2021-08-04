@@ -79,7 +79,7 @@ exports.runBattle = function(rec){
             } else if (team.con.item == "せんせいのツメ" && Math.random() < 0.2){
                 cfn.logWrite(rec.user1, rec.user2, team.con.TN + "　の　" + team.con.name + "は　せんせいのツメで　行動が　早くなった！" + "\n")
                 team.con.p_con += "優先" + "\n"
-            } else if (team.con.item == "イバンのみ" && (team.con.last_HP <= team.confull_HP / 4 || (team.con.last_HP <= team.con.full_HP / 2 && team.con.ability == "くいしんぼう"))){
+            } else if (team.con.item == "イバンのみ" && (team.con.last_HP <= team.con.full_HP / 4 || (team.con.last_HP <= team.con.full_HP / 2 && team.con.ability == "くいしんぼう"))){
                 cfn.setRecycle(team)
                 cfn.setBelch(team)
                 cfn.logWrite(rec.user1, rec.user2, team.con.TN + "　の　" + team.con.name + "は　イバンのみで　行動が　早くなった！" + "\n")

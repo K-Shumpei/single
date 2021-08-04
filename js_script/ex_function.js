@@ -34,17 +34,17 @@ function abilityEmarge(team, enemy){
         if (enemy.con.ability == "ミラーアーマー"){
             if (!con.p_con.includes("みがわり")){
                 cfn.logWrite(team, enemy, enemy.con.TN + "　の　" + enemy.con.name + "　の　ミラーアーマーが　発動した！" + "\n")
-                afn.rankChange(team, enemy, "A", -1, 100, "いかく")
+                afn.rankChange(team, enemy, "A", -1, 100, "いかく", true)
             }
         } else {
             if (!(enemy.con.p_con.includes("みがわり") || enemy.con.ability == "きもったま" || enemy.con.ability == "せいしんりょく" || enemy.con.ability == "どんかん" || enemy.con.ability == "マイペース")){
-                afn.rankChange(enemy, team, "A", -1, 100, "いかく")
+                afn.rankChange(enemy, team, "A", -1, 100, "いかく", true)
                 if (enemy.con.ability == "びびり"){
-                    afn.rankChange(enemy, team, "S", 1, 100, "びびり")
+                    afn.rankChange(enemy, team, "S", 1, 100, "びびり", true)
                 }
             }
             if (enemy.con.item == "ビビリだま" && enemy.con.S_rank < 6){
-                afn.rankChange(enemy, team, "S", 1, 100, "ビビリだま")
+                afn.rankChange(enemy, team, "S", 1, 100, "ビビリだま", true)
                 cfn.setRecycle(enemy)
             }
         }
@@ -120,9 +120,9 @@ function abilityEmarge(team, enemy){
             D_AV = Math.floor((enemy.con.D_AV * 2) / (2 - enemy.con.D_rank))
         }
         if (B_AV >= D_AV){
-            afn.rankChange(team, enemy, "C", 1, 100, "ダウンロード")
+            afn.rankChange(team, enemy, "C", 1, 100, "ダウンロード", true)
         } else {
-            afn.rankChange(team, enemy, "A", 1, 100, "ダウンロード")
+            afn.rankChange(team, enemy, "A", 1, 100, "ダウンロード", true)
         }
     } else if (con.ability == "デルタストリーム" && !con.f_con.includes("らんきりゅう")){
         cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　デルタストリーム！" + "\n")
@@ -165,9 +165,9 @@ function abilityEmarge(team, enemy){
     } else if (con.ability == "フェアリーオーラ"){
         cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　フェアリーオーラが発動している！" + "\n")
     } else if (con.ability == "ふくつのたて"){
-        afn.rankChange(team, enemy, "B", 1, 100, "ふくつのたて")
+        afn.rankChange(team, enemy, "B", 1, 100, "ふくつのたて", true)
     } else if (con.ability == "ふとうのけん"){
-        afn.rankChange(team, enemy, "A", 1, 100, "ふとうのけん")
+        afn.rankChange(team, enemy, "A", 1, 100, "ふとうのけん", true)
     } else if (con.ability == "ふみん" && con.abnormal == "ねむり"){
         cfn.conditionRemove(con, "poke", "ねむり")
         cfn.conditionRemove(con, "poke", "ねむる")

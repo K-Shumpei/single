@@ -359,7 +359,7 @@ function actionFailure(atk, def, move){
     if (con.p_con.includes("ひるみ")){
         cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　ひるんで　動けない　!" + "\n")
         if (con.ability == "ふくつのこころ"){
-            afn.rankChange(atk, def, "S", 1, 100, "ふくつのこころ")
+            afn.rankChange(atk, def, "S", 1, 100, "ふくつのこころ", true)
         }
         return true
     }
@@ -1526,10 +1526,10 @@ function　accumulateOperation(atk, def, move){
                     con.p_con += "溜め技：" + move[0] + "\n"
                     cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　力を溜めている！" + "\n")
                     if (move[0] == "ロケットずつき"){ // ロケットずつき: ぼうぎょが上がる
-                        afn.rankChange(atk, def, "B", 1, 100, "ロケットずつき")
+                        afn.rankChange(atk, def, "B", 1, 100, "ロケットずつき", true)
                     }
                     if (move[0] == "メテオビーム"){ // メテオビーム: とくこうが上がる
-                        afn.rankChange(atk, def, "C", 1, 100, "メテオビーム")
+                        afn.rankChange(atk, def, "C", 1, 100, "メテオビーム", true)
                     }
                 } else if (list[i][1] == "h"){ // 姿を隠す技
                     // ダイビング: うのミサイルでフォルムチェンジする
@@ -1674,9 +1674,9 @@ function protectInvalidation(atk, def, move){
     } else if ((con.p_con.includes("キングシールド") || con.p_con.includes("ブロッキング")) && move[2] != "変化"){
         cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　攻撃を守った！" + "\n")
         if (move[6] == "直接" && con.p_con.includes("キングシールド") && atk.con.item != "ぼうごパット"){
-            afn.rankChange(atk, def, "A", -1, 100, "キングシールド")
+            afn.rankChange(atk, def, "A", -1, 100, "キングシールド", true)
         } else if (move[6] == "直接" && con.p_con.includes("ブロッキング") && atk.con.item != "ぼうごパット"){
-            afn.rankChange(atk, def, "B", -2, 100, "ブロッキング")
+            afn.rankChange(atk, def, "B", -2, 100, "ブロッキング", true)
         }
         if (move[0] == "とびげり" || move[0] == "とびひざげり"){
             afn.HPchangeMagic(atk, def, Math.floor(atk.con.full_HP / 2), "-", move)
@@ -1723,7 +1723,7 @@ function abilityInvalidation1(atk, def, move){
     let con = def.con
     // そうしょく: くさタイプ
     if (con.ability == "そうしょく" && move[1] == "くさ" && !(move[8] == "自分" || move[8].match("場"))){
-        afn.rankChange(def, atk, "A", 1, 100, "そうしょく")
+        afn.rankChange(def, atk, "A", 1, 100, "そうしょく", true)
         return true
     }
     // もらいび: ほのおタイプ
@@ -1740,17 +1740,17 @@ function abilityInvalidation1(atk, def, move){
             afn.HPchangeMagic(def, atk, Math.floor(def["poke" + cfn.battleNum(def)].full_HP / 4), "+", con.ability)
             return true
         } else if (con.ability == "よびみず"){
-            afn.rankChange(def, atk, "C", 1, 100, "よびみず")
+            afn.rankChange(def, atk, "C", 1, 100, "よびみず", true)
             return true
         }
     }
     // ひらいしん/でんきエンジン/ちくでん: でんきタイプ
     if (move[1] == "でんき" && !(move[8] == "自分" || move[8].match("場"))){
         if (con.ability == "ひらいしん"){
-            afn.rankChange(def, atk, "C", 1, 100, "ひらいしん")
+            afn.rankChange(def, atk, "C", 1, 100, "ひらいしん", true)
             return true
         } else if (con.ability == "でんきエンジン"){
-            afn.rankChange(def, atk, "S", 1, 100, "でんきエンジン")
+            afn.rankChange(def, atk, "S", 1, 100, "でんきエンジン", true)
             return true
         } else if (con.ability == "ちくでん"){
             afn.HPchangeMagic(def, atk, Math.floor(def["poke" + cfn.battleNum(def)].full_HP / 4), "+", "ちくでん")
@@ -2004,9 +2004,19 @@ function moveSpecificationsInvalidation2(atk, def, move){
         return true
     }
     // シンクロノイズ: タイプが合致していない
-    if (move[0] == "シンクロノイズ" && (atk.con.type != def.con.type)){
-        cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
-        return true
+    if (move[0] == "シンクロノイズ"){
+        check = 0
+        for (const myType of atk.con.type.split("、")){
+            for (const yourType of def.con.type.split("、")){
+                if (myType == yourType){
+                    check += 1
+                }
+            }
+        }
+        if (check == 0){
+            cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
+            return true
+        }
     }
     // ゆめくい/あくむ: 対象がねむり状態でない
     if ((move[0] == "ゆめくい" || move[0] == "あくむ") && def.con.abnormal != "ねむり"){
@@ -2253,7 +2263,7 @@ function spectralThief(atk, def, move){
         let check = 0
         for (const parameter of ["A", "B", "C", "D", "S", "X", "Y"]){
             if (def.con[parameter + "_rank"] > 0){
-                afn.rankChange(atk, def, parameter, def.con[parameter + "_rank"], 100, move)
+                afn.rankChange(atk, def, parameter, def.con[parameter + "_rank"], 100, move, true)
                 def.con[parameter + "_rank"] = 0
                 check += 1
             }
@@ -2311,7 +2321,7 @@ function millorArmer(atk, def, move){
             for (let j = 2; j < list[i].length; j++){
                 let parameter = list[i][j][0]
                 let change = list[i][j][1]
-                afn.rankChange(atk, def, parameter, change, 100, move)
+                afn.rankChange(atk, def, parameter, change, 100, move, true)
             }
             return true
         }
@@ -2476,7 +2486,7 @@ function moveSpecificationsInvalidation3(atk, def, move){
         }
     // 特殊なメッセージが出る技の失敗
         // アロマセラピー/いやしのすず: 状態異常の味方がいない
-        if ((move[0] == "アロマセラピー" || move[0] == "いやしのすず") && atk.con.abnormal == ""){
+        if ((move[0] == "アロマセラピー" || move[0] == "いやしのすず") && atk.poke0.abnormal == "" && atk.poke1.abnormal == "" && atk.poke2.abnormal == ""){
             cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
             return true
         }

@@ -59,37 +59,37 @@ exports.berryPinch = function(team, enemy){
             } else if (con.item == "チイラのみ"){
                 berry_check += 1
                 if (con.ability == "じゅくせい"){
-                    afn.rankChange(team, enemy, "A", 2, 100, con.item)
+                    afn.rankChange(team, enemy, "A", 2, 100, con.item, false)
                 } else {
-                    afn.rankChange(team, enemy, "A", 1, 100, con.item)
+                    afn.rankChange(team, enemy, "A", 1, 100, con.item, false)
                 }
             } else if (con.item == "リュガのみ"){
                 berry_check += 1
                 if (con.ability == "じゅくせい"){
-                    afn.rankChange(team, enemy, "B", 2, 100, con.item)
+                    afn.rankChange(team, enemy, "B", 2, 100, con.item, false)
                 } else {
-                    afn.rankChange(team, enemy, "B", 1, 100, con.item)
+                    afn.rankChange(team, enemy, "B", 1, 100, con.item, false)
                 }
             } else if (con.item == "ヤタピのみ"){
                 berry_check += 1
                 if (con.ability == "じゅくせい"){
-                    afn.rankChange(team, enemy, "C", 2, 100, con.item)
+                    afn.rankChange(team, enemy, "C", 2, 100, con.item, false)
                 } else {
-                    afn.rankChange(team, enemy, "C", 1, 100, con.item)
+                    afn.rankChange(team, enemy, "C", 1, 100, con.item, false)
                 }
             } else if (con.item == "ズアのみ"){
                 berry_check += 1
                 if (con.ability == "じゅくせい"){
-                    afn.rankChange(team, enemy, "D", 2, 100, con.item)
+                    afn.rankChange(team, enemy, "D", 2, 100, con.item, false)
                 } else {
-                    afn.rankChange(team, enemy, "D", 1, 100, con.item)
+                    afn.rankChange(team, enemy, "D", 1, 100, con.item, false)
                 }
             } else if (con.item == "カムラのみ"){
                 berry_check += 1
                 if (con.ability == "じゅくせい"){
-                    afn.rankChange(team, enemy, "S", 2, 100, con.item)
+                    afn.rankChange(team, enemy, "S", 2, 100, con.item, false)
                 } else {
-                    afn.rankChange(team, enemy, "S", 1, 100, con.item)
+                    afn.rankChange(team, enemy, "S", 1, 100, con.item, false)
                 }
             } else if (con.item == "サンのみ" && !con.p_con.includes("きゅうしょアップ")){
                 berry_check += 1
@@ -106,9 +106,9 @@ exports.berryPinch = function(team, enemy){
                     }
                 }
                 if (con.ability == "じゅくせい"){
-                    afn.rankChange(team, enemy, parameter, 4, 100, con.item)
+                    afn.rankChange(team, enemy, parameter, 4, 100, con.item, false)
                 } else {
-                    afn.rankChange(team, enemy, parameter, 2, 100, con.item)
+                    afn.rankChange(team, enemy, parameter, 2, 100, con.item, false)
                 }
             } else if (con.item == "ミクルのみ"){
                 berry_check += 1
@@ -208,10 +208,10 @@ exports.allFieldStatus = function(atk, def, move){
                 }
                 for (const team of [[atk, def], [def, atk]]){
                     if ((move[0] == "エレキフィールド" && team[0].con.item == "エレキシード") || (move[0] == "グラスフィールド" && team[0].con.item == "グラスシード")){
-                        afn.rankChange(team[0], team[1], "B", 1, 100, team[0].con.item)
+                        afn.rankChange(team[0], team[1], "B", 1, 100, team[0].con.item, false)
                         set_recycle_item(team[0])
                     } else if ((move[0] == "サイコフィールド" && team[0].con.item == "サイコシード") || (move[0] == "ミストフィールド" && team[0].con.item == "ミストシード")){
-                        afn.rankChange(team[0], team[1], "D", 1, 100, team[0].con.item)
+                        afn.rankChange(team[0], team[1], "D", 1, 100, team[0].con.item, false)
                         cfn.setRecycle(team[0])
                     }
                 }
@@ -243,7 +243,7 @@ exports.allFieldStatus = function(atk, def, move){
                             team[0].con.item = team[0]["poke" + cfn.battleNum(team[0])].item
                         }
                         if (move[0] == "トリックルーム" && team[0].con.item == "ルームサービス"){
-                            afn.rankChange(team[0], team[1], "S", -1, 100, "ルームサービス")
+                            afn.rankChange(team[0], team[1], "S", -1, 100, "ルームサービス", false)
                             cfn.setRecycle(team[0])
                         }
                     } else {
@@ -386,33 +386,33 @@ exports.eatingBerry = function(team, enemy, berry){
         }
     } else if (berry == "チイラのみ"){
         if (con.ability == "じゅくせい"){
-            afn.rankChange(team, enemy, "A", 2, 100, berry)
+            afn.rankChange(team, enemy, "A", 2, 100, berry, false)
         } else {
-            afn.rankChange(team, enemy, "A", 1, 100, berry)
+            afn.rankChange(team, enemy, "A", 1, 100, berry, false)
         }
     } else if (berry == "リュガのみ" || berry == "アッキのみ"){
         if (con.ability == "じゅくせい"){
-            afn.rankChange(team, enemy, "B", 2, 100, berry)
+            afn.rankChange(team, enemy, "B", 2, 100, berry, false)
         } else {
-            afn.rankChange(team, enemy, "B", 1, 100, berry)
+            afn.rankChange(team, enemy, "B", 1, 100, berry, false)
         }
     } else if (berry == "ヤタピのみ"){
         if (con.ability == "じゅくせい"){
-            afn.rankChange(team, enemy, "C", 2, 100, berry)
+            afn.rankChange(team, enemy, "C", 2, 100, berry, false)
         } else {
-            afn.rankChange(team, enemy, "C", 1, 100, berry)
+            afn.rankChange(team, enemy, "C", 1, 100, berry, false)
         }
     } else if (berry == "ズアのみ" || berry == "タラプのみ"){
         if (con.ability == "じゅくせい"){
-            afn.rankChange(team, enemy, "D", 2, 100, berry)
+            afn.rankChange(team, enemy, "D", 2, 100, berry, false)
         } else {
-            afn.rankChange(team, enemy, "D", 1, 100, berry)
+            afn.rankChange(team, enemy, "D", 1, 100, berry, false)
         }
     } else if (berry == "カムラのみ"){
         if (con.ability == "じゅくせい"){
-            afn.rankChange(team, enemy, "S", 2, 100, berry)
+            afn.rankChange(team, enemy, "S", 2, 100, berry, false)
         } else {
-            afn.rankChange(team, enemy, "S", 1, 100, berry)
+            afn.rankChange(team, enemy, "S", 1, 100, berry, false)
         }
     } else if (berry == "サンのみ" && !con.p_con.includes("きゅうしょアップ")){
         cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　は　張り切り出した！" + "\n")
@@ -427,9 +427,9 @@ exports.eatingBerry = function(team, enemy, berry){
             }
         }
         if (con.ability == "じゅくせい"){
-            afn.rankChange(team, enemy, check, 4, 100, berry)
+            afn.rankChange(team, enemy, check, 4, 100, berry, false)
         } else {
-            afn.rankChange(team, enemy, check, 2, 100, berry)
+            afn.rankChange(team, enemy, check, 2, 100, berry, false)
         }
     } else if (berry == "ミクルのみ"){
         con.p_con += "ミクルのみ" + "\n"
@@ -533,7 +533,7 @@ exports.accuracyFailure = function(atk, def, move, order){
     if (random >= check){
         cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　には当たらなかった" + "\n")
         if (atk.con.item == "からぶりほけん" && !moveEff.oneShot.includes(move[0]) && atk.con.S_rank != 6){
-            afn.rankChange(atk, def, "S", 2, 100, "からぶりほけん")
+            afn.rankChange(atk, def, "S", 2, 100, "からぶりほけん", false)
             cfn.setRecycle(atk)
         }
         if (move[0] == "とびげり" || move[0] == "とびひざげり"){
