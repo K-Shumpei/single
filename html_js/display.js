@@ -61,6 +61,7 @@ function set_random(){
             poke = basePokemon[i]
         }
     }
+    console.log(poke[1])
     // 性別の設定
     if (poke[11] == "-" && poke[12] == "-"){
         document.getElementById("male").disabled = true
@@ -115,6 +116,8 @@ function set_random(){
     for (let i = 0; i < 6; i++){
         document.getElementById(parameter[i] + "_BS").textContent = poke[i + 2]
     }
+    // 実数値計算
+    AV_calc()
     // 技の設定
     getCanUse()
     let moveList = ""
@@ -122,6 +125,9 @@ function set_random(){
         if (document.poke_name.poke_name.value == can_use_move[i][1]){
             moveList = can_use_move[i][2]
         }
+    }
+    if (document.poke_name.poke_name.value == "アンノーン" || document.poke_name.poke_name.value == "ドーブル" || document.poke_name.poke_name.value == "メタモン" || document.poke_name.poke_name.value == "コスモッグ" || document.poke_name.poke_name.value == "コスモウム"){
+        return
     }
     let num = ["", "", "", ""]
     while (num[0] == num[1] || num[0] == num[2] || num[0] == num[3] || num[1] == num[2] || num[1] == num[3] || num[2] == num[3]){
@@ -131,10 +137,11 @@ function set_random(){
     }
     for (let i = 0; i < 4; i++){
         document.four_moves["move" + i].value = moveList[num[i]]
+        if (moveList[num[i]] == "めざめるパワー"){
+            document.four_moves["move" + i].value = moveList[num[i] - 1]
+        }
         set_move(i)
     }
-    // 実数値計算
-    AV_calc()
 }
 
 function AV_calc(){
