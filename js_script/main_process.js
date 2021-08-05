@@ -120,6 +120,16 @@ exports.runBattle = function(rec){
             user[0].data.megable = true
             user[0].data.megaTxt = "メガ進化（済）"
         }
+        if (user[0].data.ultra){
+            afn.formChenge(user[0], user[1], "ネクロズマ(ウルトラネクロズマ)")
+            user[0].data.ultrable = true
+            user[0].data.ultraTxt = "ウルトラバースト（済）"
+            for (let i = 0; i < 4; i++){
+                if (user[0].con["move_" + i] == "フォトンゲイザー" && user[0].data.ZTxt == "Z技"){
+                    user[0].data.Zable = false
+                }
+            }
+        }
     }
     // 5.ダイマックス　すばやさ順に発動
     for (const user of [order, reverse]){

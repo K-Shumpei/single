@@ -1,30 +1,39 @@
 function set_ID(){
+    // 技のリセット
+    for (i = 0; i < 4; i++){
+        document.four_moves["move" + String(i)].value = ""
+        document.getElementById("type" + String(i)).textContent = ""
+        document.getElementById("power" + String(i)).textContent = ""
+        document.getElementById("accuracy" + String(i)).textContent = ""
+        document.getElementById("PP" + String(i)).textContent = ""
+        document.getElementById("discription" + String(i)).textContent = ""
+    }
     const poke_name = document.poke_name.poke_name.value
     const parameter_BS = ["H_BS", "A_BS", "B_BS", "C_BS", "D_BS", "S_BS"]
-    for (i = 0; i < basePokemon.length; i++){
-        if (basePokemon[i][1] == poke_name){
+    for (i = 0; i < pokemon.length; i++){
+        if (pokemon[i][1] == poke_name){
             // 種族値の設定
             for (j = 0; j < 6; j++){
-                document.getElementById(parameter_BS[j]).textContent = basePokemon[i][j+2]
+                document.getElementById(parameter_BS[j]).textContent = pokemon[i][j+2]
             }
             // タイプの設定
-            if (basePokemon[i][10] == ""){
-                document.getElementById("poke_type").textContent = basePokemon[i][9]
+            if (pokemon[i][10] == ""){
+                document.getElementById("poke_type").textContent = pokemon[i][9]
             } else {
-                document.getElementById("poke_type").textContent = basePokemon[i][9] + "、" + basePokemon[i][10]
+                document.getElementById("poke_type").textContent = pokemon[i][9] + "、" + pokemon[i][10]
             }
             // 性別の設定
-            if (basePokemon[i][11] == "-" && basePokemon[i][12] == "-"){
+            if (pokemon[i][11] == "-" && pokemon[i][12] == "-"){
                 document.getElementById("male").disabled = true
                 document.getElementById("female").disabled = true
                 document.getElementById("not").disabled = false
                 document.getElementById("not").checked = true
-            } else if (basePokemon[i][11] == "♂" && basePokemon[i][12] == "-"){
+            } else if (pokemon[i][11] == "♂" && pokemon[i][12] == "-"){
                 document.getElementById("male").disabled = false
                 document.getElementById("female").disabled = true
                 document.getElementById("not").disabled = true
                 document.getElementById("male").checked = true
-            } else if (basePokemon[i][11] == "♀" && basePokemon[i][12] == "-"){
+            } else if (pokemon[i][11] == "♀" && pokemon[i][12] == "-"){
                 document.getElementById("male").disabled = true
                 document.getElementById("female").disabled = false
                 document.getElementById("not").disabled = true
@@ -39,9 +48,9 @@ function set_ID(){
             let ability = document.getElementById("ability")
             ability.innerHTML = ""
             for (let j = 15; j < 18; j++){
-                if (basePokemon[i][j] != ""){
+                if (pokemon[i][j] != ""){
                     let option = document.createElement("option")
-                    option.text = basePokemon[i][j]
+                    option.text = pokemon[i][j]
                     ability.appendChild(option)
                 }
             }
@@ -270,6 +279,25 @@ function getCanUse(){
             }
         }
     }
+}
+
+// アイテムによって姿が変わるポケモン
+function itemForm(item){
+    const poke = document.poke_name.poke_name.value
+    if (item == "くちたけん" && poke == "ザシアン(れきせんのゆうしゃ)"){
+        document.poke_name.poke_name.value = "ザシアン(けんのおう)"
+    } else if (item != "くちたけん" && poke == "ザシアン(けんのおう)"){
+        document.poke_name.poke_name.value = "ザシアン(れきせんのゆうしゃ)"
+    } else if (item == "くちたたて" && poke == "ザマゼンタ(れきせんのゆうしゃ)"){
+        document.poke_name.poke_name.value = "ザマゼンタ(たてのおう)"
+    } else if (item != "くちたたて" && poke == "ザマゼンタ(たてのおう)"){
+        document.poke_name.poke_name.value = "ザマゼンタ(れきせんのゆうしゃ)"
+    } else if (item == "はっきんだま" && poke == "ギラティナ(アナザーフォルム)"){
+        document.poke_name.poke_name.value = "ギラティナ(オリジンフォルム)"
+    } else if (item != "はっきんだま" && poke == "ギラティナ(オリジンフォルム)"){
+        document.poke_name.poke_name.value = "ギラティナ(アナザーフォルム)"
+    }
+    set_ID()
 }
 
 function set_move(num){

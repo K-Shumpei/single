@@ -53,7 +53,7 @@
             <input type="button" value="50" onclick="set_LV(value), AV_calc()">
             <input type="button" value="100" onclick="set_LV(value), AV_calc()">
         特性：<select name="ability" id="ability"></select>
-        持ち物：<input name="poke_item" type="text" list="poke_item" value="" size="25" autocomplete="off">
+        持ち物：<input name="poke_item" type="text" list="poke_item" value="" size="25" autocomplete="off" onchange="itemForm(value)">
         <datalist id="poke_item">
             <script type="text/javascript">
             for (i = 0; i < item_list.length; i++){
@@ -303,6 +303,7 @@
                 <table align="center">
                     <tr><td><input type="checkbox" id="A_mega" disabled></td><td><span id="A_mega_text">メガ進化</span></td></tr>
                     <tr><td><input type="checkbox" id="A_Z" disabled onchange="Z_move()"></td><td><span id="A_Z_text">Z技</span></td></tr>
+                    <tr><td><input type="checkbox" id="A_ultra" disabled></td><td><span id="A_ultra_text">ウルトラバースト</span></td></tr>
                     <tr><td><input type="checkbox" id="A_dyna" onchange="dynamax()"></td><td><span id="A_dyna_text">ダイマックス</span></td></tr>
                     <tr><td><input type="checkbox" id="A_giga" disabled onchange="gigadyna()"></td><td><span id="A_giga_text">キョダイマックス</span></td></tr>
                 </table>
@@ -405,6 +406,7 @@
         <td><table align="center">
             <tr><td><span id="B_mega_text">メガ進化</span></td></tr>
             <tr><td><span id="B_Z_text">Z技</span></td></tr>
+            <tr><td><span id="B_ultra_text">ウルトラバースト</span></td></tr>
             <tr><td><span id="B_dyna_text">ダイマックス</span></td></tr>
             <tr><td><span id="B_giga_text">キョダイマックス</span></td></tr>
         </table></td>

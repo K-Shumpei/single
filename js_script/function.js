@@ -730,6 +730,12 @@ exports.specialButton = function(team){
             }
         }
     }
+    // ウルトラバーストボタンの有効化
+    if (team.data.ultraTxt == "ウルトラバースト" && team.con.item == "ウルトラネクロZ"){
+        if (team.con.name == "ネクロズマ" || team.con.name == "ネクロズマ(たそがれのたてがみ(日食))" || team.con.name == "ネクロズマ(あかつきのつばさ(月食))"){
+            team.data.ultrable = false
+        }
+    }
     // ダイマックスボタンの有効化
     if (team.data.dynaTxt == "ダイマックス"){
         team.data.dynable = false

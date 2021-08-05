@@ -1010,7 +1010,7 @@ function attackDeclaration(atk, def, move){
     }
 
     // シャドーレイ、フォトンゲイザー: 対象の特性を攻撃処理の終わりまで無くす
-    if (moveEff.abiInvalid().includes(move[0]) && moveEff.moldBreak().includes(def.con.ability)){
+    if (moveEff.abiInvalid().includes(move[0]) && abiEff.moldBreak().includes(def.con.ability)){
         def.con.p_con += "特性無視：" + def.con.ability + "\n"
         def.con.ability = ""
     }

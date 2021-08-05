@@ -135,9 +135,10 @@ $(function () {
         }
         const mega = document.getElementById("A_mega").checked
         const Z = document.getElementById("A_Z").checked
+        const ultra = document.getElementById("A_ultra").checked
         const dyna = document.getElementById("A_dyna").checked
         const giga = document.getElementById("A_giga").checked
-        const option = {mega: mega, Z: Z, dyna: dyna, giga: giga}
+        const option = {mega: mega, Z: Z, ultra: ultra, dyna: dyna, giga: giga}
         socketio.emit("action decide", val, option)
         document.getElementById("battle_button").disabled = true
         return false
@@ -233,6 +234,7 @@ $(function () {
                 // メガ進化、Z技、ダイマックスのテキスト
                 document.getElementById(team.char + "_mega_text").textContent = team.data.data.megaTxt
                 document.getElementById(team.char + "_Z_text").textContent = team.data.data.ZTxt
+                document.getElementById(team.char + "_ultra_text").textContent = team.data.data.ultraTxt
                 document.getElementById(team.char + "_dyna_text").textContent = team.data.data.dynaTxt
                 document.getElementById(team.char + "_giga_text").textContent = team.data.data.gigaTxt
             }
@@ -249,6 +251,8 @@ $(function () {
         document.getElementById("A_mega").disabled = me.data.megable
         document.getElementById("A_Z").checked = false
         document.getElementById("A_Z").disabled = me.data.Zable
+        document.getElementById("A_ultra").checked = false
+        document.getElementById("A_ultra").disabled = me.data.ultrable
         document.getElementById("A_dyna").checked = false
         document.getElementById("A_dyna").disabled = me.data.dynable
         document.getElementById("A_giga").checked = false

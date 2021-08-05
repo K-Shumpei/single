@@ -132,6 +132,8 @@ exports.comeBack = function(user, enemy){
     user.data.megable = true
     // Z技ボタンの無効化
     user.data.Zable = true
+    // ウルトラバーストボタンの無効化
+    user.data.ultrable = true
     // キョダイマックスボタンの無効化
     user.data.gigable = true
 
@@ -420,6 +422,14 @@ function ability_form_change(team, enemy){
     if (con.ability == "ぎょぐん" && con.last_HP > con.full_HP / 4 && con.level >= 20 && con.name == "ヨワシ(たんどくのすがた)"){
         cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　の　ぎょぐん！" + "\n")
         afn.formChenge(team, enemy, "ヨワシ(むれたすがた)")
+    }
+    if (con.name == "カイオーガ" && con.item == "あいいろのたま"){
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　は　ゲンシカイキした！" + "\n")
+        afn.formChenge(team, enemy, "ゲンシカイオーガ")
+    }
+    if (con.name == "グラードン" && con.item == "べにいろのたま"){
+        cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　は　ゲンシカイキした！" + "\n")
+        afn.formChenge(team, enemy, "ゲンシグラードン")
     }
 }
 

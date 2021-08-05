@@ -495,7 +495,7 @@ function getStatus(atk, def, move, critical){
         B_AV = def.con.D_AV
         D_AV = def.con.B_AV
     }
-    if (move[0] == "フォトンゲイザー"){
+    if (move[0] == "フォトンゲイザー" || move[0] == "てんこがすめつぼうのひかり"){
         if (A_rank > 0){
             A_AV = Math.floor((A_AV * (2 + A_rank)) / 2)
         } else {

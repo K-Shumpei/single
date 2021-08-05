@@ -27,6 +27,9 @@ exports.activeAbility = function(team, enemy, num){
 function abilityEmarge(team, enemy){
     let con = team.con
     if (con.ability == "あめふらし" && !con.f_con.includes("あめ") && !con.f_con.includes("おおひでり") && !con.f_con.includes("らんきりゅう")){
+        if (con.name == "カイオーガ" && con.item == "あいいろのたま"){
+            return
+        }
         cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　あめふらし！" + "\n")
         bfn.allFieldStatus(team, enemy, cfn.moveSearchByName("あまごい"))
     } else if (con.ability == "いかく"){
@@ -160,6 +163,9 @@ function abilityEmarge(team, enemy){
             cfn.conditionRemove(player.con, "field", "オーロラベール")
         }
     } else if (con.ability == "ひでり" && !con.f_con.includes("にほんばれ") && !con.f_con.includes("おおあめ") && !con.f_con.includes("らんきりゅう")){
+        if (con.name == "グラードン" && con.item == "べにいろのたま"){
+            return
+        }
         cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "の　ひでり！" + "\n")
         bfn.allFieldStatus(team, enemy, cfn.moveSearchByName("にほんばれ"))
     } else if (con.ability == "フェアリーオーラ"){
