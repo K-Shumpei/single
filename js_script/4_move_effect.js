@@ -14,14 +14,18 @@ const status = require("./4-1_status_move")
 exports.moveProcess = function(atk, def, move, order){
     // 2-A. 変化技の効果処理（？）予想ではここだが、明確なソースがない
     if (move[2] == "変化"){ 
-        if (status.statusMoveEffect(atk, def, move)){return "stop"}
+        const result = status.statusMoveEffect(atk, def, move)
+        // かたやぶりなどの特性無視終了？
+        moldBreakStop(atk, def, move)
+        if (result == true){
+            return "stop"
+        }
     } else { // 攻撃技の処理
         // 1.ダメージ計算 [与えたダメージ, タイプ相性, 急所判定, 発生したダメージ]
         let damage = HPDecreaseOperation(atk, def, move, order)
         damage.substitute = def.con.p_con.includes("みがわり")
         // 2.追加効果などの発動
         additionalEffectEtc(atk, def, move, order, damage)
-        // かたやぶりなどの特性無視終了？
         // 3.防御側の特性
         defenseAbility(atk, def, move, damage)
         // 4.防御側のもちもの
@@ -60,9 +64,12 @@ exports.moveProcess = function(atk, def, move, order){
         someMoveEffect(atk, def, move)
         // 22.ヒメリのみ/しろいハーブ/のどスプレー/だっしゅつパックによって手持ちに戻るまで
         otherItemEffect(atk, def, move)
+        // かたやぶりなどの特性無視終了？
+        moldBreakStop(atk, def, move)
         // 23.とんぼがえり/ボルトチェンジ/クイックターン/ききかいひ/にげごし/だっしゅつボタン/だっしゅつパックによる交代先の選択・交代
         if (returnBattle(atk, def)){return "stop"}
         // 24.きょうせい
+        
     }
     // 25.おどりこ
     //ability_dancer(atk, def, move, order)
@@ -1357,6 +1364,15 @@ function otherItemEffect(atk, def, move){
         // (わたげなど技以外の効果ではその直後に割り込んで発動する)
 }
 
+// かたやぶりなどの特性無視終了？
+function moldBreakStop(atk, def, move){
+    for (let i = 0; i < def.con.p_con.split("\n").length; i++){
+        if (def.con.p_con.split("\n")[i].includes("かたやぶり：")){
+            def.con.ability = def.con.p_con.split("\n")[i].slice(6)
+        }
+    }
+    cfn.conditionRemove(def.con, "poke", "かたやぶり：")
+}
 
 // 23.とんぼがえり/ボルトチェンジ/クイックターン/ききかいひ/にげごし/だっしゅつボタン/だっしゅつパックによる交代先の選択・交代
 function returnBattle(atk, def){

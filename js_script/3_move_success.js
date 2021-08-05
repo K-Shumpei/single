@@ -35,6 +35,8 @@ exports.moveSuccessJudge = function(atk, def, order){
     battleSwitch(atk, def, move)
     // 8.「<ポケモン>の <技>!」のメッセージ。PPが減少することが確約される
     attackDeclaration(atk, def, move)
+    // 8a.かたやぶりなどの特性無視発動？
+    moldBreakStart(atk, def, move)
     // 9.わざのタイプが変わる。1→2→3の順にタイプが変わる
     moveTypeChange(atk, def, move)
     // 10.技の対象が決まる。若い番号の対象が優先される
@@ -1011,6 +1013,18 @@ function attackDeclaration(atk, def, move){
     if (moveEff.abiInvalid().includes(move[0]) && moveEff.moldBreak().includes(def.con.ability)){
         def.con.p_con += "特性無視：" + def.con.ability + "\n"
         def.con.ability = ""
+    }
+}
+
+// 8a.かたやぶりなどの特性無視発動？
+function moldBreakStart(atk, def, move){
+    if (atk.con.ability == "かたやぶり" || atk.con.ability == "ターボブレイズ" || atk.con.ability == "テラボルテージ"){
+        for (let i = 0; i < abiEff.moldBreak().length; i++){
+            if (def.con.ability == abiEff.moldBreak()[i]){
+                def.con.p_con += "かたやぶり：" + def.con.ability + "\n"
+                def.con.ability = ""
+            }
+        }
     }
 }
 

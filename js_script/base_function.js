@@ -569,6 +569,14 @@ exports.processAtFailure = function(team){
     cfn.conditionRemove(team.con, "poke", "がまん")
     cfn.conditionRemove(team.con, "field", "参照項目")
 
+    // かたやぶりなどの特性無視終了？
+    for (let i = 0; i < team.con.p_con.split("\n").length; i++){
+        if (team.con.p_con.split("\n")[i].includes("かたやぶり：")){
+            team.con.ability = team.con.p_con.split("\n")[i].slice(6)
+        }
+    }
+    cfn.conditionRemove(team.con, "poke", "かたやぶり：")
+
     afn.specialButton(team)
 }
 

@@ -14,39 +14,43 @@ function set_ID(){
                 document.getElementById("poke_type").textContent = basePokemon[i][9] + "、" + basePokemon[i][10]
             }
             // 性別の設定
-            if (basePokemon[i][11] == "-"){
+            if (basePokemon[i][11] == "-" && basePokemon[i][12] == "-"){
                 document.getElementById("male").disabled = true
                 document.getElementById("female").disabled = true
+                document.getElementById("not").disabled = false
                 document.getElementById("not").checked = true
-            } else if (basePokemon[i][12] == "-"){
-                if (basePokemon[i][11] == "♂"){
-                    document.getElementById("male").checked = true
-                    document.getElementById("female").disabled = true
-                    document.getElementById("not").disabled = true
-                }
-                if (basePokemon[i][11] == "♀"){
-                    document.getElementById("male").disabled = true
-                    document.getElementById("female").checked = true
-                    document.getElementById("not").disabled = true
-                }
-            } else {
-                document.getElementById("male").checked = true
+            } else if (basePokemon[i][11] == "♂" && basePokemon[i][12] == "-"){
+                document.getElementById("male").disabled = false
+                document.getElementById("female").disabled = true
                 document.getElementById("not").disabled = true
+                document.getElementById("male").checked = true
+            } else if (basePokemon[i][11] == "♀" && basePokemon[i][12] == "-"){
+                document.getElementById("male").disabled = true
+                document.getElementById("female").disabled = false
+                document.getElementById("not").disabled = true
+                document.getElementById("female").checked = true
+            } else {
+                document.getElementById("male").disabled = false
+                document.getElementById("female").disabled = false
+                document.getElementById("not").disabled = true
+                document.getElementById("male").checked = true
             }
             // 特性の設定
-            const ability = document.poke_ID.ability
-            if (basePokemon[i][16] == ""){
-                ability.options[0] = new Option(basePokemon[i][15])
-            } else if (basePokemon[i][17] == ""){
-                ability.options[0] = new Option(basePokemon[i][15])
-                ability.options[1] = new Option(basePokemon[i][16])
-            } else {
-                ability.options[0] = new Option(basePokemon[i][15])
-                ability.options[1] = new Option(basePokemon[i][16])
-                ability.options[2] = new Option(basePokemon[i][17])
+            let ability = document.getElementById("ability")
+            ability.innerHTML = ""
+            for (let j = 15; j < 18; j++){
+                if (basePokemon[i][j] != ""){
+                    let option = document.createElement("option")
+                    option.text = basePokemon[i][j]
+                    ability.appendChild(option)
+                }
             }
         }
     }
+    // 実数値計算
+    AV_calc()
+    // 技の設定
+    getCanUse()
 }
 
 function set_random(){
@@ -58,27 +62,26 @@ function set_random(){
         }
     }
     // 性別の設定
-    document.getElementById("male").disabled = false
-    document.getElementById("female").disabled = false
-    document.getElementById("not").disabled = false
-    if (poke[11] == "-"){
+    if (poke[11] == "-" && poke[12] == "-"){
         document.getElementById("male").disabled = true
         document.getElementById("female").disabled = true
+        document.getElementById("not").disabled = false
         document.getElementById("not").checked = true
-    } else if (poke[12] == "-"){
-        if (poke[11] == "♂"){
-            document.getElementById("male").checked = true
-            document.getElementById("female").disabled = true
-            document.getElementById("not").disabled = true
-        }
-        if (poke[11] == "♀"){
-            document.getElementById("male").disabled = true
-            document.getElementById("female").checked = true
-            document.getElementById("not").disabled = true
-        }
-    } else {
-        document.getElementById("male").checked = true
+    } else if (poke[11] == "♂" && poke[12] == "-"){
+        document.getElementById("male").disabled = false
+        document.getElementById("female").disabled = true
         document.getElementById("not").disabled = true
+        document.getElementById("male").checked = true
+    } else if (poke[11] == "♀" && poke[12] == "-"){
+        document.getElementById("male").disabled = true
+        document.getElementById("female").disabled = false
+        document.getElementById("not").disabled = true
+        document.getElementById("female").checked = true
+    } else {
+        document.getElementById("male").disabled = false
+        document.getElementById("female").disabled = false
+        document.getElementById("not").disabled = true
+        document.getElementById("male").checked = true
     }
     // タイプの設定
     if (poke[10] == ""){
@@ -87,36 +90,18 @@ function set_random(){
         document.getElementById("poke_type").textContent = poke[9] + "、" + poke[10]
     }
     // 特性の設定
-    document.getElementById("ability").remove(0)
-    document.getElementById("ability").remove(0)
-    document.getElementById("ability").remove(0)
-    const ability = document.poke_ID.ability
-    if (poke[16] == ""){
-        ability.options[0] = new Option(poke[15])
-    } else if (poke[17] == ""){
-        if (Math.random() < 0.5){
-            ability.options[0] = new Option(poke[15])
-            ability.options[1] = new Option(poke[16])
-        } else {
-            ability.options[1] = new Option(poke[15])
-            ability.options[0] = new Option(poke[16])
+    let ability = document.getElementById("ability")
+    ability.innerHTML = ""
+    let count = 0
+    for (let i = 15; i < 18; i++){
+        if (poke[i] != ""){
+            let option = document.createElement("option")
+            option.text = poke[i]
+            ability.appendChild(option)
+            count += 1
         }
-    } else {
-        if (Math.random() < 1 / 3){
-            ability.options[0] = new Option(poke[15])
-            ability.options[1] = new Option(poke[16])
-            ability.options[2] = new Option(poke[17])
-        } else if (Math.random() < 1 / 2){
-            ability.options[1] = new Option(poke[15])
-            ability.options[2] = new Option(poke[16])
-            ability.options[0] = new Option(poke[17])
-        } else {
-            ability.options[2] = new Option(poke[15])
-            ability.options[0] = new Option(poke[16])
-            ability.options[1] = new Option(poke[17])
-        }
-
     }
+    ability.selectedIndex = Math.floor(count * Math.random())
     // 持ち物の設定
     random = Math.random()
     for (let i = 0; i < random_item_list.length; i++){
@@ -131,15 +116,25 @@ function set_random(){
         document.getElementById(parameter[i] + "_BS").textContent = poke[i + 2]
     }
     // 技の設定
-    for (let i = 0; i < 4; i++){
-        random = Math.random()
-        for (let j = 0; j < base_move_list.length; j++){
-            if (random > j / base_move_list.length){
-                document.four_moves["move" + i].value = base_move_list[j][0]
-                set_move(i)
-            }
+    getCanUse()
+    let moveList = ""
+    for (let i = 0; i < can_use_move.length; i++){
+        if (document.poke_name.poke_name.value == can_use_move[i][1]){
+            moveList = can_use_move[i][2]
         }
     }
+    let num = ["", "", "", ""]
+    while (num[0] == num[1] || num[0] == num[2] || num[0] == num[3] || num[1] == num[2] || num[1] == num[3] || num[2] == num[3]){
+        for (let i = 0; i < 4; i++){
+            num[i] = Math.floor(Math.random() * moveList.length)
+        }
+    }
+    for (let i = 0; i < 4; i++){
+        document.four_moves["move" + i].value = moveList[num[i]]
+        set_move(i)
+    }
+    // 実数値計算
+    AV_calc()
 }
 
 function AV_calc(){
@@ -178,34 +173,22 @@ function set_reset(){
     // タイプのリセット
     document.getElementById("poke_type").textContent = ""
     // 性別のリセット
-    const sex = ["male", "female", "not"]
-    for (i = 0; i < sex.length; i++){
-        document.getElementById(sex[i]).disabled = false
-        document.getElementById(sex[i]).checked = false
+    for (const sex of ["male", "female", "not"]){
+        document.getElementById(sex).disabled = false
+        document.getElementById(sex).checked = false
     }
     // レベルのリセット
     document.poke_ID.poke_LV.value = 50
     // 特性のリセット
-    const ability = document.getElementById("ability")
-    ability.remove(0)
-    ability.remove(0)
-    ability.remove(0)
+    let ability = document.getElementById("ability")
+    ability.innerHTML = ""
     // 持ち物のリセット
     document.poke_ID.poke_item.value = ""
-    // 種族値のリセット
-    const parameter_BS = ["H_BS", "A_BS", "B_BS", "C_BS", "D_BS", "S_BS"]
-    for (i = 0; i < 6; i++){
-        document.getElementById(parameter_BS[i]).textContent = 100
-    }
-    // 個体値のリセット
-    const parameter_IV = ["H_IV", "A_IV", "B_IV", "C_IV", "D_IV", "S_IV"]
-    for (i = 0; i < 6; i++){
-        document.input_value[parameter_IV[i]].value = 31
-    }
-    // 努力値のリセット
-    const parameter_EV = ["H_EV", "A_EV", "B_EV", "C_EV", "D_EV", "S_EV"]
-    for (i = 0; i < 6; i++){
-        document.input_value[parameter_EV[i]].value = 0
+    // 種族値・個体値・努力値のリセット
+    for (const i of ["H", "A", "B", "C", "D", "S"]){
+        document.getElementById(i + "_BS").textContent = 100
+        document.input_value[i + "_IV"].value = 31
+        document.input_value[i + "_EV"].value = 0
     }
     document.getElementById("EV_last").textContent = 510
     // 性格のリセット
@@ -213,7 +196,6 @@ function set_reset(){
     document.getElementById("nature_minus_1").checked = true
     document.getElementById("nature").textContent = "てれや"
     // 技のリセット
-    const label = ["move", "type", "label", "power", "accuracy", "PP", "direct", "protect", "focus", "discription"]
     for (i = 0; i < 4; i++){
         document.four_moves["move" + String(i)].value = ""
         document.getElementById("type" + String(i)).textContent = ""
@@ -222,6 +204,8 @@ function set_reset(){
         document.getElementById("PP" + String(i)).textContent = ""
         document.getElementById("discription" + String(i)).textContent = ""
     }
+    // 実数値計算
+    AV_calc()
 }
 
 function set_LV(value){
@@ -268,33 +252,28 @@ function set_nature(){
 }
 
 function getCanUse(){
-    alert(document.poke_name.poke_name.value)
-    alert(can_use_move[0][1])
-    for (let i = 0; i < 4; i++){
-        let form = document.getElementById("input_move" + i)
-        let select = document.createElement("select")
-        for (let j = 0; j < can_use_move.length; j++){
-            if (document.poke_name.poke_name.value == can_use_move[j][1]){
-                for (const move of can_use_move[j][2]){
-                    let option = document.createElement("option")
-                    option.text = move
-                    select.appendChild(option)
-                }
+    var dataList = document.getElementById("move")
+    dataList.innerHTML = ""
+    for (let i = 0; i < can_use_move.length; i++){
+        if (document.poke_name.poke_name.value == can_use_move[i][1]){
+            for (const move of can_use_move[i][2]){
+                let option = document.createElement("option")
+                option.value = move
+                dataList.appendChild(option)
             }
         }
-        form.appendChild(select)
     }
 }
 
 function set_move(num){
     const name = document.getElementById("move" + num).value
-    for (i = 0; i < base_move_list.length; i++){
-        if (name == base_move_list[i][0]){
-            document.getElementById("type" + String(num)).textContent = base_move_list[i][1]
-            document.getElementById("power" + String(num)).textContent = base_move_list[i][3]
-            document.getElementById("accuracy" + String(num)).textContent = base_move_list[i][4]
-            document.getElementById("PP" + String(num)).textContent = base_move_list[i][5]
-            document.getElementById("discription" + String(num)).textContent = base_move_list[i][9]
+    for (i = 0; i < move_list.length; i++){
+        if (name == move_list[i][0]){
+            document.getElementById("type" + String(num)).textContent = move_list[i][1]
+            document.getElementById("power" + String(num)).textContent = move_list[i][3]
+            document.getElementById("accuracy" + String(num)).textContent = move_list[i][4]
+            document.getElementById("PP" + String(num)).textContent = move_list[i][5]
+            document.getElementById("discription" + String(num)).textContent = move_list[i][9]
         }
     }
 }
@@ -426,7 +405,6 @@ function set_pokemon(){
 function setAll(){
     for (let j = 0; j < 6; j++){
         set_random()
-        AV_calc()
         let parameter = ["H", "A", "B", "C", "D", "S"]
         let ability = document.poke_ID.ability
         let num = ability.selectedIndex

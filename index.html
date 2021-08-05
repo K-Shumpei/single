@@ -9,6 +9,7 @@
     <script src="html_js/poke_item.js"></script>
     <script src="html_js/poke_move_base.js"></script>
     <script src="html_js/poke_move.js"></script>
+    <script src="html_js/can_use_move.js"></script>
     <script src="html_js/display_effect.js"></script>
 
     <script src="html_js/display.js"></script>
@@ -27,7 +28,7 @@
     <div id="register">
 
         <form name="poke_name" id="poke_name_id">
-            なまえ：<input name="poke_name" type="text" list="poke_name" value="" size="30" autocomplete="off" onchange="set_ID(), AV_calc()()">
+            なまえ：<input name="poke_name" type="text" list="poke_name" value="" size="30" autocomplete="off" onchange="set_ID()">
             <datalist id="poke_name">
                 <script type="text/javascript">
                 for (i = 0; i < basePokemon.length; i++){
@@ -35,8 +36,8 @@
                 }
                 </script>
             </datalist>
-            <input type="button" value="ランダム" onclick="set_random(), AV_calc()">
-            <input type="button" value="リセット" onclick="set_reset(), AV_calc()">
+            <input type="button" value="ランダム" onclick="set_random()">
+            <input type="button" value="リセット" onclick="set_reset()">
             <br>
             
             タイプ：<span id="poke_type"></span><br>
@@ -136,11 +137,7 @@
         </script>
 
         <datalist id="move">
-            <script type="text/javascript">
-            for (i = 0; i < base_move_list.length; i++){
-                document.write("<option value='"+ base_move_list[i][0] +"''>")
-            }
-            </script>
+
         </datalist>
 
         <hr>

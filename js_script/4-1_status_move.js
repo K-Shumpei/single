@@ -30,6 +30,7 @@ exports.statusMoveEffect = function(atk, def, move){
     // その他の技
     otherStatusMove(atk, def, move)
 
+    return false
 }
 
 // ランク変化のみ
