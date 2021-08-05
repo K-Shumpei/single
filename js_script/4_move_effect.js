@@ -1164,7 +1164,7 @@ function defenseItemEffect(atk, def, move){
         cfn.setRecycle(def)
     }
     // だっしゅつボタン/レッドカードによって手持ちに戻るまで
-    if (def.con.item == "だっしゅつボタン" && cfn.lifeCheck(def)){
+    if (def.con.item == "だっしゅつボタン" && cfn.lifeCheck(def) && !def.con.p_con.includes("おいうち成功")){
         cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　" + def.con.item + "　が発動して　手持ちに戻った" + "\n")
         cfn.setRecycle(def)
         def.con.f_con+= "選択中・・・" + "\n"

@@ -267,8 +267,8 @@ function powerCalculation(atk, def, move, order){
         }
     } else if ((move[0] == "エラがみ" || move[0] == "でんげきくちばし") && atk == order[0]){
         move[3] = 170
-    } else if (move[0] == "おいうち"){
-
+    } else if (move[0] == "おいうち" && def.con.p_con.includes("おいうち成功")){
+        move[3] *= 2
     } else if (move[0] == "しっぺがえし" && atk == order[1]){
         move[3] = 100
     } else if (move[0] == "ダメおし" && def.con.p_con.includes("ダメおし")){

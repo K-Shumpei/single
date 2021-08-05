@@ -92,6 +92,28 @@ exports.runBattle = function(rec){
     for (const user of [order, reverse]){
         if (user[0].data.command >= 4){
             cfn.logWrite(user[0], user[1], "(" + user[0].con.TN + "の行動)" + "\n")
+            if (user[1].con["move_" + user[1].data.command] == "おいうち" && !user[1].data.Z && !user[1].data.dyna && !user[1].data.giga && !user[1].data.ultra){
+                megaEvolution([user[1], user[0]])
+                user[0].con.p_con += "おいうち成功" + "\n"
+                let atk = user[1]
+                let def = user[0]
+                let move = success.moveSuccessJudge(atk, def, [atk, def])
+                if (move == false){
+                    bfn.processAtFailure(atk)
+                } else {
+                    process.moveProcess(atk, def, move, order)
+                }
+                atk.data.command = ""
+                if (!user[0].con.f_con.includes("ひんし")){
+                    cfn.logWrite(user[0], user[1], user[0].con.TN + "　は　" + user[0].con.name + "を　引っ込めた！" + "\n")
+                    summon.comeBack(user[0], user[1])
+                    summon.pokeReplace(user[0], user[1])
+                    summon.onField(user[0], user[1], 1)
+                } 
+                user[0].data.command = ""
+                end.endProcess(rec.user1, rec.user2)
+                return
+            }
             cfn.logWrite(user[0], user[1], user[0].con.TN + "　は　" + user[0].con.name + "を　引っ込めた！" + "\n")
             summon.comeBack(user[0], user[1])
             summon.pokeReplace(user[0], user[1])
@@ -107,51 +129,12 @@ exports.runBattle = function(rec){
         // きんちょうかんのみローテションした際に表示される。
     // 4.メガシンカ/ウルトラバースト　すばやさ順に発動
     for (const user of [order, reverse]){
-        const list = itemEff.megaStone()
-        for (let i = 0; i < list.length; i++){
-            if (user[0].con.name == list[i][1] && user[0].data.mega){
-                afn.formChenge(user[0], user[1], list[i][2])
-                user[0].data.megable = true
-                user[0].data.megaTxt = "メガ進化（済）"
-            }
-        }
-        if (user[0].data.mega && user[0].con.name == "レックウザ"){
-            afn.formChenge(user[0], user[1], "メガレックウザ")
-            user[0].data.megable = true
-            user[0].data.megaTxt = "メガ進化（済）"
-        }
-        if (user[0].data.ultra){
-            afn.formChenge(user[0], user[1], "ネクロズマ(ウルトラネクロズマ)")
-            user[0].data.ultrable = true
-            user[0].data.ultraTxt = "ウルトラバースト（済）"
-            for (let i = 0; i < 4; i++){
-                if (user[0].con["move_" + i] == "フォトンゲイザー" && user[0].data.ZTxt == "Z技"){
-                    user[0].data.Zable = false
-                }
-            }
-        }
+        megaEvolution(user)
     }
     // 5.ダイマックス　すばやさ順に発動
     for (const user of [order, reverse]){
-        if (user[0].data.dyna){
-            cfn.logWrite(user[0], user[1], user[0].con.TN + "　の　" + user[0].con.name + "　は　ダイマックスした！" + "\n")
-            user[0].data.dynaTxt = "ダイマックス：3/3"
-        } else if (user[0].data.giga){
-            cfn.logWrite(user[0], user[1], user[0].con.TN + "　の　" + user[0].con.name + "　は　キョダイマックスした！" + "\n")
-            user[0].data.gigaTxt = "キョダイマックス：3/3"
-        }
-        if (user[0].data.dyna || user[0].data.giga){
-            user[0].data.dynable = true
-            user[0].data.gigable = true
-            user[0].con.full_HP *= 2
-            user[0].con.last_HP *= 2
-            user[0]["poke" + cfn.battleNum(user[0])].last_HP *= 2
-            cfn.conditionRemove(user[0].con, "poke", "いちゃもん")
-            cfn.conditionRemove(user[0].con, "poke", "みがわり")
-            cfn.conditionRemove(user[0].con, "poke", "ちいさくなる")
-        }
+        dynaGigaMax(user)
     }
-
     // メガ進化、ダイマックスを終えた後、もう一度素早さチェックを行う
     order = afn.speedCheck(rec.user1, rec.user2)
     if (order[0] > order[1] || (order[0] == order[1] && Math.random() < 0.5)){
@@ -262,3 +245,50 @@ exports.runBattle = function(rec){
 
 
 
+// 4.メガシンカ/ウルトラバースト　すばやさ順に発動
+function megaEvolution(user){
+    const list = itemEff.megaStone()
+    for (let i = 0; i < list.length; i++){
+        if (user[0].con.name == list[i][1] && user[0].data.mega){
+            afn.formChenge(user[0], user[1], list[i][2])
+            user[0].data.megable = true
+            user[0].data.megaTxt = "メガ進化（済）"
+        }
+    }
+    if (user[0].data.mega && user[0].con.name == "レックウザ"){
+        afn.formChenge(user[0], user[1], "メガレックウザ")
+        user[0].data.megable = true
+        user[0].data.megaTxt = "メガ進化（済）"
+    }
+    if (user[0].data.ultra){
+        afn.formChenge(user[0], user[1], "ネクロズマ(ウルトラネクロズマ)")
+        user[0].data.ultrable = true
+        user[0].data.ultraTxt = "ウルトラバースト（済）"
+        for (let i = 0; i < 4; i++){
+            if (user[0].con["move_" + i] == "フォトンゲイザー" && user[0].data.ZTxt == "Z技"){
+                user[0].data.Zable = false
+            }
+        }
+    }
+}
+
+// 5.ダイマックス　すばやさ順に発動
+function dynaGigaMax(user){
+    if (user[0].data.dyna){
+        cfn.logWrite(user[0], user[1], user[0].con.TN + "　の　" + user[0].con.name + "　は　ダイマックスした！" + "\n")
+        user[0].data.dynaTxt = "ダイマックス：3/3"
+    } else if (user[0].data.giga){
+        cfn.logWrite(user[0], user[1], user[0].con.TN + "　の　" + user[0].con.name + "　は　キョダイマックスした！" + "\n")
+        user[0].data.gigaTxt = "キョダイマックス：3/3"
+    }
+    if (user[0].data.dyna || user[0].data.giga){
+        user[0].data.dynable = true
+        user[0].data.gigable = true
+        user[0].con.full_HP *= 2
+        user[0].con.last_HP *= 2
+        user[0]["poke" + cfn.battleNum(user[0])].last_HP *= 2
+        cfn.conditionRemove(user[0].con, "poke", "いちゃもん")
+        cfn.conditionRemove(user[0].con, "poke", "みがわり")
+        cfn.conditionRemove(user[0].con, "poke", "ちいさくなる")
+    }
+}
