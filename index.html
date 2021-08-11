@@ -301,9 +301,9 @@
         <table  align="center">
             <tr><td>
                 <table align="center">
+                    <tr><td><input type="checkbox" id="A_ultra" disabled></td><td><span id="A_ultra_text">ウルトラバースト</span></td></tr>
                     <tr><td><input type="checkbox" id="A_mega" disabled></td><td><span id="A_mega_text">メガ進化</span></td></tr>
                     <tr><td><input type="checkbox" id="A_Z" disabled onchange="Z_move()"></td><td><span id="A_Z_text">Z技</span></td></tr>
-                    <tr><td><input type="checkbox" id="A_ultra" disabled></td><td><span id="A_ultra_text">ウルトラバースト</span></td></tr>
                     <tr><td><input type="checkbox" id="A_dyna" onchange="dynamax()"></td><td><span id="A_dyna_text">ダイマックス</span></td></tr>
                     <tr><td><input type="checkbox" id="A_giga" disabled onchange="gigadyna()"></td><td><span id="A_giga_text">キョダイマックス</span></td></tr>
                 </table>
@@ -404,19 +404,19 @@
         </table>
         </td>
         <td><table align="center">
+            <tr><td><span id="B_ultra_text">ウルトラバースト</span></td></tr>
             <tr><td><span id="B_mega_text">メガ進化</span></td></tr>
             <tr><td><span id="B_Z_text">Z技</span></td></tr>
-            <tr><td><span id="B_ultra_text">ウルトラバースト</span></td></tr>
             <tr><td><span id="B_dyna_text">ダイマックス</span></td></tr>
             <tr><td><span id="B_giga_text">キョダイマックス</span></td></tr>
         </table></td>
         </tr>
         <tr>
-            <td>ポケモンの状態<br><textarea name="A_p_con" cols="30" rows="7" readonly></textarea></td>
-            <td>ポケモンの状態<br><textarea name="B_p_con" cols="30" rows="7" readonly></textarea></td></tr>
+            <td>ポケモンの状態<br><textarea name="A_p_con" cols="30" rows="6" readonly></textarea></td>
+            <td>ポケモンの状態<br><textarea name="B_p_con" cols="30" rows="6" readonly></textarea></td></tr>
         <tr>
-            <td>フィールドの状態<br><textarea name="A_f_con" cols="30" rows="7" readonly></textarea></td>
-            <td>フィールドの状態<br><textarea name="B_f_con" cols="30" rows="7" readonly></textarea></td>
+            <td>フィールドの状態<br><textarea name="A_f_con" cols="30" rows="6" readonly></textarea></td>
+            <td>フィールドの状態<br><textarea name="B_f_con" cols="30" rows="6" readonly></textarea></td>
         </tr>
         <tr>
             <td>最後に宣言した技<br><textarea name="A_used" cols="30" rows="1" readonly></textarea></td>
@@ -426,7 +426,9 @@
 
         <table align="center">
             <tr><td>対戦のログ：</td></tr>
-            <tr><td><textarea name="battle_log" id="A_log" cols="200" rows="10" readonly></textarea></td></tr>
+            <tr>
+                <td><textarea name="battle_log" id="A_log" cols="200" rows="10" readonly></textarea></td>
+            </tr>
         </table>
     </form>
     </div>

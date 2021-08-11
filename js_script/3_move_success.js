@@ -1009,6 +1009,14 @@ function attackDeclaration(atk, def, move){
         }
     }
 
+    // ちからずく
+    const addEff = moveEff.additionalEffect()
+    for (let i = 0; i < addEff.length; i++){
+        if (move[0] == addEff[i][0] && atk.con.ability == "ちからずく" && move[0] != "なげつける"){
+            atk.con.p_con += "ちからずく有効" + "\n"
+        }
+    }
+
     // シャドーレイ、フォトンゲイザー: 対象の特性を攻撃処理の終わりまで無くす
     if (moveEff.abiInvalid().includes(move[0]) && abiEff.moldBreak().includes(def.con.ability)){
         def.con.p_con += "特性無視：" + def.con.ability + "\n"
@@ -1454,7 +1462,7 @@ function abilityFailure(atk, def, move){
         }
     }
     // じょおうのいげん/ビビッドボディ: 優先度が高い技
-    if ((def.con.ability == "じょおうのいげん" || def.con.ability == "ビビッドボディ") && bfn.priorityDegree(atk.con, move) > 0 && !(move[8] == "自分" || move[0] == "味方の場" || move[0] == "全体の場")){
+    if ((def.con.ability == "じょおうのいげん" || def.con.ability == "ビビッドボディ") && bfn.priorityDegree(atk.con, move) > 0 && move[8] == "相手"){
         cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
         return true
     }
@@ -1581,7 +1589,7 @@ function　accumulateOperation(atk, def, move){
 
 // 25.対象のポケモンが全員すでにひんしになっていて場にいないことによる失敗
 function faintedFailure(atk, def, move){
-    if ((move[8] == "1体選択" || move[8] == "相手全体" || move[8] == "自分以外") && def.con.f_con.includes("ひんし")){
+    if (move[8] == "相手" && def.con.f_con.includes("ひんし")){
         cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
         return true
     }
@@ -1624,7 +1632,7 @@ function magnitude(atk, def, move){
 // 29.姿を隠していることによる無効化
 function hideInvalidation(atk, def, move){
     let con = def.con
-    if (!(con.p_con.includes("姿を隠す") && (move[8] == "1体選択" || move[8] == "相手全体" || move[8] == "自分以外" || move[8] == "全体") && atk.con.ability != "ノーガード" && con.ability != "ノーガード")){
+    if (!(con.p_con.includes("姿を隠す") && move[8] == "相手" && atk.con.ability != "ノーガード" && con.ability != "ノーガード")){
         return
     }
     if ((con.p_con.includes("あなをほる") && !(move[0] == "じしん" || move[0] == "マグニチュード")) 
@@ -1638,7 +1646,7 @@ function hideInvalidation(atk, def, move){
 
 // 30.サイコフィールドによる無効化
 function phschoFieldInvalidation(atk, def, move){
-    if (atk.con.f_con.includes("サイコフィールド") && cfn.groundedCheck(def.con) && bfn.priorityDegree(atk.con, move) > 0 && !(move[8] == "自分" || move[8] == "味方の場" || move[8] == "全体の場")){
+    if (atk.con.f_con.includes("サイコフィールド") && cfn.groundedCheck(def.con) && bfn.priorityDegree(atk.con, move) > 0 && move[8] == "相手"){
         cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　サイコフィールドに　守られている！" + "\n")
         return true
     }
@@ -1650,9 +1658,9 @@ function otherProtectInvalidation(atk, def, move){
         return false
     }
     let con = def.con
-    if ((con.p_con.includes("ファストガード") && bfn.priorityDegree(atk.con, move) > 0 && !(move[8] == "自分" || move[0] == "味方の場" || move[0] == "全体の場")) 
-    || (con.p_con.includes("ワイドガード") && (move[8] == "相手全体" || move[8] == "全体"|| move[8] == "自分以外")) 
-    || (con.p_con.includes("トリックガード") && (move[8] == "相手全体" || move[8] == "全体" || move[8] == "1体選択") && move[2] == "変化")){
+    if ((con.p_con.includes("ファストガード") && bfn.priorityDegree(atk.con, move) > 0 && move[8] == "相手") 
+    || (con.p_con.includes("ワイドガード") && moveEff.wideGuard().includes(move[0])) 
+    || (con.p_con.includes("トリックガード") && move[8] == "相手" && move[2] == "変化")){
         cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　攻撃を守った！" + "\n")
         return true
     }
@@ -1660,14 +1668,14 @@ function otherProtectInvalidation(atk, def, move){
 
 // 32.まもる/キングシールド/ブロッキング/ニードルガード/トーチカによる無効化 (Zワザ/ダイマックスわざなら75%をカットする)
 function protectInvalidation(atk, def, move){
-    if (!(move[8] == "自分以外" || move[8] == "全体" || move[8] == "1体選択" || move[8] == "相手全体")){
+    if (move[8] != "相手"){
         return false
     }
     if ((atk.con.ability == "ふかしのこぶし" || moveEff.cannotProtect().includes(move[0])) && !def.con.p_con.includes("ダイウォール")){
         return false
     }
-    if ((atk.data.Z || atk.data.dynaTxt.includes("3") || atk.data.gigaTxt.includes("3")) && !def.con.p_con.includes("ダイウォール")){
-        return false
+    if (((atk.data.Z && move[2] != "変化") || atk.data.dynaTxt.includes("3") || atk.data.gigaTxt.includes("3")) && !def.con.p_con.includes("ダイウォール")){
+        return false 
     }
     if (move[0] == "キョダイイチゲキ" || move[0] == "キョダイレンゲキ"){
         return false
@@ -1701,7 +1709,7 @@ function protectInvalidation(atk, def, move){
 
 // 33.たたみがえしによる無効化 (Zワザ/ダイマックスわざなら75%をカットする)
 function matBlock(atk, def, move){
-    if (atk.data.Z){
+    if (atk.data.Z && move[2] != "変化"){
         return false
     }
     if (def.con.p_con.includes("たたみがえし") && move[2] != "変化"){
@@ -1736,12 +1744,12 @@ function telekinesisFailure(atk, def, move){
 function abilityInvalidation1(atk, def, move){
     let con = def.con
     // そうしょく: くさタイプ
-    if (con.ability == "そうしょく" && move[1] == "くさ" && !(move[8] == "自分" || move[8].match("場"))){
+    if (con.ability == "そうしょく" && move[1] == "くさ" && move[8] == "相手"){
         afn.rankChange(def, atk, "A", 1, 100, "そうしょく", true)
         return true
     }
     // もらいび: ほのおタイプ
-    if (con.ability == "もらいび" && move[1] == "ほのお" && !(move[8] == "自分" || move[8].match("場"))){
+    if (con.ability == "もらいび" && move[1] == "ほのお" && move[8] == "相手"){
         cfn.logWrite(atk, def, con.TN + "　の　" + con.name +  "　は　もらいびで　ほのおの威力が上がった！" + "\n")
         if (!con.p_con.includes("もらいび")){
             con.p_con += "もらいび" + "\n"
@@ -1749,7 +1757,7 @@ function abilityInvalidation1(atk, def, move){
         return true
     }
     // かんそうはだ/よびみず/ちょすい: みずタイプ
-    if (move[1] == "みず" && !(move[8] == "自分" || move[8].match("場"))){
+    if (move[1] == "みず" && move[8] == "相手"){
         if (con.ability == "かんそうはだ" || con.ability == "ちょすい"){
             afn.HPchangeMagic(def, atk, Math.floor(def["poke" + cfn.battleNum(def)].full_HP / 4), "+", con.ability)
             return true
@@ -1759,7 +1767,7 @@ function abilityInvalidation1(atk, def, move){
         }
     }
     // ひらいしん/でんきエンジン/ちくでん: でんきタイプ
-    if (move[1] == "でんき" && !(move[8] == "自分" || move[8].match("場"))){
+    if (move[1] == "でんき" && move[8] == "相手"){
         if (con.ability == "ひらいしん"){
             afn.rankChange(def, atk, "C", 1, 100, "ひらいしん", true)
             return true
@@ -1847,7 +1855,7 @@ function typeInvalidation1(atk, def, move){
         return true
     }
     // あくタイプ: いたずらごころの効果が発動した技の無効化
-    if (atk.con.ability == "いたずらごころ" && def.con.type.includes("あく") && move[2] == "変化" && !(move[8] == "自分" || move[0] == "味方の場" || move[0] == "全体の場")){
+    if (atk.con.ability == "いたずらごころ" && def.con.type.includes("あく") && move[2] == "変化" && move[8] == "相手"){
         cfn.logWrite(atk, def, def.con.TN +  "　の　" + def.con.name + "　には　効果がないようだ・・・" + "\n")
         return true
     }
@@ -2319,7 +2327,7 @@ function substituteInvalidation2(atk, def, move){
     // みがわり状態であり、変化技であり、音技でなく、身代わり貫通技でない
     if (def.con.p_con.includes("みがわり") && move[2] == "変化" && !moveEff.music().includes(move[0]) && !moveEff.substitute().includes(move[0])){
         // 対象が、1体選択、相手全体、自分以外、全体
-        if (move[8] == "1体選択" || move[8] == "相手全体" || move[8] == "自分以外" || move[8] == "全体"){
+        if (move[8] == "相手"){
             cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
             return true
         }

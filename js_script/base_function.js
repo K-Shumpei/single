@@ -277,6 +277,7 @@ exports.allFieldStatus = function(atk, def, move){
 // 優先度
 exports.priorityDegree = function(con, move){
     const list = moveEff.prioDeg()
+    const recover = moveEff.recover()
     let priority = 0
     for (let i = 0; i < list.length; i++){
         if (move[0] == list[i][0]){
@@ -288,7 +289,7 @@ exports.priorityDegree = function(con, move){
     || (con.ability == "はやてのつばさ" && move[1] == "ひこう" && con.last_HP == con.full_HP)){
         priority += 1
     }
-    if (con.ability == "ヒーリングシフト" && list.includes(move[0])){
+    if (con.ability == "ヒーリングシフト" && recover.includes(move[0])){
         priority += 3
     }
 

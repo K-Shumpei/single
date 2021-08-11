@@ -305,10 +305,11 @@ function powerCalculation(atk, def, move, order){
         }
     }
     // バッテリー、パワースポット * 5325 / 4096 → 四捨五入
-    // アナライズ、かたいツメ、すなのちから、ちからづく、パンクロック * 5325 / 4096 → 四捨五入
+    // アナライズ、かたいツメ、すなのちから、ちからずく、パンクロック * 5325 / 4096 → 四捨五入
     if ((atk.con.ability == "アナライズ" && atk == order[1]) 
     || (atk.con.ability == "かたいツメ" && move[6] == "直接") 
     || (atk.con.ability == "すなのちから" && atk.con.f_con.includes("すなあらし") && (move[1] == "いわ" || move[1] == "じめん" || move[1] == "はがね") && cfn.isWeather(atk.con, def.con)) 
+    || (atk.con.ability == "ちからずく" && atk.con.p_con.includes("ちからずく有効"))
     || (atk.con.ability == "パンクロック" && music_move_list.includes(move[0]))){
         correction = Math.round(correction * 5325 / 4096)
     }

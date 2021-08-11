@@ -188,7 +188,8 @@ var end_process_poke_condition = [
     'マジックコート', 
     'ひるみ', 
     'スキン', 
-    '優先'
+    '優先', 
+    'ちからずく有効'
 ]
 
 var end_process_field_condition = [
