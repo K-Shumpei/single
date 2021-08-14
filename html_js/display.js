@@ -77,8 +77,6 @@ function set_random(){
             }
         }
     }
-
-    console.log(poke[1])
     // 性別の設定
     if (poke[11] == "-" && poke[12] == "-"){
         document.getElementById("male").disabled = true
