@@ -609,6 +609,8 @@ exports.moveSearch = function(user){
         move_org = cfn.moveSearchByName("ころがる")
     } else if (user.con.p_con.includes("がまん")){
         move_org = cfn.moveSearchByName("がまん")
+    } else if (user.con.p_con.includes("がまん")){
+        move_org = cfn.moveSearchByName("さわぐ")
     } else if (user.con.p_con.includes("アンコール")){
         for (let i = 0; i < user.con.p_con.split("\n").length - 1; i++){
             if (user.con.p_con.split("\n")[i].includes("アンコール")){

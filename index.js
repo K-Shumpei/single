@@ -126,7 +126,8 @@ $(function () {
         || document.battle.A_p_con.value.includes("あばれる") 
         || document.battle.A_p_con.value.includes("アイスボール") 
         || document.battle.A_p_con.value.includes("ころがる") 
-        || document.battle.A_p_con.value.includes("がまん")){
+        || document.battle.A_p_con.value.includes("がまん") 
+        || document.battle.A_p_con.value.includes("さわぐ")){
             val = undefined
         }
         if (val == ""){
