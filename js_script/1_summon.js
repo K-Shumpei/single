@@ -95,7 +95,7 @@ exports.comeBack = function(user, enemy){
     }
     // 特性が「きんちょうかん」の時
     if (user.con.ability == "きんちょうかん"){
-        bfn.berryPinch(enemy, team)
+        bfn.berryPinch(enemy, user)
         bfn.berryAbnormal(enemy, user)
     }
 

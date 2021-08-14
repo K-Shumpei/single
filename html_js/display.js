@@ -1,5 +1,5 @@
-function set_ID(){
-    // 技のリセット
+// 技のリセット
+function moveReset(){
     for (i = 0; i < 4; i++){
         document.four_moves["move" + String(i)].value = ""
         document.getElementById("type" + String(i)).textContent = ""
@@ -8,6 +8,9 @@ function set_ID(){
         document.getElementById("PP" + String(i)).textContent = ""
         document.getElementById("discription" + String(i)).textContent = ""
     }
+}
+
+function set_ID(){    
     const poke_name = document.poke_name.poke_name.value
     const parameter_BS = ["H_BS", "A_BS", "B_BS", "C_BS", "D_BS", "S_BS"]
     for (i = 0; i < pokemon.length; i++){
