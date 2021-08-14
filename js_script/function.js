@@ -466,6 +466,7 @@ exports.damageDeclaration = function(atk, def, damage, move){
     // みがわりがある時
     if (damage.substitute && !moveEff.music().includes(move[0]) && move[0] != "シャドースチール" && atk.con.ability != "すりぬけ"){
         let p_list = def.con.p_con.split("\n")
+        let check = 0
         for (let i = 0; i < p_list.length; i++){
             if (p_list[i].includes("みがわり：")){
                 if (damage.give < Number(p_list[i].slice(5).split("/")[0])){
@@ -475,15 +476,16 @@ exports.damageDeclaration = function(atk, def, damage, move){
                 } else {
                     cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　みがわりに　" + p_list[i].slice(5).split("/")[0] + "（" +  damage.damage + "）　のダメージ" + "\n")
                     cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　みがわりは　壊れてしまった" + "\n")
-                    cfn.conditionRemove(def.con, "poke", "みがわり")
                     damage.give = p_list[i].slice(5).split("/")[0]
-                    p_list.slice(i, 1)
+                    check += 1
                     break
                 }
             }
         }
         def.con.p_con = p_list.join("\n")
-
+        if (check == 1){
+            cfn.conditionRemove(def.con, "poke", "みがわり：")
+        }
     } else { // みがわりがない時
         cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　に　" + damage.damage + "　(" + damage.give + ")　のダメージ" + "\n")
 

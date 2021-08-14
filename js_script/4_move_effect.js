@@ -1027,7 +1027,9 @@ function moveEffect(atk, def, move, damage){
                 battle = hand[1]
             }
             def.data.command = battle + 4
+            summon.pokeReplace(def, atk)
             summon.onField(def, atk, 1)
+            def.data.command = ""
         }
     }
     // うちおとす/サウザンアローによるうちおとす状態
@@ -1168,7 +1170,7 @@ function abilityEffect(atk, def, move){
     }
     // 2.防御側のへんしょく/ぎゃくじょう
     if (def.con.ability == "へんしょく" && !def.con.type.includes(move[1]) && !atk.con.p_con.includes("ちからずく有効")){
-        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　の　へんしょくが発動した" + "\n")
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　特性『へんしょく』により　" + move[1] + "　タイプになった！" + "\n")
         def.con.type = move[1]
     }
 }

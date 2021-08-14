@@ -94,7 +94,7 @@ exports.berryPinch = function(team, enemy){
             } else if (con.item == "サンのみ" && !con.p_con.includes("きゅうしょアップ")){
                 berry_check += 1
                 con.p_con += "きゅうしょアップ" + "\n"
-                cfn.logWrite(team, enemy, TN + "　の　" + con.name + "は　張り切り出した！" + "\n")
+                cfn.logWrite(team, enemy, TN + "　の　" + con.name + "は　サンのみを食べて　張り切り出した！" + "\n")
             } else if (con.item == "スターのみ"){
                 berry_check += 1
                 const random = Math.random()
@@ -113,7 +113,7 @@ exports.berryPinch = function(team, enemy){
             } else if (con.item == "ミクルのみ"){
                 berry_check += 1
                 con.p_con += "ミクルのみ" + "\n"
-                cfn.logWrite(team, enemy, TN + "　の　" + con.name + "は　命中率が上がった！" + "\n")
+                cfn.logWrite(team, enemy, TN + "　の　" + con.name + "は　ミクルのみを食べて　命中率が上がった！" + "\n")
             }
         }
     }

@@ -135,21 +135,53 @@ function set_random(){
             moveList = can_use_move[i][2]
         }
     }
-    if (document.poke_name.poke_name.value == "アンノーン" || document.poke_name.poke_name.value == "ドーブル" || document.poke_name.poke_name.value == "メタモン" || document.poke_name.poke_name.value == "コスモッグ" || document.poke_name.poke_name.value == "コスモウム"){
-        return
-    }
-    let num = ["", "", "", ""]
-    while (num[0] == num[1] || num[0] == num[2] || num[0] == num[3] || num[1] == num[2] || num[1] == num[3] || num[2] == num[3]){
+    // 技が4つ未満のポケモン
+    if (document.poke_name.poke_name.value == "メタモン" ){
+        document.four_movesmove_0.value = "へんしん"
+        set_move(0)
+    } else if (document.poke_name.poke_name.value == "ドーブル"){
+        let num = ["", "", "", ""]
+        while (num[0] == num[1] || num[0] == num[2] || num[0] == num[3] || num[1] == num[2] || num[1] == num[3] || num[2] == num[3]){
+            for (let i = 0; i < 4; i++){
+                num[i] = Math.floor(Math.random() * base_move_list.length)
+            }
+        }
         for (let i = 0; i < 4; i++){
-            num[i] = Math.floor(Math.random() * moveList.length)
+            document.four_moves["move" + i].value = base_move_list[num[i]][0]
+            if (base_move_list[num[i]][0] == "めざめるパワー"){
+                document.four_moves["move" + i].value = base_move_list[num[i] - 1][0]
+            }
+            set_move(i)
         }
-    }
-    for (let i = 0; i < 4; i++){
-        document.four_moves["move" + i].value = moveList[num[i]]
-        if (moveList[num[i]] == "めざめるパワー"){
-            document.four_moves["move" + i].value = moveList[num[i] - 1]
+    } else if (document.poke_name.poke_name.value == "アンノーン"){
+        document.four_movesmove_0.value = "めざめるパワー"
+        set_move(0)
+    } else if (document.poke_name.poke_name.value == "コスモッグ"){
+        document.four_movesmove_0.value = "はねる"
+        set_move(0)
+        document.four_movesmove_1.value = "テレポート"
+        set_move(1)
+    } else if (document.poke_name.poke_name.value == "コスモウム"){
+        document.four_movesmove_0.value = "はねる"
+        set_move(0)
+        document.four_movesmove_1.value = "テレポート"
+        set_move(1)
+        document.four_movesmove_1.value = "コスモパワー"
+        set_move(2)
+    } else {
+        let num = ["", "", "", ""]
+        while (num[0] == num[1] || num[0] == num[2] || num[0] == num[3] || num[1] == num[2] || num[1] == num[3] || num[2] == num[3]){
+            for (let i = 0; i < 4; i++){
+                num[i] = Math.floor(Math.random() * moveList.length)
+            }
         }
-        set_move(i)
+        for (let i = 0; i < 4; i++){
+            document.four_moves["move" + i].value = moveList[num[i]]
+            if (moveList[num[i]] == "めざめるパワー"){
+                document.four_moves["move" + i].value = moveList[num[i] - 1]
+            }
+            set_move(i)
+        }
     }
 }
 
@@ -297,7 +329,7 @@ function itemForm(item){
     } else if (item != "はっきんだま" && poke == "ギラティナ(オリジンフォルム)"){
         document.poke_name.poke_name.value = "ギラティナ(アナザーフォルム)"
     }
-    set_ID()
+    AV_calc()
 }
 
 function set_move(num){

@@ -324,8 +324,11 @@ function enemyStatusMove(atk, def, move){
                 def.con.p_con += "逃げられない" + "\n"
             } else if (move[0] == "のろい"){
                 def.con.p_con += "呪い" + "\n"
-                atk.con.last_HP -= Math.floor(atk.con.full_HP / 2)
-                atk["poke" + cfn.battleNum(atk)].last_HP -= Math.floor(atk.con.full_HP / 2)
+                atk.con.last_HP = Math.max(0, atk.con.last_HP - Math.floor(atk.con.full_HP / 2))
+                atk["poke" + cfn.battleNum(atk)].last_HP = atk.con.last_HP
+                if (atk.con.last_HP == 0){
+                    summon.comeBack(atk, def)
+                }
             } else {
                 def.con.p_con += list[i][1] + "\n"
             }

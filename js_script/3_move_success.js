@@ -645,22 +645,26 @@ function moveReplace(atk, def, move, order){
     // オウムがえし
     if (move[0].includes("オウムがえし")){
         move[9] = move[0]
-        let check = 0
-        if (!moveEff.mirror().includes(def.con.used)){
-            if (def.con.used == "あばれる" || def.con.used == "げきりん" || def.con.used == "はなびらのまい" || def.con.used == "さわぐ" || def.con.used == "メタルバースト" 
-            || def.con.used == "トリックルーム" || def.con.used == "ワンダールーム" || def.con.used == "マジックルーム" || def.con.used == "フェアリーロック"){
-                check += 1
-            } else {
-                if (!(cfn.moveSearchByName(def.con.used)[8] == "自分" || cfn.moveSearchByName(def.con.used)[8].includes("場"))){
+        if (def.con.used == ""){
+            move.push("失敗")  
+        } else {
+            let check = 0
+            if (!moveEff.mirror().includes(def.con.used)){
+                if (def.con.used == "あばれる" || def.con.used == "げきりん" || def.con.used == "はなびらのまい" || def.con.used == "さわぐ" || def.con.used == "メタルバースト" 
+                || def.con.used == "トリックルーム" || def.con.used == "ワンダールーム" || def.con.used == "マジックルーム" || def.con.used == "フェアリーロック"){
                     check += 1
+                } else {
+                    if (!(cfn.moveSearchByName(def.con.used)[8] == "自分" || cfn.moveSearchByName(def.con.used)[8].includes("場"))){
+                        check += 1
+                    }
                 }
             }
-        }
-        for (let i = 0; i < 9; i++){
-            move[i] = cfn.moveSearchByName(def.con.used)[i]
-        }
-        if (check == 0){
-            move.push("失敗")
+            for (let i = 0; i < 9; i++){
+                move[i] = cfn.moveSearchByName(def.con.used)[i]
+            }
+            if (check == 0){
+                move.push("失敗")
+            }
         }
     }
     // さきどり: 対象が先制した、対象の使用した技がさきどりできない技の時、失敗
@@ -852,76 +856,80 @@ function attackDeclaration(atk, def, move){
     let con = atk.con
     if (move[9] == "オウムがえし" || move[9] == "さきどり" || move[9] == "しぜんのちから" || move[9] == "ねごと" || move[9] == "ねこのて" || move[9] == "まねっこ" || move[9] == "ゆびをふる"){
         cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　の　" + move[9] + "　！" + "\n")
-        cfn.logWrite(atk, def, move[9] + "　で　" + move[0] + "　がでた！" + "\n")
-        con.used = move[0]
+        if (move.length == 10){
+            cfn.logWrite(atk, def, move[9] + "　で　" + move[0] + "　がでた！" + "\n")
+            con.used = move[0]
+        }
     } else if (move[9] == "Zオウムがえし" || move[9] == "Zさきどり" || move[9] == "Zしぜんのちから" || move[9] == "Zねごと" || move[9] == "Zねこのて" || move[9] == "Zまねっこ" || move[9] == "Zゆびをふる"){
         cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　の　" + move[9] + "　！" + "\n")
-        if (move[2] == "変化"){
-            cfn.logWrite(atk, def, move[9] + "　で　Z" + move[0] + "　がでた！" + "\n")
-            con.used = move[0]
-            const list = moveEff.Zstatus()
-            for (let i = 0; i < list.length; i++){
-                if (move[0] == list[i][0]){
-                    if (move[0] == "のろい"){
-                        if (atk.con.type.includes("ゴースト")){
+        if (move.length == 10){
+            if (move[2] == "変化"){
+                cfn.logWrite(atk, def, move[9] + "　で　Z" + move[0] + "　がでた！" + "\n")
+                con.used = move[0]
+                const list = moveEff.Zstatus()
+                for (let i = 0; i < list.length; i++){
+                    if (move[0] == list[i][0]){
+                        if (move[0] == "のろい"){
+                            if (atk.con.type.includes("ゴースト")){
+                                cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　の　HPが全回復した！" + "\n")
+                                atk.con.last_HP = atk.con.full_HP
+                            } else {
+                                afn.rankChangeZ(atk, def, "A", 1)
+                            }
+                        } else if (list[i][1] == "A" || list[i][1] == "B" || list[i][1] == "C" || list[i][1] == "D" || list[i][1] == "S" || list[i][1] == "X" || list[i][1] == "Y"){
+                            afn.rankChangeZ(atk, def, list[i][1], list[i][2])
+                        } else if (list[i][1] == "all"){
+                            for (const parameter of ["A", "B", "C", "D", "S"]){
+                                afn.rankChangeZ(atk, def, parameter, 1)
+                            }
+                        } else if (list[i][1] == "critical"){
+                            if (!atk.con.p_con.includes("きゅうしょアップ")){
+                                cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　技が急所に当たりやすくなった！" + "\n")
+                                atk.con.p_con += "きゅうしょアップ" + "\n"
+                            }
+                        } else if (list[i][1] == "clear"){
+                            cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　の　能力ダウンがリセットされた！" + "\n")
+                            for (const parameter of ["A", "B", "C", "D", "S", "X", "Y"]){
+                                atk.con[parameter + "_rank"] = Math.max(atk.con[parameter + "_rank"], 0)
+                            }
+                        } else if (list[i][1] == "cure"){
                             cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　の　HPが全回復した！" + "\n")
                             atk.con.last_HP = atk.con.full_HP
-                        } else {
-                            afn.rankChangeZ(atk, def, "A", 1)
                         }
-                    } else if (list[i][1] == "A" || list[i][1] == "B" || list[i][1] == "C" || list[i][1] == "D" || list[i][1] == "S" || list[i][1] == "X" || list[i][1] == "Y"){
-                        afn.rankChangeZ(atk, def, list[i][1], list[i][2])
-                    } else if (list[i][1] == "all"){
-                        for (const parameter of ["A", "B", "C", "D", "S"]){
-                            afn.rankChangeZ(atk, def, parameter, 1)
-                        }
-                    } else if (list[i][1] == "critical"){
-                        if (!atk.con.p_con.includes("きゅうしょアップ")){
-                            cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　は　技が急所に当たりやすくなった！" + "\n")
-                            atk.con.p_con += "きゅうしょアップ" + "\n"
-                        }
-                    } else if (list[i][1] == "clear"){
-                        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　の　能力ダウンがリセットされた！" + "\n")
-                        for (const parameter of ["A", "B", "C", "D", "S", "X", "Y"]){
-                            atk.con[parameter + "_rank"] = Math.max(atk.con[parameter + "_rank"], 0)
-                        }
-                    } else if (list[i][1] == "cure"){
-                        cfn.logWrite(atk, def, atk.con.TN + "　の　" + atk.con.name + "　の　HPが全回復した！" + "\n")
-                        atk.con.last_HP = atk.con.full_HP
                     }
                 }
-            }
-        } else {
-            const list = itemEff.Zcrystal()
-            for (let i = 0; i < list.length; i++){
-                if (move[1] == list[i][0]){
-                    for (let j = 0; j < 9; j++){
-                        move[j] = cfn.moveSearchByName(list[i][1])[j]
-                    }
-                    cfn.logWrite(atk, def, move[9] + "　で　" + move[0] + "　がでた！" + "\n")
-                    con.used = move[0]
-                }
-            }
-            if (move[3] < 60){
-                move[3] = 100
-            } else if (move[3] < 70){
-                move[3] = 120
-            } else if (move[3] < 80){
-                move[3] = 140
-            } else if (move[3] < 90){
-                move[3] = 160
-            } else if (move[3] < 100){
-                move[3] = 175
-            } else if (move[3] < 110){
-                move[3] = 180
-            } else if (move[3] < 120){
-                move[3] = 185
-            } else if (move[3] < 130){
-                move[3] = 190
-            } else if (move[3] < 140){
-                move[3] = 195
             } else {
-                move[3] = 200
+                const list = itemEff.Zcrystal()
+                for (let i = 0; i < list.length; i++){
+                    if (move[1] == list[i][0]){
+                        for (let j = 0; j < 9; j++){
+                            move[j] = cfn.moveSearchByName(list[i][1])[j]
+                        }
+                        cfn.logWrite(atk, def, move[9] + "　で　" + move[0] + "　がでた！" + "\n")
+                        con.used = move[0]
+                    }
+                }
+                if (move[3] < 60){
+                    move[3] = 100
+                } else if (move[3] < 70){
+                    move[3] = 120
+                } else if (move[3] < 80){
+                    move[3] = 140
+                } else if (move[3] < 90){
+                    move[3] = 160
+                } else if (move[3] < 100){
+                    move[3] = 175
+                } else if (move[3] < 110){
+                    move[3] = 180
+                } else if (move[3] < 120){
+                    move[3] = 185
+                } else if (move[3] < 130){
+                    move[3] = 190
+                } else if (move[3] < 140){
+                    move[3] = 195
+                } else {
+                    move[3] = 200
+                }
             }
         }
     } else {
