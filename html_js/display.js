@@ -1,3 +1,5 @@
+const { eviolite } = require("../js_script/item_effect")
+
 // 技のリセット
 function moveReset(){
     for (i = 0; i < 4; i++){
@@ -66,13 +68,16 @@ function set_ID(){
 }
 
 function set_random(){
-    let poke = ""
-    let random = Math.random()
-    for (let i = 0; i < basePokemon.length; i++){
-        if (random > i / basePokemon.length){
-            poke = basePokemon[i]
+    let poke = [1, "フシギダネ"]
+    while (eviolite_list.includes(poke[1])){
+        let random = Math.random()
+        for (let i = 0; i < basePokemon.length; i++){
+            if (random > i / basePokemon.length){
+                poke = basePokemon[i]
+            }
         }
     }
+
     console.log(poke[1])
     // 性別の設定
     if (poke[11] == "-" && poke[12] == "-"){
