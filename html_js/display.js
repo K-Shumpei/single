@@ -1,5 +1,3 @@
-const { eviolite } = require("../js_script/item_effect")
-
 // 技のリセット
 function moveReset(){
     for (i = 0; i < 4; i++){
@@ -206,6 +204,9 @@ function AV_calc(){
         let AV = parseInt(((BS*2 + IV + parseInt(EV/4)) * poke_LV)/100)
         if (i == 0){
             AV += poke_LV + 10
+            if (document.poke_name.poke_name.value == "ヌケニン"){
+                AV = 1
+            }
         } else {
             let plus = document.getElementById("nature_plus_" + i).checked
             let minus = document.getElementById("nature_minus_" + i).checked
@@ -395,6 +396,29 @@ function PP_change(num, value){
             }
         }
     }
+}
+
+// ポケモンの編集
+function edit_pokemon(){
+    const team = document.getElementById("edit").edit.value
+    document.poke_name.poke_name.value = document.getElementById(team + "_name").textContent
+    document.poke_ID.poke_LV.value = document.getElementById(team + "_level").textContent
+    document.poke_ID.poke_item.value = document.getElementById(team + "_item").textContent
+    for (let i = 0; i < 6; i++){
+        document.input_value[parameter[i] + "_IV"].value = document.getElementById(team + "_" + parameter[i] + "_IV").textContent
+        document.input_value[parameter[i] + "_EV"].value = document.getElementById(team + "_" + parameter[i] + "_EV").textContent
+    }
+    set_ID()
+
+    for (let i = 0; i < 4; i++){
+        document.four_moves["move" + String(i)].value = document.getElementById(team + "_move_" + i).textContent
+        set_move(i)
+    }
+
+    // 性別、特性、性格は未実装
+    //document.getElementById(team + "_sex").textContent = " " + document.getElementById("poke_name_id").sex.value + " "
+    //document.getElementById(team + "_ability").textContent = ability.options[num].value
+    //document.getElementById(team + "_nature").textContent = document.getElementById("nature").textContent
 }
 
 // AチームとBチームの6択のポケモンセット
