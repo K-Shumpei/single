@@ -623,7 +623,7 @@ function defenseAbility(atk, def, move, damage){
         } else if (def.con.ability == "さまようたましい" && !abiEff.wanderSpirit().includes(atk.con.ability)){
             afn.changeAbility(atk, def, 2, "NA")
         } else if (def.con.ability == "ほろびのボディ"){
-            const check = 0
+            let check = 0
             if (!atk.con.p_con.includes("ほろびカウント")){
                 atk.con.p_con = "ほろびカウント　4" + "\n"
                 check += 1
