@@ -410,7 +410,7 @@ function ingrain(order, reverse){
 // 7.やどりぎのタネ
 function leechSeed(order, reverse){
     for (const team of [order, reverse]){
-        if (team[0].con.p_con.includes("やどりぎのタネ")){
+        if (team[0].con.p_con.includes("やどりぎのタネ") && !team[0].con.f_con.includes("ひんし")){
             let change = Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 8)
             afn.HPchangeMagic(team[0], team[1], change, "-", "やどりぎのタネ")
             if (team[1].con.item == "おおきなねっこ"){
