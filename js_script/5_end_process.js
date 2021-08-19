@@ -3,9 +3,9 @@ const itemEff = require("./item_effect")
 const afn = require("./function")
 const bfn = require("./base_function")
 const cfn = require("./law_function")
+const efn = require("./ex_function")
 const summon = require("./1_summon")
 const process = require("./4_move_effect")
-const com = require("./compatibility")
 
 // ターン終了時の処理順
 
@@ -271,6 +271,8 @@ function weatherEffect(order, reverse){
             decreasePerTurn(team[0], team[1], "あられ", "f")
         }
     }
+    efn.weatherAbility(order, reverse)
+    efn.weatherAbility(reverse, order)
     // b. すなあらし/あられのダメージ
     for (const team of [order, reverse]){
         if (team[0].con.last_HP > 0 && team[0].con.ability != "ぼうじん" && team[0].con.item != "ぼうじんゴーグル" && cfn.isWeather(order[0].con, order[1].con)){
@@ -410,7 +412,7 @@ function ingrain(order, reverse){
 // 7.やどりぎのタネ
 function leechSeed(order, reverse){
     for (const team of [order, reverse]){
-        if (team[0].con.p_con.includes("やどりぎのタネ") && !team[0].con.f_con.includes("ひんし")){
+        if (team[0].con.p_con.includes("やどりぎのタネ") && !team[1].con.f_con.includes("ひんし")){
             let change = Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 8)
             afn.HPchangeMagic(team[0], team[1], change, "-", "やどりぎのタネ")
             if (team[1].con.item == "おおきなねっこ"){

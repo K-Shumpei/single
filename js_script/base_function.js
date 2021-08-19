@@ -1,6 +1,7 @@
 // jsファイルの読み込み
 const afn = require("./function")
 const cfn = require("./law_function")
+const efn = require("./ex_function")
 const moveEff = require("./move_effect")
 const summon = require("./1_summon")
 const itemEff = require("./item_effect")
@@ -189,14 +190,8 @@ exports.allFieldStatus = function(atk, def, move){
                     cfn.conditionRemove(con, "field", "あられ")
                     con.f_con += list[i][1] + "　" + turn + "/" + turn + "\n"
                 }
-                if (move[0] == "あられ"){
-                    for (const team of [atk, def]){
-                        if (team.con.ability == "アイスフェイス" && team.con.name == "コオリッポ(ナイスフェイス)"){
-                            cfn.logWrite(atk, def, team.con.TN + "　の　" + team.con.name + "の　アイスフェイス！" + "\n")
-                            form_chenge(team, "コオリッポ(アイスフェイス)")
-                        }
-                    }
-                }
+                efn.weatherAbility(atk, def)
+                efn.weatherAbility(def, atk)
             } else if (list[i][3] == "フィールド"){
                 for (const team of [atk.con, def.con]){
                     cfn.conditionRemove(team, "field", "フィールド")

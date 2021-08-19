@@ -25,6 +25,10 @@ exports.comeBack = function(user, enemy){
         afn.formChenge(user, enemy, "ギルガルド(シールドフォルム)")
     } else if (user.con.name == "メテノ(コア)"){
         afn.formChenge(user, enemy, "メテノ(りゅうせいのすがた)")
+    } else if (user.con.name != "ポワルン" && user.con.name.includes("ポワルン")){
+        afn.formChenge(user, enemy, "ポワルン")
+    } else if (user.con.name == "チェリム(ポジフォルム)"){
+        afn.formChenge(user, enemy, "チェリム")
     }
 
     // ダイマックスポケモンを引っ込める時、ダイマックス権を失う
@@ -270,6 +274,8 @@ exports.onField = function(user1, user2, team){
         seed_service(order[0], order[1])
         seed_service(order[1], order[0])
         // 6.フラワーギフト/てんきや/アイスフェイス
+        efn.weatherAbility(order[0], order[1])
+        efn.weatherAbility(order[1], order[0])
         // 7.しろいハーブ
         bfn.whiteHerb(order[0], order[1])
         bfn.whiteHerb(order[1], order[0])
@@ -295,6 +301,7 @@ exports.onField = function(user1, user2, team){
         // 5.エレキシード/グラスシード/ミストシード/サイコシード/ルームサービス
         seed_service(team, enemy)
         // 6.フラワーギフト/てんきや/アイスフェイス
+        efn.weatherAbility(team, enemy)
         // 7.しろいハーブ
         bfn.whiteHerb(team, enemy)
         // 8.だっしゅつパックによる交代、交代先の繰り出し

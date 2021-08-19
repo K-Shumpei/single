@@ -1172,6 +1172,9 @@ function abilityEffect(atk, def, move){
     if (def.con.ability == "へんしょく" && !def.con.type.includes(move[1]) && !atk.con.p_con.includes("ちからずく有効")){
         cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　特性『へんしょく』により　" + move[1] + "　タイプになった！" + "\n")
         def.con.type = move[1]
+    } else if (def.con.ability == "ぎゃくじょう" && def.con.p_con.includes("ぎゃくじょう発動")){
+        afn.rankChange(def, atk, "C", 1, 100, "ぎゃくじょう", false)
+        cfn.conditionRemove(def.con, "poke", "ぎゃくじょう発動")
     }
 }
 

@@ -220,4 +220,3 @@ exports.lifeCheck = function(team){
     }
     return false
 }
-

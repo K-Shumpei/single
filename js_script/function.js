@@ -489,6 +489,10 @@ exports.damageDeclaration = function(atk, def, damage, move){
     } else { // みがわりがない時
         cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　に　" + damage.damage + "　(" + damage.give + ")　のダメージ" + "\n")
 
+        // ぎゃくじょう用
+        if (def.con.last_HP - damage.give <= def.con.full_HP / 2 && def.con.last_HP > def.con.full_HP / 2 && def.con.ability == "ぎゃくじょう"){
+            def.con.p_con += "ぎゃくじょう発動" + "\n"
+        }
         // ダメおし用
         cfn.conditionRemove(def.con, "poke", "ダメおし")
         def.con.p_con += "ダメおし" + "\n"

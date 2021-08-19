@@ -3,6 +3,7 @@ const bfn = require("./base_function")
 const cfn = require("./law_function")
 const abiEff = require("./ability_effect")
 const moveEff = require("./move_effect")
+const e = require("express")
 
 // 特性の発動
 exports.activeAbility = function(team, enemy, num){
@@ -198,5 +199,48 @@ function abilityEmarge(team, enemy){
         }
         power.sort()
         cfn.logWrite(team, enemy, con.TN + "　の　" + con.name + "　は　" + power[0][1] + "を　読み取った！" + "\n")
+    }
+}
+
+// 6.フラワーギフト/てんきや/アイスフェイス
+exports.weatherAbility = function(team, enemy){
+    if (!cfn.isWeather(team.con, enemy.con)){
+        return
+    }
+    // フラワーギフト
+    if (team.con.ability == "フラワーギフト"){
+        if (team.con.f_con.includes("にほんばれ") && cfn.isWeather(team.con, enemy.con) && team.con.name == "チェリム"){
+            cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　の　特性『フラワーギフト』！" + "\n")
+            afn.formChenge(team, enemy, "チェリム(ポジフォルム)")
+        } else if ((!team.con.f_con.includes("にほんばれ") || !cfn.isWeather(team.con, enemy.con)) && team.con.name == "チェリム(ポジフォルム)"){
+            cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　の　特性『フラワーギフト』！" + "\n")
+            afn.formChenge(team, enemy, "チェリム")
+        }
+    }
+    // てんきや
+    if (team.con.ability == "てんきや"){
+        if (!cfn.isWeather(team.con, enemy.con) && team.con.name != "ポワルン"){
+            cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　の　特性『てんきや』！" + "\n")
+            afn.formChenge(team, enemy, "ポワルン")
+        } else {
+            if (team.con.f_con.includes("にほんばれ") && team.con.name != "ポワルン(たいようのすがた)"){
+                cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　の　特性『てんきや』！" + "\n")
+                afn.formChenge(team, enemy, "ポワルン(たいようのすがた)")
+            } else if (team.con.f_con.includes("あめ") && team.con.name != "ポワルン(あまみずのすがた)"){
+                cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　の　特性『てんきや』！" + "\n")
+                afn.formChenge(team, enemy, "ポワルン(あまみずのすがた)")
+            } else if (team.con.f_con.includes("あられ") && team.con.name != "ポワルン(ゆきぐものすがた)"){
+                cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　の　特性『てんきや』！" + "\n")
+                afn.formChenge(team, enemy, "ポワルン(ゆきぐものすがた)")
+            } else if (team.con.name != "ポワルン"){
+                cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　の　特性『てんきや』！" + "\n")
+                afn.formChenge(team, enemy, "ポワルン")
+            }
+        }
+    }
+    // アイスフェイス
+    if (team.con.ability == "アイスフェイス" && team.con.name == "コオリッポ(ナイスフェイス)" && team.con.f_con.includes("あられ") && cfn.isWeather(team.con, enemy.con)){
+        cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　の　特性『アイスフェイス』！" + "\n")
+        afn.formChenge(team, enemy, "コオリッポ(アイスフェイス)")
     }
 }
