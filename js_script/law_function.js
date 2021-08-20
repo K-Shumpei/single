@@ -16,7 +16,6 @@ exports.setRecycle = function(user){
         if (user["poke" + i].life == "戦闘中"){
             user["poke" + i].recycle = user.con.item
             user["poke" + i].item = ""
-            break
         }
     }
     user.con.item = ""

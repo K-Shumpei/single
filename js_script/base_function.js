@@ -141,6 +141,9 @@ exports.berryAbnormal = function(team, enemy){
         || (con.abnormal == "こおり" && con.item == "ナナシのみ") 
         || (con.p_con == "こんらん" && con.item == "キーのみ") 
         || ((con.abnormal != "" || con.p_con == "こんらん") && con.item == "ラムのみ")){
+            if (con.abnormal.includes("どく")){
+                cfn.conditionRemove(con, enemy.con, "もうどく")
+            }
             if (con.item == "キーのみ"){
                 cfn.conditionRemove(con, "poke", "こんらん")
             } else {

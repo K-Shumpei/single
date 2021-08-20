@@ -473,11 +473,11 @@ function additionalEffectEtc(atk, def, move, order, damage){
         }
     }
     // 4.防御側のいかり
-    if (def.con.p_con.includes("いかり") && move[2] != "変化" && (!damage.substitute || moveEff.music().includes(move[0]) || atk.con.ability == "すりぬけ" || def.con.last_HP > 0)){
+    if (def.con.p_con.includes("いかり") && def.con.last_HP > 0 && move[2] != "変化" && (!damage.substitute || moveEff.music().includes(move[0]) || atk.con.ability == "すりぬけ" || def.con.last_HP > 0)){
         afn.rankChange(def, atk, "A", 1, 100, "いかり", true)
     }
     // 5.防御側のナゾのみ
-    if (def.con.item == "ナゾのみ" && cfn.compatibilityCheck(atk, def, move) > 1 && (!damage.substitute || moveEff.music().includes(move[0]) || atk.con.ability == "すりぬけ" || def.con.last_HP > 0)){
+    if (def.con.item == "ナゾのみ" && def.con.last_HP > 0 && cfn.compatibilityCheck(atk, def, move) > 1 && (!damage.substitute || moveEff.music().includes(move[0]) || atk.con.ability == "すりぬけ" || def.con.last_HP > 0)){
         if (def.con.ability == "じゅくせい"){
             afn.HPchangeMagic(def, atk, Math.floor(def["poke" + cfn.battleNum(def)].full_HP / 2), "+", "ナゾのみ")
         } else {
