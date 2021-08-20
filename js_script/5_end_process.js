@@ -269,10 +269,10 @@ function weatherEffect(order, reverse){
             decreasePerTurn(team[0], team[1], "あめ", "f")
             decreasePerTurn(team[0], team[1], "すなあらし", "f")
             decreasePerTurn(team[0], team[1], "あられ", "f")
+            efn.weatherAbility(team[0], team[1])
         }
     }
-    efn.weatherAbility(order[0], reverse[0])
-    efn.weatherAbility(reverse[0], order[0])
+    
     // b. すなあらし/あられのダメージ
     for (const team of [order, reverse]){
         if (team[0].con.last_HP > 0 && team[0].con.ability != "ぼうじん" && team[0].con.item != "ぼうじんゴーグル" && cfn.isWeather(team[0].con, team[1].con)){
