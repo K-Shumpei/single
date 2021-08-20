@@ -460,7 +460,7 @@ function additionalEffectEtc(atk, def, move, order, damage){
     } else if (move[0] == "キョダイホウマツ" && def.con.last_HP > 0){
         afn.rankChange(def, atk, "S", -2, 100, move, true)
     } else if ((move[0] == "キョダイベンタツ" || move[0] == "キョダイゴクエン" || move[0] == "キョダイホウゲキ" || move[0] == "キョダイフンセキ") && !def.con.f_con.includes(move[0])){
-        def.con.f_con += move[0] + "\n"
+        def.con.f_con += move[0] + " 4/4" + "\n"
         cfn.logWrite(atk, def, def.con.TN + "　の場が　" + move[0] + "　で囲まれた" + "\n")
     } else if ((move[0] == "キョダイサジン" || move[0] == "キョダイヒャッカ") && !def.con.p_con.includes("バインド") && !damage.substitute && def.con.last_HP > 0){
         cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "　は　しめつけられた！" + "\n")
