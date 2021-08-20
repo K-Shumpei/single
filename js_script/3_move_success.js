@@ -2687,7 +2687,7 @@ function moveSpecificationsInvalidation3(atk, def, move){
         // さいはい: さいはいできない技
         // おさきにどうぞ/さきおくり/そうでん/てだすけ: 対象がすでに行動している
         // バトンタッチ/いやしのねがい/みかづきのまい: 交代できる味方がいない
-        if (def.poke0.life != "控え" && def.poke1.life != "控え" && def.poke2.life != "控え" && (move[0] == "バトンタッチ" || move[0] == "いやしのねがい" || move[0] == "みかづきのまいし")){
+        if (atk.poke0.life != "控え" && atk.poke1.life != "控え" && atk.poke2.life != "控え" && (move[0] == "バトンタッチ" || move[0] == "いやしのねがい" || move[0] == "みかづきのまい")){
             cfn.logWrite(atk, def, "しかし　うまく決まらなかった・・・" + "\n")
             return true
         }

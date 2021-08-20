@@ -11,7 +11,7 @@ exports.berryPinch = function(team, enemy){
     let con = team.con
     const TN = team.con.TN
 
-    if (enemy.con.ability == "きんちょうかん"){
+    if (enemy.con.ability == "きんちょうかん" || enemy.con.ability == "じんばいったい"){
         return
     }
     let berry_check = 0
