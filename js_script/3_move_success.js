@@ -1334,7 +1334,7 @@ function moveSpecificationsFailure(atk, def, move, order){
         return true
     }
     // まもる/こらえる系: ターンの最後の行動/連続使用による失敗判定
-    if (moveEff.protect().includes(move[0])){
+    if (moveEff.protect().includes(move[0]) || move[0] == "こらえる"){
         let turn = 0
         for (let i = 0; i < con.p_con.split("\n").length - 1; i++){
             if (con.p_con.split("\n")[i].includes("守る")){

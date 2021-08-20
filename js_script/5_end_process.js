@@ -353,13 +353,13 @@ function fieldAbilityItemDamage(order, reverse){
     // a. ひのうみ/キョダイベンタツ/キョダイゴクエン/キョダイホウゲキ/キョダイフンセキ(ダメージ): 技が使用された順に発動。
     for (const team of [order, reverse]){
         if (team[0].con.f_con.includes("キョダイベンタツ") && !team[0].con.type.includes("くさ")){
-            afn.HPchangeMagic(team[0], team[1], math.floor(team[0].con.full_HP / 6), "-", "キョダイベンタツ")
+            afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 6), "-", "キョダイベンタツ")
         } else if (team[0].con.f_con.includes("キョダイゴクエン") && !team[0].con.type.includes("ほのお")){
-            afn.HPchangeMagic(team[0], team[1], math.floor(team[0].con.full_HP / 6), "-", "キョダイゴクエン")
+            afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 6), "-", "キョダイゴクエン")
         } else if (team[0].con.f_con.includes("キョダイホウゲキ") && !team[0].con.type.includes("みず")){
-            afn.HPchangeMagic(team[0], team[1], math.floor(team[0].con.full_HP / 6), "-", "キョダイホウゲキ")
+            afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 6), "-", "キョダイホウゲキ")
         } else if (team[0].con.f_con.includes("キョダイフンセキ") && !team[0].con.type.includes("いわ")){
-            afn.HPchangeMagic(team[0], team[1], math.floor(team[0].con.full_HP / 6), "-", "キョダイフンセキ")
+            afn.HPchangeMagic(team[0], team[1], Math.floor(team[0].con.full_HP / 6), "-", "キョダイフンセキ")
         }
     }
     // b. グラスフィールド(回復)
