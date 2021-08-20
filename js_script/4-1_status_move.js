@@ -792,8 +792,7 @@ function otherStatusMove(atk, def, move){
         atk.con["move_" + atk.data.command] = def.con.used
         atk.con["PP_" + atk.data.command] = cfn.moveSearchByName(def.con.used)[5]
         atk.con["last_" + atk.data.command] = cfn.moveSearchByName(def.con.used)[5]
-        txt = def.con.TN + "　の　" + def.con.name + "の　" + def.con.used +"を　コピーした" + "\n"
-        document.battle_log.battle_log.value += txt
+        cfn.logWrite(atk, def, def.con.TN + "　の　" + def.con.name + "の　" + def.con.used +"を　コピーした" + "\n")
     } else if (move[0] == "もりののろい"){
         const type = def.con.type
         if (type == ""){

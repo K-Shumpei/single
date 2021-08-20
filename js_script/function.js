@@ -26,7 +26,7 @@ exports.HPchangeMagic = function(team, enemy, damage, pm, cause){
         // 残りHPの表示
         team.con.last_HP = Math.max(0, team.con.last_HP - damage)
         team["poke" + cfn.battleNum(team)].last_HP = team.con.last_HP
-        if (team.con.HP_last - damage > 0){
+        if (team.con.last_HP > 0){
             // HPが減った時のきのみ等の発動
             bfn.berryPinch(team, enemy)
         }
