@@ -232,12 +232,22 @@ $(function () {
                 document.getElementById(team.char + "_percent").textContent = Math.ceil(team.data.con.last_HP * 100 / team.data.con.full_HP)
                 document.getElementById(team.char + team.data.con.num + "_bar").style.display = "block"
                 document.getElementById(team.char + team.data.con.num + "_HP_bar").value = team.data.con.last_HP / team.data.con.full_HP
-                // メガ進化、Z技、ダイマックスのテキスト
-                document.getElementById(team.char + "_mega_text").textContent = team.data.data.megaTxt
-                document.getElementById(team.char + "_Z_text").textContent = team.data.data.ZTxt
-                document.getElementById(team.char + "_ultra_text").textContent = team.data.data.ultraTxt
-                document.getElementById(team.char + "_dyna_text").textContent = team.data.data.dynaTxt
-                document.getElementById(team.char + "_giga_text").textContent = team.data.data.gigaTxt
+            }
+
+            // メガ進化、Z技、ダイマックスのテキスト
+            document.getElementById(team.char + "_mega_text").textContent = team.data.data.megaTxt
+            document.getElementById(team.char + "_Z_text").textContent = team.data.data.ZTxt
+            document.getElementById(team.char + "_ultra_text").textContent = team.data.data.ultraTxt
+            document.getElementById(team.char + "_dyna_text").textContent = team.data.data.dynaTxt
+            document.getElementById(team.char + "_giga_text").textContent = team.data.data.gigaTxt
+            // ダイマックスシンボル
+            if (team.data.data.dynaTxt.includes("3") || team.data.data.gigaTxt.includes("3")){
+                let symbol = document.createElement("img")
+                symbol.classList.add("symbol")
+                symbol.src = "poke_figure/dynamaxSymbol.png"
+                document.getElementById(team.char + "_symbol").appendChild(symbol)
+            } else {
+                document.getElementById(team.char + "_symbol").innerHTML = ""
             }
         }
         if (me.con.f_con.includes("ひんし")){

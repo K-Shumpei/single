@@ -271,11 +271,11 @@ function weatherEffect(order, reverse){
             decreasePerTurn(team[0], team[1], "あられ", "f")
         }
     }
-    efn.weatherAbility(order, reverse)
-    efn.weatherAbility(reverse, order)
+    efn.weatherAbility(order[0], reverse[0])
+    efn.weatherAbility(reverse[0], order[0])
     // b. すなあらし/あられのダメージ
     for (const team of [order, reverse]){
-        if (team[0].con.last_HP > 0 && team[0].con.ability != "ぼうじん" && team[0].con.item != "ぼうじんゴーグル" && cfn.isWeather(order[0].con, order[1].con)){
+        if (team[0].con.last_HP > 0 && team[0].con.ability != "ぼうじん" && team[0].con.item != "ぼうじんゴーグル" && cfn.isWeather(team[0].con, team[1].con)){
             if (team[0].con.f_con.includes("すなあらし") && !(team[0].con.type.includes("いわ") || team[0].con.type.includes("じめん") || team[0].con.type.includes("はがね") || team[0].con.ability == "すながくれ" || team[0].con.ability == "すなかき" || team[0].con.ability == "すなのちから")){
                 afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 16), "-", "すなあらし")
             } else if (team[0].con.f_con.includes("あられ") && !(team[0].con.type.includes("こおり") || team[0].con.ability == "アイスボディ" || team[0].con.ability == "ゆきかき" || team[0].con.ability == "ゆきがくれ")){
@@ -285,7 +285,7 @@ function weatherEffect(order, reverse){
     }
     // c. かんそうはだ/サンパワー/あめうけざら/アイスボディ
     for (const team of [order, reverse]){
-        if (team[0].con.last_HP > 0 && cfn.isWeather(order[0].con, order[1].con)){
+        if (team[0].con.last_HP > 0 && cfn.isWeather(team[0].con, team[1].con)){
             if (team[0].con.ability == "かんそうはだ" && team[0].con.f_con.includes("にほんばれ")){
                 afn.HPchangeMagic(team[0], team[1], Math.floor(team[0]["poke" + cfn.battleNum(team[0])].full_HP / 8), "-", "かんそうはだ")
             } else if (team[0].con.ability == "かんそうはだ" && team[0].con.f_con.includes("あめ")){
@@ -359,7 +359,7 @@ function fieldAbilityItemDamage(order, reverse){
     }
     // c. うるおいボディ/だっぴ/いやしのこころ
     for (const team of [order, reverse]){
-        if (team[0].con.ability == "うるおいボディ" && team[0].con.f_con.includes("あめ") && team[0].con.abnormal != "" && cfn.isWeather(order[0].con, order[1].con)){
+        if (team[0].con.ability == "うるおいボディ" && team[0].con.f_con.includes("あめ") && team[0].con.abnormal != "" && cfn.isWeather(team[0].con, team[1].con)){
             cfn.logWrite(team[0], team[1], team[0].con.TN + "　の　" + team[0].con.name + "　は　うるおいボディで状態異常が回復！" + "\n")
             team[0].con.abnormal = ""
             team[0]["poke" + cfn.battleNum(team[0])].abnormal = ""

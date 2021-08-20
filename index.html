@@ -14,6 +14,25 @@
 
     <script src="html_js/display.js"></script>
   </head>
+
+  <style type="text/css">
+    .figure{
+        position: relative;
+        text-align: center;
+        vertical-align: middle;
+    }
+    .img{
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+    }
+    .symbol{
+        position: absolute;
+        top: 0px;
+        left: 0px;
+    }
+    </style>
   
   <body>
     <h1 id="headline">パスワードを入力してください</h1>
@@ -264,7 +283,7 @@
                     </script>
         </td><td><div id="both_team">
             <table align="center">
-                <tr><td colspan="2" align="center"><span id="MyName">サトシ</span></td><td></td><td colspan="2" align="center"><span id="YourName">シゲル</span></td></tr>
+                <tr><td colspan="2" align="center"><span id="MyName"></span></td><td></td><td colspan="2" align="center"><span id="YourName"></span></td></tr>
                 <tr>
                     <td><img src="" id="me_0" style="transform: scale(-1, 1);"></td>
                     <td><img src="" id="me_1" style="transform: scale(-1, 1);"></td>
@@ -324,9 +343,15 @@
             <tr><th colspan="4"><span id="My_Name"></span></th><th></th><th colspan="4"><span id="Your_Name"></span></th></tr>
             <tr>
                 <td colspan="2" align="center"><span id="A_name"></span><span id="A_sex"></span>Lv.<span id="A_level"></span></td>
-                <td rowspan="7" colspan="2" align="center"><img src="" id="A_image" width="192" height="192" style="transform: scale(-1, 1);"></td>
+                <td rowspan="7" colspan="2" align="center" class="figure">
+                    <img src="" id="A_image" width="192" height="192" class="img" style="transform: scale(-1, 1);">
+                    <div id="A_symbol" class="symbol"></div>        
+                </td>
                 <td rowspan="7" width="100" align="center">V.S.</td>
-                <td rowspan="7" colspan="2" align="center"><img src="" id="B_image" width="192" height="192"></div></td>
+                <td rowspan="7" colspan="2" align="center" class="figure">
+                    <img src="" id="B_image" width="192" height="192" class="img">
+                    <div id="B_symbol" class="symbol"></div>
+                </td>
                 <td colspan="2" align="center"><span id="B_name"></span><span id="B_sex"></span>Lv.<span id="B_level"></span></td>
             </tr>
             <tr>

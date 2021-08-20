@@ -310,7 +310,7 @@ function powerCalculation(atk, def, move, order){
     || (atk.con.ability == "かたいツメ" && move[6] == "直接") 
     || (atk.con.ability == "すなのちから" && atk.con.f_con.includes("すなあらし") && (move[1] == "いわ" || move[1] == "じめん" || move[1] == "はがね") && cfn.isWeather(atk.con, def.con)) 
     || (atk.con.ability == "ちからずく" && atk.con.p_con.includes("ちからずく有効"))
-    || (atk.con.ability == "パンクロック" && music_move_list.includes(move[0]))){
+    || (atk.con.ability == "パンクロック" && moveEff.music().includes(move[0]))){
         correction = Math.round(correction * 5325 / 4096)
     }
     // ダークオーラ、フェアリーオーラ * 5448 / 4096 → 四捨五入

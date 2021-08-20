@@ -220,7 +220,7 @@ exports.pokeReplace = function(team, enemy){
             const rank = team.con.p_con.split("\n")[i].slice(7).split("/")
             const para_rank = ["A_rank", "B_rank", "C_rank", "D_rank", "S_rank", "X_rank", "Y_rank"]
             for (let j = 0; j < 7; j++){
-                team.con[para_rank] = rank[j]
+                team.con[para_rank[j]] = rank[j]
             }
         }
     }
