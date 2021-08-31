@@ -13,6 +13,18 @@
     <script src="html_js/display_effect.js"></script>
 
     <script src="html_js/display.js"></script>
+
+    <!--エクセル出力-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.2/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+
+    <!--エクセル取得-->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.11.19/xlsx.full.min.js"></script>
+
+    <script src="html_js/excel.js"></script>
   </head>
 
   <style type="text/css">
@@ -162,12 +174,12 @@
         <hr>
 
         <form id="team">
-            <input type="radio" name="team" value="0" checked>1
-            <input type="radio" name="team" value="1">2
-            <input type="radio" name="team" value="2">3
-            <input type="radio" name="team" value="3">4
-            <input type="radio" name="team" value="4">5
-            <input type="radio" name="team" value="5">6
+            <input type="radio" name="team" value="0" id="team0" checked>1
+            <input type="radio" name="team" value="1" id="team1">2
+            <input type="radio" name="team" value="2" id="team2">3
+            <input type="radio" name="team" value="3" id="team3">4
+            <input type="radio" name="team" value="4" id="team4">5
+            <input type="radio" name="team" value="5" id="team5">6
             <input type="button" value="決定" onclick="set_pokemon()">
             <input type="button" value="全部セット" onclick="setAll()">
         </form>
@@ -186,6 +198,17 @@
 
         <hr>
     </div>
+
+    チームを保存<br>
+    <input id="savePartyName" placeholder="ファイル名">.xlsx 
+    <input type="button" id="saveParty" value="保存" onclick="saveParty()">
+
+    <hr>
+
+    保存チームを呼び出す<br>
+    <input type="file" class="custom-file-input" id="customFile">
+
+    <hr>
       
     <div id="select">
         <form id="battle_start" name="select" action="">

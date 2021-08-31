@@ -324,19 +324,17 @@ exports.changeAbility = function(copy, org, num, ability){
         cfn.logWrite(copy, org, org.con.TN + "　の　" + org.con.name + "　の　特性が　" + copy_ability + "に　なった"  + "\n")
         cfn.conditionRemove(org.con, "poke", "スロースタート　")
         org.con.ability = copy_ability
-        const p_con = org.con.p_con
-        org.con.p_con = ""
-        for (let i = 0; i < p_con.split("\n").length - 1; i++){
-            if (p_con.split("\n")[i].includes("特性なし")){
-                org.con.p_con += "特性なし：" + copy_ability + "\n"
+        let p_con = org.con.p_con.split("\n")
+        for (let i = 0; i < p_con.length; i++){
+            if (p_con[i].includes("特性なし")){
+                p_con[i] = "特性なし：" + copy_ability
                 org.con.ability = ""
-            } else if (p_con.split("\n")[i].includes("かがくへんかガス")){
-                org.con.p_con += "かがくへんかガス：" + copy_ability + "\n"
+            } else if (p_con[i].includes("かがくへんかガス")){
+                p_con[i] = "かがくへんかガス：" + copy_ability
                 org.con.ability = ""
-            } else {
-                org.con.p_con = p_con.split("\n")[i] + "\n"
             }
         }
+        org.con.ability = p_con.join("\n")
         efn.activeAbility(org, copy, 1)
     } else if (num == 2){
         cfn.logWrite(copy, org, "お互いの　特性を入れ替えた！" + "\n")
@@ -356,54 +354,52 @@ exports.changeAbility = function(copy, org, num, ability){
                 org_ability = org.con.p_con.split("\n")[i].slice(9)
             }
         }
+        // コピーする方
         cfn.conditionRemove(org.con, "poke", "スロースタート　")
         copy.con.ability = org_ability
-        const copy_p_con = copy.con.p_con
-        copy.con.p_con = ""
-        for (let i = 0; i < copy_p_con.split("\n").length - 1; i++){
-            if (copy_p_con.split("\n")[i].includes("特性なし")){
-                copy.con.p_con += "特性なし：" + org_ability + "\n"
+        let p_con = copy.con.p_con.split("\n")
+        for (let i = 0; i < p_con.length; i++){
+            if (p_con[i].includes("特性なし")){
+                p_con[i] = "特性なし：" + ability
                 copy.con.ability = ""
-            } else if (copy_p_con.split("\n")[i].includes("かがくへんかガス")){
-                copy.con.p_con += "かがくへんかガス：" + org_ability + "\n"
+            } else if (p_con[i].includes("かがくへんかガス")){
+                p_con[i] = "かがくへんかガス：" + ability
                 copy.con.ability = ""
-            } else {
-                copy.con.p_con = copy_p_con.split("\n")[i] + "\n"
             }
         }
+        org.con.ability = p_con.join("\n")
+        // コピーされる方
         cfn.conditionRemove(copy.con, "poke", "スロースタート　")
         org.con.ability = copy_ability
-        const org_p_con = org.con.p_con
-        org.con.p_con = ""
-        for (let i = 0; i < org_p_con.split("\n").length - 1; i++){
-            if (org_p_con.split("\n")[i].includes("特性なし")){
-                org.con.p_con += "特性なし：" + copy_ability + "\n"
+        p_con = org.con.p_con.split("\n")
+        for (let i = 0; i < p_con.length; i++){
+            if (p_con[i].includes("特性なし")){
+                p_con[i] = "特性なし：" + copy_ability
                 org.con.ability = ""
-            } else if (org_p_con.split("\n")[i].includes("かがくへんかガス")){
-                org.con.p_con += "かがくへんかガス：" + copy_ability + "\n"
+            } else if (p_con[i].includes("かがくへんかガス")){
+                p_con[i] = "かがくへんかガス：" + copy_ability
                 org.con.ability = ""
-            } else {
-                org.con.p_con= org_p_con.split("\n")[i] + "\n"
             }
         }
+        org.con.ability = p_con.join("\n")
+        // 特性の発動
         efn.activeAbility(org, copy, "both")
     } else if (num == 3){
         cfn.logWrite(copy, org, copy.con.TN + "　の　" + copy.con.name + "　の　特性が　" + ability + "に　なった！" + "\n")
         cfn.conditionRemove(copy.con, "poke", "スロースタート　")
         copy.con.ability = ability
-        const copy_p_con = copy.con.p_con
-        copy.con.p_con = ""
-        for (let i = 0; i < copy_p_con.split("\n").length - 1; i++){
-            if (copy_p_con.split("\n")[i].includes("特性なし")){
-                copy.con.p_con += "特性なし：" + ability + "\n"
+        let p_con = copy.con.p_con.split("\n")
+        for (let i = 0; i < p_con.length; i++){
+            if (p_con[i].includes("特性なし")){
+                p_con[i] = "特性なし：" + ability
                 copy.con.ability = ""
-            } else if (copy_p_con.split("\n")[i].includes("かがくへんかガス")){
-                copy.con.p_con += "かがくへんかガス：" + ability + "\n"
+            } else if (p_con[i].includes("かがくへんかガス")){
+                p_con[i] = "かがくへんかガス：" + ability
                 copy.con.ability = ""
-            } else {
-                copy.con.p_con = copy_p_con.split("\n")[i] + "\n"
             }
         }
+        org.con.ability = p_con.join("\n")
+        // 特性の発動
         efn.activeAbility(org, copy, 2)
     }
 }
@@ -743,11 +739,11 @@ exports.specialButton = function(team){
         }
     }
     // ダイマックスボタンの有効化
-    if (team.data.dynaTxt == "ダイマックス"){
+    if (team.data.dynaTxt == "ダイマックス" && !team.con.name.includes("ザシアン") && !team.con.name.includes("ザマゼンタ") && !team.con.name.includes("ムゲンダイナ")){
         team.data.dynable = false
     }
     // キョダイマックスボタンの有効化
-    if (team.data.gigaTxt == "キョダイマックス"){
+    if (team.data.gigaTxt == "キョダイマックス" && !team.con.name.includes("ザシアン") && !team.con.name.includes("ザマゼンタ") && !team.con.name.includes("ムゲンダイナ")){
         const list = moveEff.gigadyna()
         for (let i = 0; i < list.length; i++){
             if (team.con.name == list[i][0]){
