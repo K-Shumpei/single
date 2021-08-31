@@ -266,6 +266,7 @@ function selfStatusMove(atk, def, move){
                 // 身代わりの発生
                 atk.con.last_HP -= Math.floor(atk.con.full_HP / 4)
                 atk["poke" + cfn.battleNum(atk)].last_HP -= Math.floor(atk.con.full_HP / 4)
+                bfn.berryPinch(atk, def)
                 atk.con.p_con += "みがわり：" + Math.floor(atk.con.full_HP / 4) + "/" + Math.floor(atk.con.full_HP / 4) + "\n"
             } else if (move[0] == "ボディパージ"){
                 afn.rankChange(atk, def, "S", 2, 100, move, false)
@@ -644,7 +645,9 @@ function otherStatusMove(atk, def, move){
     } else if (move[0] == "すりかえ" || move[0] == "トリック"){
         const atk_item = atk.con.item
         atk.con.item = def.con.item
+        atk["poke" + cfn.battleNum(atk)].item = def.con.item
         def.con.item = atk_item
+        def["poke" + cfn.battleNum(def)].item = atk_item
         cfn.logWrite(atk, def, "お互いの　持ち物を入れ替えた！" + "\n")
         if (atk.con.ability == "かるわざ" && atk.con.item == ""){
             atk.con.p_con += "かるわざ" + "\n"
