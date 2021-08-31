@@ -131,6 +131,14 @@ $(function () {
             val = undefined
         }
         if (val == ""){
+            if (document.getElementById("radio_0").disabled == false 
+            && document.getElementById("radio_1").disabled == false 
+            && document.getElementById("radio_2").disabled == false 
+            && document.getElementById("radio_3").disabled == false){
+                val = "わるあがき"
+            }
+        }
+        if (val == ""){
             alert("行動を選択してください")
             return false
         }

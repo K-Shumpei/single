@@ -615,6 +615,8 @@ exports.moveSearch = function(user){
                 move_org = cfn.moveSearchByName(user.con.p_con.split("\n")[i].slice(10))
             }
         }
+    } else if (user.data.command == "わるあがき"){
+        move_org = cfn.moveSearchByName("わるあがき")
     } else {
         const move_name = user.con["move_" + user.data.command]
         if (move_name.includes("Z")){

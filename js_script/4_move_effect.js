@@ -961,7 +961,11 @@ function moveEffect(atk, def, move, damage){
     // 技の効果による反動ダメージ
     for (i = 0; i < moveEff.recoil().length; i++){
         if (move[0] == moveEff.recoil()[i][0] && atk.con.ability != "いしあたま"){
-            afn.HPchangeMagic(atk, def, Math.round(damage.give * moveEff.recoil()[i][1]), "-", move)
+            if (move[0] == "わるあがき"){
+                afn.HPchangeMagic(atk, def, Math.round(damage.give * moveEff.recoil()[i][1]), "-", "わるあがき")
+            } else {
+                afn.HPchangeMagic(atk, def, Math.round(damage.give * moveEff.recoil()[i][1]), "-", move)
+            }
             bfn.berryPinch(atk, def)
         }
     }

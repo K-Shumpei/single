@@ -21,7 +21,6 @@ server.listen(PORT, () => {
 
 // トレーナーネーム、ソケットID、コマンド
 var data = []
-var rec = []
 var playerCount = 0
 var roomCount = -1
 var IdAndRoom = []

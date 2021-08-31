@@ -53,14 +53,6 @@ exports.runBattle = function(rec){
     }
     let reverse = [order[1], order[0]]
 
-    // わるあがきをするかどうか
-    if (rec.user1.data.radio_0 && rec.user1.data.radio_1 && rec.user1.data.radio_2 && rec.user1.data.radio_3 && !rec.user1.con.f_con.includes("溜め技") && rec.user1.data.command == ""){
-        rec.user1.con.command = "struggle"
-    }
-    if (rec.user2.data.radio_0 && rec.user2.data.radio_1 && rec.user2.data.radio_2 && rec.user2.data.radio_3 && !rec.user2.con.f_con.includes("溜め技") && rec.user2.data.command == ""){
-        rec.user2.con.command = "struggle"
-    }
-
     // 選択ボタンの有効化
     bfn.buttonValidation(order[0])
     bfn.buttonValidation(order[1])

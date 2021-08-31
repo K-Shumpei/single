@@ -1808,7 +1808,7 @@ function abilityInvalidation1(atk, def, move){
 // 39.相性による無効化
 function compatibilityInvalidation(atk, def, move){
     // 変化技でない、あるいはでんじはであり、対象がねらいのまとを持っていない場合
-    if ((move[2] != "変化" || move[0] == "でんじは") && def.con.item != "ねらいのまと" && cfn.compatibilityCheck(atk, def, move) == 0){
+    if (move[0] != "わるあがき" && (move[2] != "変化" || move[0] == "でんじは") && def.con.item != "ねらいのまと" && cfn.compatibilityCheck(atk, def, move) == 0){
         cfn.logWrite(atk, def, def.con.TN +  "　の　" + def.con.name + "　には　効果がないようだ・・・" + "\n")
         return true
     }

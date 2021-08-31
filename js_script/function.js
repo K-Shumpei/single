@@ -15,7 +15,7 @@ exports.HPchangeMagic = function(team, enemy, damage, pm, cause){
         }
         team.con.last_HP = Math.min(team.con.full_HP, team.con.last_HP + damage)
         team["poke" + cfn.battleNum(team)].last_HP = team.con.last_HP
-    } else if (pm == "-" && team.con.ability != "マジックガード"){
+    } else if (pm == "-" && (team.con.ability != "マジックガード" || cause == "わるあがき")){
         if (typeof cause == "string"){
             cfn.logWrite(team, enemy, team.con.TN + "　の　" + team.con.name + "　に　" + cause + "　で　" + damage + "　の　ダメージ" + "\n")
         } else {
