@@ -2199,8 +2199,7 @@ function abilityInvalidation3(atk, def, move){
     }
     // 状態異常/状態変化に関する無効化
     // スイートベール/ぜったいねむり/フラワーベール/リーフガード/リミットシールド: 状態異常の無効化
-    if (con.ability == "スイートベール" 
-    || con.ability == "ぜったいねむり" 
+    if (con.ability == "ぜったいねむり" 
     || (con.ability == "フラワーベール" && con.type.includes("くさ")) 
     || (con.ability == "リーフガード" && con.f_con.includes("にほんばれ") && cfn.isWeather(atk.con, def.con)) 
     || con.name == "メテノ(りゅうせいのすがた)"){
@@ -2243,7 +2242,7 @@ function abilityInvalidation3(atk, def, move){
         }
     }
     // ふみん/やるき: ねむり状態の無効化
-    if (con.ability == "ふみん" || con.ability == "やるき"){
+    if (con.ability == "ふみん" || con.ability == "やるき" || con.ability == "スイートベール"){
         for (let i = 0; i < abnormal; i++){
             if (move[0] == abnormal[i][0] && abnormal[i][1] == "ねむり" || move[0] == "あくび"){
                 cfn.logWrite(atk, def, con.TN + "　の　" + con.name + "　は　" + con.ability + " に　守られている！" + "\n")
